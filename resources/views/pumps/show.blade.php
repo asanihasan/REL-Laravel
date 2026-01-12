@@ -34,7 +34,7 @@
                     <span id="statusText">{{ ucfirst($pump->status) }}</span>
                 </div>
                 <div id="lastUpdateText" class="text-xs text-gray-500 font-mono mt-0 md:mt-2">
-                    Updated: {{ $pump->last_update->toIso8601String() }}
+                    Updated: Loading...
                 </div>
             </div>
         </div>
@@ -72,7 +72,7 @@
         <div id="controlMessage" class="hidden mt-4 p-3 rounded text-sm font-bold border-l-4"></div>
     </div>
 
-    <!-- Data Grid -->
+    <!-- Real-time Data Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="space-y-6">
             <div class="bg-white p-6 rounded-lg shadow-md">
@@ -109,15 +109,7 @@
             <div class="bg-white p-6 rounded-lg shadow-md">
                 <h3 class="text-lg font-bold border-b pb-3 mb-4 text-gray-700">Digital Inputs</h3>
                 <div id="digitalInputsContainer" class="grid grid-cols-2 gap-2 text-sm">
-                    @if($pump->digital_inputs)
-                        @foreach($pump->digital_inputs as $key => $val)
-                            @php $isActive = is_array($val) ? $val['active'] : $val; @endphp
-                            <div class="flex justify-between items-center p-2 rounded {{ $isActive ? 'bg-green-100 text-green-800' : 'bg-gray-50 text-gray-400' }}">
-                                <span class="capitalize text-xs font-semibold">{{ str_replace('_', ' ', $key) }}</span>
-                                <span class="font-bold text-xs">{{ $isActive ? 'ON' : 'OFF' }}</span>
-                            </div>
-                        @endforeach
-                    @endif
+                    <!-- JS handles updates -->
                 </div>
             </div>
         </div>
@@ -165,14 +157,14 @@
         </div>
     </div>
 
-    <!-- NEW: Historical Logs Section -->
+    <!-- Historical Logs Section -->
     <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-gray-800">
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
             <h3 class="text-xl font-bold text-gray-800">Historical Logs</h3>
             <div class="flex flex-wrap items-center gap-3">
                 <input type="text" id="dateRangePicker" class="border rounded-lg px-4 py-2 text-sm w-64 focus:ring-2 focus:ring-blue-500" placeholder="Select Range">
                 <button onclick="loadHistory()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold">Filter</button>
-                <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold">Export XLS</button>
+                <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold">Export All to XLS</button>
             </div>
         </div>
 
@@ -180,7 +172,7 @@
             <table id="historyTable" class="w-full text-left text-sm">
                 <thead class="bg-gray-50 border-b">
                     <tr>
-                        <th>Timestamp</th>
+                        <th>Timestamp (Local)</th>
                         <th>RPM</th>
                         <th>Load%</th>
                         <th>Fuel L/h</th>
@@ -206,7 +198,9 @@
 <script>
     let historyDataTable;
     let flatpickrInstance;
+    let currentHistoryData = []; // Store the full data for export
 
+    // Helper to format ISO to Local Browser String
     function getLocalTime(isoString) {
         if (!isoString) return 'N/A';
         const date = new Date(isoString);
@@ -220,43 +214,40 @@
     function loadHistory() {
         const range = flatpickrInstance.selectedDates;
         let url = `/pumps/{{ $pump->id }}/history`;
+        
+        if (range.length > 0) {
+            const pad = (n) => n.toString().padStart(2, '0');
+            const format = (d, h, m, s) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(h)}:${pad(m)}:${pad(s)}`;
+            
+            let startDate = range[0];
+            let endDate = range[1] || range[0];
 
-        if (range.length === 2) {
-            // ISO-8601 without timezone (Carbon-friendly)
-            const formatForBackend = (date) => {
-                const pad = (n) => n.toString().padStart(2, '0');
-                return [
-                    date.getFullYear(),
-                    pad(date.getMonth() + 1),
-                    pad(date.getDate())
-                ].join('-') + 'T' +
-                [
-                    pad(date.getHours()),
-                    pad(date.getMinutes()),
-                    pad(date.getSeconds())
-                ].join(':');
-            };
-
-            url += `?start=${encodeURIComponent(formatForBackend(range[0]))}&end=${encodeURIComponent(formatForBackend(range[1]))}`;
+            // If start and end are on the same day, set to 00:00:00 - 23:59:59
+            if (startDate.toDateString() === endDate.toDateString()) {
+                var startStr = format(startDate, 0, 0, 0);
+                var endStr = format(endDate, 23, 59, 59);
+            } else {
+                var startStr = format(startDate, startDate.getHours(), startDate.getMinutes(), startDate.getSeconds());
+                var endStr = format(endDate, endDate.getHours(), endDate.getMinutes(), endDate.getSeconds());
+            }
+            
+            url += `?start=${encodeURIComponent(startStr)}&end=${encodeURIComponent(endStr)}`;
         }
 
         if (historyDataTable) historyDataTable.destroy();
-        $('#historyTable tbody').html(
-            '<tr><td colspan="9" class="text-center py-10">Loading history logs...</td></tr>'
-        );
-
-        console.log(url)
+        $('#historyTable tbody').html('<tr><td colspan="9" class="text-center py-10">Loading history logs...</td></tr>');
 
         $.ajax({
             url: url,
             method: 'GET',
-            success: function (data) {
+            success: function(data) {
+                currentHistoryData = data; // Cache for export
                 const tbody = $('#historyTable tbody').empty();
-
+                
                 data.forEach(row => {
                     tbody.append(`
                         <tr>
-                            <td class="px-4 py-2 font-mono whitespace-nowrap">${getLocalTime(row.ts)}</td>
+                            <td class="px-4 py-2 font-mono whitespace-nowrap" data-order="${row.ts}">${getLocalTime(row.ts)}</td>
                             <td class="px-4 py-2">${row.rpm}</td>
                             <td class="px-4 py-2">${row.percent_load}</td>
                             <td class="px-4 py-2">${row.fuel_rate}</td>
@@ -268,24 +259,42 @@
                         </tr>
                     `);
                 });
-
-                historyDataTable = $('#historyTable').DataTable({
-                    order: [[0, 'desc']],
+                
+                historyDataTable = $('#historyTable').DataTable({ 
+                    order: [[0, 'desc']], 
                     pageLength: 10,
                     responsive: true
                 });
             },
-            error: function () {
-                $('#historyTable tbody').html(
-                    '<tr><td colspan="9" class="text-center py-10 text-red-600 font-bold">Failed to load history data. Please check time range.</td></tr>'
-                );
+            error: function() {
+                $('#historyTable tbody').html('<tr><td colspan="9" class="text-center py-10 text-red-600">Failed to load data.</td></tr>');
             }
         });
     }
 
+    // Export ALL fetched data (ignoring pagination)
     function exportToExcel() {
-        const table = document.getElementById("historyTable");
-        const wb = XLSX.utils.table_to_book(table, { sheet: "Pump History" });
+        if (!currentHistoryData || currentHistoryData.length === 0) {
+            alert("No data available to export.");
+            return;
+        }
+
+        // Map data to readable format for Excel
+        const exportData = currentHistoryData.map(row => ({
+            'Timestamp (Local)': getLocalTime(row.ts),
+            'RPM': row.rpm,
+            'Load (%)': row.percent_load,
+            'Fuel Rate (L/h)': row.fuel_rate,
+            'Coolant Temp (°C)': row.coolant_temp,
+            'Oil Temp (°C)': row.oil_temp,
+            'Oil Pressure (PSI)': row.oil_pressure,
+            'Discharge Pressure (PSI)': row.pump_press2,
+            'Battery (V)': row.battery_potential
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "History");
         XLSX.writeFile(wb, `Pump_{{ $pump->id }}_History_${new Date().getTime()}.xlsx`);
     }
 
@@ -307,9 +316,12 @@
     // --- 3. Initialize ---
     $(document).ready(function() {
         flatpickrInstance = flatpickr("#dateRangePicker", {
-            mode: "range", enableTime: true, dateFormat: "Y-m-d H:i",
+            mode: "range", 
+            enableTime: true, 
+            dateFormat: "Y-m-d H:i",
             defaultDate: [new Date(Date.now() - 24 * 60 * 60 * 1000), new Date()]
         });
+        
         loadHistory();
 
         setInterval(function() {
@@ -322,6 +334,7 @@
                     $('#statusBadge').toggleClass('bg-green-600', isOnline).toggleClass('bg-red-600', !isOnline);
                     $('#statusText').text(isOnline ? 'Online' : 'Offline');
                     $('#lastUpdateText').text('Updated: ' + getLocalTime(data.last_update));
+                    
                     $('#disp_rpm').text(data.rpm);
                     $('#disp_load').text(data.percent_load);
                     $('#disp_coolant_temp').text(data.coolant_temp);
@@ -332,6 +345,11 @@
                     $('#disp_discharge_pressure').text(data.pump_press2);
                     $('#disp_battery').text(data.battery_potential);
                     $('#disp_system').text(data.electrical_potential);
+                    $('#disp_engine_hours').text(data.engine_hours);
+                    $('#disp_fuel_rate').text(data.fuel_rate);
+                    $('#disp_fuel_level_text').text(data.fuel_level);
+                    $('#disp_fuel_level_bar').css('width', Math.min(data.fuel_level, 100) + '%');
+                    
                     renderDigitalInputs(data.digital_inputs);
                     renderControllerMode(data.auto_manual_status);
                 }
