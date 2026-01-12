@@ -210,16 +210,33 @@
 <script>
     let historyDataTable;
     let flatpickrInstance;
-    let currentHistoryData = []; // Store the full data for export
+    let currentHistoryData = []; // Full raw data for export
 
-    // Helper to format ISO to Local Browser String
+    /**
+     * Helper: Convert Database UTC String to Browser Local String
+     * Appends " UTC" to ensure JS treats the input correctly regardless of browser locale
+     */
     function getLocalTime(isoString) {
         if (!isoString) return 'N/A';
-        const date = new Date(isoString);
+        // If string lacks 'Z' or offset, append ' UTC' so constructor treats it as UTC
+        let utcString = isoString;
+        if (!utcString.includes('Z') && !utcString.includes('+')) {
+            utcString += ' UTC';
+        }
+        const date = new Date(utcString);
         return date.toLocaleString(undefined, {
             year: 'numeric', month: 'short', day: 'numeric',
             hour: '2-digit', minute: '2-digit', second: '2-digit'
         });
+    }
+
+    /**
+     * Helper: Format Local Date to UTC string for Backend Query
+     * This ensures the backend (Carbon) receives UTC values for SQL querying.
+     */
+    function formatToUTC(date) {
+        const pad = (n) => n.toString().padStart(2, '0');
+        return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())} ${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}:${pad(date.getUTCSeconds())}`;
     }
 
     // --- 1. Historical Logic ---
@@ -228,22 +245,16 @@
         let url = `/pumps/{{ $pump->id }}/history`;
         
         if (range.length > 0) {
-            const pad = (n) => n.toString().padStart(2, '0');
-            const format = (d, h, m, s) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(h)}:${pad(m)}:${pad(s)}`;
-            
-            let startDate = range[0];
-            let endDate = range[1] || range[0];
+            let startDate = new Date(range[0]);
+            let endDate = range[1] ? new Date(range[1]) : new Date(range[0]);
 
-            // If start and end are on the same day, set to 00:00:00 - 23:59:59
+            // Requirement: Automatically set 00:00 - 23:59 if same day is selected
             if (startDate.toDateString() === endDate.toDateString()) {
-                var startStr = format(startDate, 0, 0, 0);
-                var endStr = format(endDate, 23, 59, 59);
-            } else {
-                var startStr = format(startDate, startDate.getHours(), startDate.getMinutes(), startDate.getSeconds());
-                var endStr = format(endDate, endDate.getHours(), endDate.getMinutes(), endDate.getSeconds());
+                startDate.setHours(0, 0, 0, 0);
+                endDate.setHours(23, 59, 59, 999);
             }
             
-            url += `?start=${encodeURIComponent(startStr)}&end=${encodeURIComponent(endStr)}`;
+            url += `?start=${encodeURIComponent(formatToUTC(startDate))}&end=${encodeURIComponent(formatToUTC(endDate))}`;
         }
 
         if (historyDataTable) historyDataTable.destroy();
@@ -253,7 +264,7 @@
             url: url,
             method: 'GET',
             success: function(data) {
-                currentHistoryData = data; // Cache for export
+                currentHistoryData = data; // Cache full dataset for export
                 const tbody = $('#historyTable tbody').empty();
                 
                 data.forEach(row => {
@@ -279,20 +290,19 @@
                 });
             },
             error: function() {
-                $('#historyTable tbody').html('<tr><td colspan="9" class="text-center py-10 text-red-600">Failed to load data.</td></tr>');
+                $('#historyTable tbody').html('<tr><td colspan="9" class="text-center py-10 text-red-600">Failed to load historical data.</td></tr>');
             }
         });
     }
 
-    // Export ALL fetched data (ignoring pagination)
+    // Export FULL dataset using JSON mapping (ignores table pagination)
     function exportToExcel() {
         if (!currentHistoryData || currentHistoryData.length === 0) {
-            alert("No data available to export.");
+            alert("No data available to export. Please filter some results first.");
             return;
         }
 
-        // Map data to readable format for Excel
-        const exportData = currentHistoryData.map(row => ({
+        const exportRows = currentHistoryData.map(row => ({
             'Timestamp (Local)': getLocalTime(row.ts),
             'RPM': row.rpm,
             'Load (%)': row.percent_load,
@@ -304,10 +314,10 @@
             'Battery (V)': row.battery_potential
         }));
 
-        const ws = XLSX.utils.json_to_sheet(exportData);
+        const ws = XLSX.utils.json_to_sheet(exportRows);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "History");
-        XLSX.writeFile(wb, `Pump_{{ $pump->id }}_History_${new Date().getTime()}.xlsx`);
+        XLSX.utils.book_append_sheet(wb, ws, "Pump History");
+        XLSX.writeFile(wb, `Pump_{{ $pump->id }}_Log_${new Date().getTime()}.xlsx`);
     }
 
     // --- 2. Control Logic ---
@@ -336,6 +346,7 @@
         
         loadHistory();
 
+        // Real-time Dashboard Update (1000ms)
         setInterval(function() {
             $.ajax({
                 url: `/pumps/{{ $pump->id }}/data`,
