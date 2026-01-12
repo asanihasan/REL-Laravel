@@ -222,10 +222,13 @@
         let url = `/pumps/{{ $pump->id }}/history`;
         if (range.length === 2) {
             // Helper function to format date for SQL/Carbon compatibility: YYYY-MM-DD HH:mm:ss
+            // This format avoids T/Z characters and sub-second precision which can cause Carbon errors.
             const formatDate = (date) => {
                 const pad = (n) => n.toString().padStart(2, '0');
                 return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
             };
+            
+            // Sending start and end as query parameters
             url += `?start=${encodeURIComponent(formatDate(range[0]))}&end=${encodeURIComponent(formatDate(range[1]))}`;
         }
 
@@ -252,7 +255,11 @@
                         </tr>
                     `);
                 });
-                historyDataTable = $('#historyTable').DataTable({ order: [[0, 'desc']], pageLength: 10 });
+                historyDataTable = $('#historyTable').DataTable({ 
+                    order: [[0, 'desc']], 
+                    pageLength: 10,
+                    responsive: true
+                });
             }
         });
     }
