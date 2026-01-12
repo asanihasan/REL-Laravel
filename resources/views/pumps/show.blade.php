@@ -220,20 +220,26 @@
     function loadHistory() {
         const range = flatpickrInstance.selectedDates;
         let url = `/pumps/{{ $pump->id }}/history`;
+        
         if (range.length === 2) {
-            // Helper function to format date for SQL/Carbon compatibility: YYYY-MM-DD HH:mm:ss
-            // This format avoids T/Z characters and sub-second precision which can cause Carbon errors.
-            const formatDate = (date) => {
+            // Precise formatter to ensure Laravel Carbon can parse it without "T" or "Z" issues.
+            // Result: "YYYY-MM-DD HH:mm:ss"
+            const formatForBackend = (date) => {
                 const pad = (n) => n.toString().padStart(2, '0');
-                return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+                const y = date.getFullYear();
+                const m = pad(date.getMonth() + 1);
+                const d = pad(date.getDate());
+                const h = pad(date.getHours());
+                const min = pad(date.getMinutes());
+                const s = pad(date.getSeconds());
+                return `${y}-${m}-${d} ${h}:${min}:${s}`;
             };
             
-            // Sending start and end as query parameters
-            url += `?start=${encodeURIComponent(formatDate(range[0]))}&end=${encodeURIComponent(formatDate(range[1]))}`;
+            url += `?start=${encodeURIComponent(formatForBackend(range[0]))}&end=${encodeURIComponent(formatForBackend(range[1]))}`;
         }
 
         if (historyDataTable) historyDataTable.destroy();
-        $('#historyTable tbody').html('<tr><td colspan="9" class="text-center py-10">Loading...</td></tr>');
+        $('#historyTable tbody').html('<tr><td colspan="9" class="text-center py-10">Loading history logs...</td></tr>');
 
         $.ajax({
             url: url,
@@ -260,6 +266,9 @@
                     pageLength: 10,
                     responsive: true
                 });
+            },
+            error: function(xhr) {
+                $('#historyTable tbody').html('<tr><td colspan="9" class="text-center py-10 text-red-600 font-bold">Failed to load history data. Please check time range.</td></tr>');
             }
         });
     }
