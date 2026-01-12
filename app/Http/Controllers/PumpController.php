@@ -113,9 +113,6 @@ class PumpController extends Controller
     }
     
     // Explicitly keeping the rest for context
-    public function index() { $pumps = Pump::all(); return view('pumps.index', compact('pumps')); }
-    public function show($id) { $pump = Pump::findOrFail($id); return view('pumps.show', compact('pump')); }
-    public function data($id) { $pump = Pump::findOrFail($id); $pump->append('status'); return response()->json($pump); }
     public function control(Request $request, $id) {
         $action = $request->input('action'); $value = $request->input('value');
         $endpoint = env('CONTROL_ENDPOINT'); 
