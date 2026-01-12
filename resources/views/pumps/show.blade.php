@@ -220,32 +220,37 @@
     function loadHistory() {
         const range = flatpickrInstance.selectedDates;
         let url = `/pumps/{{ $pump->id }}/history`;
-        
+
         if (range.length === 2) {
-            // Precise formatter to ensure Laravel Carbon can parse it without "T" or "Z" issues.
-            // Result: "YYYY-MM-DD HH:mm:ss"
+            // ISO-8601 without timezone (Carbon-friendly)
             const formatForBackend = (date) => {
                 const pad = (n) => n.toString().padStart(2, '0');
-                const y = date.getFullYear();
-                const m = pad(date.getMonth() + 1);
-                const d = pad(date.getDate());
-                const h = pad(date.getHours());
-                const min = pad(date.getMinutes());
-                const s = pad(date.getSeconds());
-                return `${y}-${m}-${d} ${h}:${min}:${s}`;
+                return [
+                    date.getFullYear(),
+                    pad(date.getMonth() + 1),
+                    pad(date.getDate())
+                ].join('-') + 'T' +
+                [
+                    pad(date.getHours()),
+                    pad(date.getMinutes()),
+                    pad(date.getSeconds())
+                ].join(':');
             };
-            
+
             url += `?start=${encodeURIComponent(formatForBackend(range[0]))}&end=${encodeURIComponent(formatForBackend(range[1]))}`;
         }
 
         if (historyDataTable) historyDataTable.destroy();
-        $('#historyTable tbody').html('<tr><td colspan="9" class="text-center py-10">Loading history logs...</td></tr>');
+        $('#historyTable tbody').html(
+            '<tr><td colspan="9" class="text-center py-10">Loading history logs...</td></tr>'
+        );
 
         $.ajax({
             url: url,
             method: 'GET',
-            success: function(data) {
+            success: function (data) {
                 const tbody = $('#historyTable tbody').empty();
+
                 data.forEach(row => {
                     tbody.append(`
                         <tr>
@@ -261,14 +266,17 @@
                         </tr>
                     `);
                 });
-                historyDataTable = $('#historyTable').DataTable({ 
-                    order: [[0, 'desc']], 
+
+                historyDataTable = $('#historyTable').DataTable({
+                    order: [[0, 'desc']],
                     pageLength: 10,
                     responsive: true
                 });
             },
-            error: function(xhr) {
-                $('#historyTable tbody').html('<tr><td colspan="9" class="text-center py-10 text-red-600 font-bold">Failed to load history data. Please check time range.</td></tr>');
+            error: function () {
+                $('#historyTable tbody').html(
+                    '<tr><td colspan="9" class="text-center py-10 text-red-600 font-bold">Failed to load history data. Please check time range.</td></tr>'
+                );
             }
         });
     }
