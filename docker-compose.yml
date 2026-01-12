@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  # PHP Application (Now includes Apache Web Server)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pump-app-prod
+    restart: always
+    working_dir: /var/www
+    # Apache inside the container will bind to Port 80 on your Ubuntu host
+    network_mode: "host"
