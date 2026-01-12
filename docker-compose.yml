@@ -10,5 +10,5 @@ services:
     working_dir: /var/www
     # Apache inside the container will bind to Port 80 on your Ubuntu host
     network_mode: "host"
-    extra_host: 
+    extra_hosts: 
       - "ptrei-app04.postgres.database.azure.com:10.0.1.4"
