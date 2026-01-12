@@ -221,7 +221,12 @@
         const range = flatpickrInstance.selectedDates;
         let url = `/pumps/{{ $pump->id }}/history`;
         if (range.length === 2) {
-            url += `?start=${range[0].toISOString()}&end=${range[1].toISOString()}`;
+            // Helper function to format date for SQL/Carbon compatibility: YYYY-MM-DD HH:mm:ss
+            const formatDate = (date) => {
+                const pad = (n) => n.toString().padStart(2, '0');
+                return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+            };
+            url += `?start=${encodeURIComponent(formatDate(range[0]))}&end=${encodeURIComponent(formatDate(range[1]))}`;
         }
 
         if (historyDataTable) historyDataTable.destroy();
