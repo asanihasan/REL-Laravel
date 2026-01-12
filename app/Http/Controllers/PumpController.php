@@ -91,4 +91,40 @@ class PumpController extends Controller
         $pump->append('status'); 
         return response()->json($pump);
     }
+
+    public function history(Request $request, $id)
+    {
+        // Default to last 24 hours if no date range is provided
+        $start = $request->query('start') 
+            ? Carbon::parse($request->query('start')) 
+            : Carbon::now()->subDay();
+            
+        $end = $request->query('end') 
+            ? Carbon::parse($request->query('end')) 
+            : Carbon::now();
+
+        $history = DB::table('historical_pumps')
+            ->where('pump_id', $id)
+            ->whereBetween('ts', [$start, $end])
+            ->orderBy('ts', 'desc')
+            ->get();
+
+        return response()->json($history);
+    }
+    
+    // Explicitly keeping the rest for context
+    public function index() { $pumps = Pump::all(); return view('pumps.index', compact('pumps')); }
+    public function show($id) { $pump = Pump::findOrFail($id); return view('pumps.show', compact('pump')); }
+    public function data($id) { $pump = Pump::findOrFail($id); $pump->append('status'); return response()->json($pump); }
+    public function control(Request $request, $id) {
+        $action = $request->input('action'); $value = $request->input('value');
+        $endpoint = env('CONTROL_ENDPOINT'); 
+        if (!$endpoint) return response()->json(['message' => 'Control endpoint not configured.'], 500);
+        $url = ($action === 'rpm') ? "{$endpoint}/rpm/{$id}/{$value}" : "{$endpoint}/{$action}/{$id}";
+        try {
+            $response = Http::get($url);
+            if ($response->successful()) return response()->json(['message' => "Command '{$action}' sent successfully."]);
+            return response()->json(['message' => 'Device error: ' . $response->status()], 500);
+        } catch (\Exception $e) { return response()->json(['message' => 'Failed to connect to device.'], 500); }
+    }
 }
