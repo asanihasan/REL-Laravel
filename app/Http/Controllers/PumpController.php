@@ -111,17 +111,4 @@ class PumpController extends Controller
 
         return response()->json($history);
     }
-    
-    // Explicitly keeping the rest for context
-    public function control(Request $request, $id) {
-        $action = $request->input('action'); $value = $request->input('value');
-        $endpoint = env('CONTROL_ENDPOINT'); 
-        if (!$endpoint) return response()->json(['message' => 'Control endpoint not configured.'], 500);
-        $url = ($action === 'rpm') ? "{$endpoint}/rpm/{$id}/{$value}" : "{$endpoint}/{$action}/{$id}";
-        try {
-            $response = Http::get($url);
-            if ($response->successful()) return response()->json(['message' => "Command '{$action}' sent successfully."]);
-            return response()->json(['message' => 'Device error: ' . $response->status()], 500);
-        } catch (\Exception $e) { return response()->json(['message' => 'Failed to connect to device.'], 500); }
-    }
 }
