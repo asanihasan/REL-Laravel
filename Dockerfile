@@ -23,7 +23,7 @@ ENV APACHE_DOCUMENT_ROOT /var/www/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 
-# 5. Explicitly allow .htaccess overrides for Laravel
+# 5. NEW: Explicitly allow .htaccess overrides for Laravel
 RUN echo '<Directory /var/www/public>\n\
     Options Indexes FollowSymLinks\n\
     AllowOverride All\n\
@@ -45,14 +45,10 @@ RUN composer install --no-dev --no-scripts --no-autoloader --ignore-platform-req
 # 9. Copy application files
 COPY . .
 
-# 10. Generate Environment file and App Key
-# We copy .env.example to .env if .env doesn't exist, then generate the key
-RUN php artisan key:generate
-
-# 11. Dump Autoload
+# 10. Dump Autoload
 RUN composer dump-autoload --optimize
 
-# 12. Fix permissions
+# 11. Fix permissions
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
 EXPOSE 80
