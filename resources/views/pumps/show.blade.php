@@ -245,6 +245,8 @@
             '<tr><td colspan="9" class="text-center py-10">Loading history logs...</td></tr>'
         );
 
+        console.log(url)
+
         $.ajax({
             url: url,
             method: 'GET',
