@@ -1,5 +1,4 @@
 services:
-  # PHP Application (Now includes Apache Web Server)
   app:
     build:
       context: .
@@ -13,3 +12,9 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
       - "ptrei-app04.postgres.database.azure.com:10.0.1.4"
+    networks:
+          - iot-net
+
+networks:
+  iot-net:
+    external: true
