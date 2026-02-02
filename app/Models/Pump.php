@@ -39,6 +39,6 @@ class Pump extends Model
     public function getStatusAttribute()
     {
         if (!$this->last_update) return 'offline';
-        return $this->last_update->diffInSeconds(now()) > 1 ? 'offline' : 'online';
+        return $this->last_update->diffInSeconds(now()) > 10 ? 'offline' : 'online';
     }
 }
