@@ -133,8 +133,10 @@
                     <h4 class="text-xs font-bold text-gray-400 uppercase mb-3">Temperatures (°C)</h4>
                     <div class="space-y-2">
                         <div class="flex justify-between border-b border-gray-100"><span>Coolant</span> <span class="font-bold" id="disp_coolant_temp">{{ $pump->coolant_temp }}</span></div>
-                        <div class="flex justify-between border-b border-gray-100"><span>Oil</span> <span class="font-bold" id="disp_oil_temp">{{ $pump->oil_temp }}</span></div>
-                        <div class="flex justify-between border-b border-gray-100"><span>Pump</span> <span class="font-bold" id="disp_pump_temp">{{ $pump->pump_temp }}</span></div>
+                        <!-- <div class="flex justify-between border-b border-gray-100"><span>Oil</span> <span class="font-bold" id="disp_oil_temp">{{ $pump->oil_temp }}</span></div>
+                        <div class="flex justify-between border-b border-gray-100"><span>Pump</span> <span class="font-bold" id="disp_pump_temp">{{ $pump->pump_temp }}</span></div> -->
+                        <div class="flex justify-between border-b border-gray-100"><span>Oil</span> <span class="font-bold" id=""> - </span></div>
+                        <div class="flex justify-between border-b border-gray-100"><span>Pump</span> <span class="font-bold" id=""> - </span></div>
                     </div>
                 </div>
                 <div>
