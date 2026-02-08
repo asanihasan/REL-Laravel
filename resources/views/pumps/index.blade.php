@@ -30,17 +30,15 @@
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
                                 <span class="w-1.5 h-1.5 mr-1.5 bg-green-500 rounded-full"></span> Online
                             </span>
-                            <div class="text-[10px] text-gray-400 mt-1 pl-1 last-update-time">
-                                {{ $pump->last_update->toIso8601String() }}
-                            </div>
+                            <div class="text-[10px] text-gray-400 mt-1 pl-1 last-update-time" data-time="{{ $pump->last_update->toIso8601String() }}"></div>
                         @else
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
                                 <span class="w-1.5 h-1.5 mr-1.5 bg-gray-500 rounded-full"></span> Offline
                             </span>
-                            <div class="text-[10px] text-gray-400 mt-1 pl-1 last-update-time">
-                                <!-- {{ $pump->last_update->diffForHumans(null, true, true) }} ago -->
-                                {{ $pump->last_update->toIso8601String() }}
-                            </div>
+                            <div class="text-[10px] text-gray-400 mt-1 pl-1 last-update-time" data-time="{{ $pump->last_update->toIso8601String() }}"></div>
+                            <!-- <div class="text-[10px] text-gray-400 mt-1 pl-1 last-update-time">
+                                {{ $pump->last_update->diffForHumans(null, true, true) }} ago
+                            </div> -->
                         @endif
                     </td>
                     <td class="p-3">
