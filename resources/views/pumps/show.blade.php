@@ -76,7 +76,7 @@
             <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Set Target RPM</label>
                 <div class="flex gap-2 md:flex-row flex-col">
-                    <input type="number" id="rpmInput" placeholder="e.g. 1500" class="flex-grow border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" id="rpmInput" placeholder="800 - 2000" min="800" max="2000" class="flex-grow border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <button onclick="setRpm()" class="control-btn bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-6 rounded shadow transition hover:shadow-lg whitespace-nowrap">Set RPM</button>
                 </div>
             </div>
@@ -385,8 +385,18 @@
     function renderDigitalInputs(inputs) {
         const c = $('#digitalInputsContainer').empty();
         $.each(inputs || {}, (k, v) => {
-            const active = typeof v === 'object' ? v.active : v;
-            c.append(`<div class="flex justify-between p-2 rounded ${active ? 'bg-green-100 text-green-800' : 'bg-gray-50 text-gray-400'}"><span class="capitalize text-xs font-semibold">${k.replace(/_/g, ' ')}</span><span class="font-bold text-xs">${active ? 'ON' : 'OFF'}</span></div>`);
+            if (typeof v === 'object') {
+                const active = v.active;
+                const mode = v.mode;
+                c.append(`<div class="flex justify-between p-2 rounded ${active ? 'bg-green-100 text-green-800' : 'bg-gray-50 text-gray-400'}"><span class="capitalize text-xs font-semibold">${k.replace(/_/g, ' ')}</span><span class="font-bold text-xs">${mode}</span></div>`);
+            }
+        });
+        $.each(inputs || {}, (k, v) => {
+            if (typeof v !== 'object') {
+                const active = v;
+                const mode = "-";
+                c.append(`<div class="flex justify-between p-2 rounded ${active ? 'bg-green-100 text-green-800' : 'bg-gray-50 text-gray-400'}"><span class="capitalize text-xs font-semibold">${k.replace(/_/g, ' ')}</span><span class="font-bold text-xs">${mode}</span></div>`);
+            }
         });
     }
 
