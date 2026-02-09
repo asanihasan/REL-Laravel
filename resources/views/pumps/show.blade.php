@@ -335,7 +335,26 @@
             complete: () => loader.addClass('hidden')
         });
     }
-    function setRpm() { const rpm = $('#rpmInput').val(); if (rpm) sendControl('rpm', rpm); }
+
+    function setRpm() {
+        const rpmValue = $('#rpmInput').val();
+        
+        // Convert to a number for accurate comparison
+        const rpm = Number(rpmValue);
+    
+        if (rpmValue === "") {
+            alert("Please enter an RPM value.");
+            return;
+        }
+    
+        // Check if the value is within the 800 - 2000 range
+        if (rpm >= 800 && rpm <= 2000) {
+            sendControl('rpm', rpm);
+        } else {
+            alert("Warning: RPM must be between 800 and 2000.");
+        }
+    }
+
 
     // --- 3. Initialize ---
     $(document).ready(function() {
