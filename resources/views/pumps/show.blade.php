@@ -413,7 +413,7 @@
         $.each(inputs || {}, (k, v) => {
             if (k !== 'remote_start' && k !== 'remote_stop') {
                 const active = typeof v === 'object' ? v.active : v;
-                const mode = "-";
+                const mode = typeof v === 'object' ? v.mode : "";
                 c.append(`<div class="flex justify-between p-2 rounded ${active ? 'bg-green-100 text-green-800' : 'bg-gray-50 text-gray-400'}"><span class="capitalize text-xs font-semibold">${k.replace(/_/g, ' ')}</span><span class="font-bold text-xs">${mode}</span></div>`);
             }
         });
