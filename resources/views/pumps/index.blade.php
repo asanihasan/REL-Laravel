@@ -30,13 +30,15 @@
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
                                 <span class="w-1.5 h-1.5 mr-1.5 bg-green-500 rounded-full"></span> Online
                             </span>
+                            <div class="text-[10px] text-gray-400 mt-1 pl-1 last-update-time" data-time="{{ $pump->last_update->toIso8601String() }}"></div>
                         @else
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
                                 <span class="w-1.5 h-1.5 mr-1.5 bg-gray-500 rounded-full"></span> Offline
                             </span>
-                            <div class="text-[10px] text-gray-400 mt-1 pl-1">
+                            <div class="text-[10px] text-gray-400 mt-1 pl-1 last-update-time" data-time="{{ $pump->last_update->toIso8601String() }}"></div>
+                            <!-- <div class="text-[10px] text-gray-400 mt-1 pl-1 last-update-time">
                                 {{ $pump->last_update->diffForHumans(null, true, true) }} ago
-                            </div>
+                            </div> -->
                         @endif
                     </td>
                     <td class="p-3">
@@ -101,6 +103,28 @@
 @section('scripts')
 <script>
     $(document).ready(function() {
+        $('.last-update-time').each(function() {
+            // 1. Grab the ISO string from the data attribute
+            const isoTime = $(this).data('time');
+            
+            if (isoTime) {
+                const date = new Date(isoTime);
+    
+                // 2. Format the date to "8 Feb 2026, 20:05:04"
+                const formattedDate = date.toLocaleString('en-GB', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                }).replace(/\//g, ' '); // Clean up separators if necessary
+    
+                // 3. Inject the formatted string into the div
+                $(this).text(formattedDate);
+            }
+        });
         $('#pumpTable').DataTable({
             "order": [],
             "pageLength": 10
