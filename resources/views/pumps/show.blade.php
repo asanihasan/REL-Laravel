@@ -145,6 +145,15 @@
                         <div class="flex justify-between border-b border-gray-100 bg-blue-50 px-2 rounded font-bold"><span>Discharge</span> <span class="text-blue-700" id="disp_discharge_pressure">{{ $pump->pump_press2 }}</span></div>
                     </div>
                 </div>
+                <div>
+                    <h4 class="text-xs font-bold text-gray-400 uppercase mb-3">Flow Rate (L/s)</h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between border-b border-gray-100 bg-green-50 px-2 rounded font-bold">
+                            <span>Flow</span> 
+                            <span class="text-green-700" id="disp_flow">{{ $pump->pressure_or_flow['flow'] ?? 0 }}</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -366,6 +375,7 @@
                     $('#disp_oil_pressure').text(data.oil_pressure);
                     $('#disp_suction_pressure').text(data.suction_pressure);
                     $('#disp_discharge_pressure').text(data.pump_press2);
+                    $('#disp_flow').text(data.pressure_or_flow?.flow ?? '0');
                     $('#disp_battery').text(data.battery_potential);
                     $('#disp_system').text(data.electrical_potential);
                     $('#disp_engine_hours').text(data.engine_hours);
