@@ -21,7 +21,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/pumps/{id}/history', [PumpController::class, 'history'])->name('pumps.history');
 
     // Maps Placeholder
-    Route::view('/maps', 'pumps.maps')->name('pumps.maps');
+    Route::get('/maps', [App\Http\Controllers\PumpController::class, 'maps'])->name('pumps.maps');
 
     // User Management Placeholder
     Route::view('/manage/users', 'manage.user')->name('manage.user');

@@ -112,4 +112,18 @@ class PumpController extends Controller
 
         return response()->json($history);
     }
+
+    public function maps()
+    {
+        // 1. Join the pumps table with the pump_locations table
+        // 2. Select everything from pumps, and just the coordinates from locations
+        $pumpsWithLocations = Pump::join('pump_locations', 'pumps.id', '=', 'pump_locations.pump_id')
+            ->select('pumps.*', 'pump_locations.latitude', 'pump_locations.longitude')
+            ->get();
+
+        // Force Laravel to append the custom 'status' attribute to every pump in the collection
+        $pumpsWithLocations->each->append('status');
+
+        return view('pumps.maps', compact('pumpsWithLocations'));
+    }
 }
