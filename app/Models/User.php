@@ -17,7 +17,7 @@ class User extends Authenticatable
     protected $fillable = [
         'username',
         'password',
-        user_group_id
+        'user_group_id',
     ];
 
     /**
@@ -28,4 +28,9 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
     ];
+
+    public function userGroup()
+    {
+        return $this->belongsTo(UserGroup::class);
+    }
 }
