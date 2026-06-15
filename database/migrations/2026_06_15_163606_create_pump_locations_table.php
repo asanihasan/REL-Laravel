@@ -9,18 +9,23 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('pump_locations', function (Blueprint $table) {
-            // Auto-incrementing primary key (replaces the string ID)
-            $table->id();
+            // Standard auto-incrementing ID for the pump_locations table itself
+            $table->id(); 
             
-            // Foreign key linking to the 'pumps' table
-            // cascadeOnDelete() ensures that if a pump is deleted, its location data is also cleaned up
-            $table->foreignId('pump_id')->constrained('pumps')->cascadeOnDelete();
+            // 1. Create the foreign key column as a string to perfectly match pumps.id
+            $table->string('pump_id', 32); 
             
-            // Decimal precision for map coordinates
+            // 2. Explicitly declare the foreign key relationship
+            $table->foreign('pump_id')
+                  ->references('id')
+                  ->on('pumps')
+                  ->cascadeOnDelete();
+            
+            // Coordinates
             $table->decimal('latitude', 10, 8);
             $table->decimal('longitude', 11, 8);
             
-            // Auto-updates to the current time whenever the row is created or modified
+            // Timestamps
             $table->timestamp('last_update')->useCurrent()->useCurrentOnUpdate();
         });
     }
