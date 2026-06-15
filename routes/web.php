@@ -19,4 +19,13 @@ Route::middleware('auth')->group(function () {
     
     // NEW: Historical Data Endpoint
     Route::get('/pumps/{id}/history', [PumpController::class, 'history'])->name('pumps.history');
+
+    // Maps Placeholder
+    Route::view('/maps', 'pumps.maps')->name('pumps.maps');
+
+    // User Management Placeholder
+    Route::view('/manage/users', 'manage.user')->name('manage.user');
+
+    // Alerts Placeholder
+    Route::view('/manage/alerts', 'manage.alert')->name('manage.alert');
 });
