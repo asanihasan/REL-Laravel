@@ -24,7 +24,8 @@ class Pump extends Model
         'battery_potential', 'machine_hours', 'aux_hours', 'dam_level',
         'engine_pressure_mech', 'engine_temp_mech', 'battery_volts_mech',
         'engine_speed_mech', 'engine_hours_mech', 'config_number',
-        'asset_tag', 'heartbeat', 'firmware_version'
+        'asset_tag', 'heartbeat', 'firmware_version', 'modbus_status',
+        'serial_number'
     ];
 
     // Automatically convert JSON columns to PHP arrays
