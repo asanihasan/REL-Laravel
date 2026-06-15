@@ -9,8 +9,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('pump_locations', function (Blueprint $table) {
-            // String column with a max length of 32 as the Primary Key
-            $table->string('id', 32)->primary();
+            // Auto-incrementing primary key (replaces the string ID)
+            $table->id();
+            
+            // Foreign key linking to the 'pumps' table
+            // cascadeOnDelete() ensures that if a pump is deleted, its location data is also cleaned up
+            $table->foreignId('pump_id')->constrained('pumps')->cascadeOnDelete();
             
             // Decimal precision for map coordinates
             $table->decimal('latitude', 10, 8);
