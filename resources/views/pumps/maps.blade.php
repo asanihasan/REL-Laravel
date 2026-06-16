@@ -136,7 +136,7 @@
                     const popupContent = `
                         <div class="p-4 w-60">
                             <div class="flex justify-between items-center border-b border-gray-200 pb-2 mb-3">
-                                <h3 class="font-bold text-lg truncate pr-2 text-gray-800" title="${pump.name || 'Unnamed Pump'}">
+                                <h3 class="font-bold text-lg truncate pr-2 text-gray-100" title="${pump.name || 'Unnamed Pump'}">
                                     ${pump.name || 'Unnamed Pump'}
                                 </h3>
                                 <span class="relative flex h-3 w-3">
@@ -145,10 +145,10 @@
                                 </span>
                             </div>
                             
-                            <div class="space-y-1 text-sm text-gray-600">
-                                <p><strong class="text-gray-500">ID:</strong> ${pump.id}</p>
-                                <p><strong class="text-gray-500">Status:</strong> <span class="${statusTextClass} font-bold uppercase">${pump.status}</span></p>
-                                <p><strong class="text-gray-500">Location:</strong> <span id="address-${pump.id}" class="text-gray-700 italic">Fetching address...</span></p>
+                            <div class="space-y-1 text-sm text-gray-300">
+                                <p><strong class="text-gray-400">ID:</strong> ${pump.id}</p>
+                                <p><strong class="text-gray-400">Status:</strong> <span class="${statusTextClass} font-bold uppercase">${pump.status}</span></p>
+                                <p><strong class="text-gray-400">Location:</strong> <span id="address-${pump.id}" class="text-gray-700 italic">Fetching address...</span></p>
                             </div>
 
                             <div class="mt-4">
