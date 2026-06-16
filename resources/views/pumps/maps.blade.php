@@ -132,27 +132,27 @@
                         pumpStatus: pump.status 
                     });
 
-                    // Build the Popup HTML
+                    // Build the Popup HTML (using light theme classes as requested earlier)
                     const popupContent = `
                         <div class="p-4 w-60">
-                            <div class="flex justify-between items-center border-b border-gray-600 pb-2 mb-3">
-                                <h3 class="font-bold text-lg truncate pr-2" title="${pump.name || 'Unnamed Pump'}">
+                            <div class="flex justify-between items-center border-b border-gray-200 pb-2 mb-3">
+                                <h3 class="font-bold text-lg truncate pr-2 text-gray-800" title="${pump.name || 'Unnamed Pump'}">
                                     ${pump.name || 'Unnamed Pump'}
                                 </h3>
                                 <span class="relative flex h-3 w-3">
-                                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full ${statusDot} opacity-75"></span>
-                                  <span class="relative inline-flex rounded-full h-3 w-3 ${statusDot}"></span>
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full ${statusDot} opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-3 w-3 ${statusDot}"></span>
                                 </span>
                             </div>
                             
-                            <div class="space-y-1 text-sm text-gray-300">
-                                <p><strong class="text-gray-400">ID:</strong> ${pump.id}</p>
-                                <p><strong class="text-gray-400">Status:</strong> <span class="${statusColor} font-bold uppercase">${pump.status}</span></p>
-                                <p><strong class="text-gray-400">Location:</strong> ${pump.latitude}, ${pump.longitude}</p>
+                            <div class="space-y-1 text-sm text-gray-600">
+                                <p><strong class="text-gray-500">ID:</strong> ${pump.id}</p>
+                                <p><strong class="text-gray-500">Status:</strong> <span class="${statusTextClass} font-bold uppercase">${pump.status}</span></p>
+                                <p><strong class="text-gray-500">Location:</strong> <span id="address-${pump.id}" class="text-gray-700 italic">Fetching address...</span></p>
                             </div>
 
                             <div class="mt-4">
-                                <a href="/pumps/${pump.id}" class="block w-full text-center bg-red-800 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">
+                                <a href="/pumps/${pump.id}" class="block w-full text-center bg-gray-800 hover:bg-gray-700 text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">
                                     View Telemetry
                                 </a>
                             </div>
@@ -160,6 +160,38 @@
                     `;
 
                     marker.bindPopup(popupContent);
+
+                    // Listen for the popup to open to fetch the city/area dynamically
+                    marker.on('popupopen', async function() {
+                        const addressSpan = document.getElementById(`address-${pump.id}`);
+                        
+                        // Prevent duplicated requests if the user clicks the marker again
+                        if (addressSpan && addressSpan.getAttribute('data-loaded') === 'true') return;
+
+                        try {
+                            // Zoom=10 queries regional levels like cities, towns, or districts
+                            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pump.latitude}&lon=${pump.longitude}&zoom=10&addressdetails=1`);
+                            
+                            if (!response.ok) throw new Error();
+                            
+                            const data = await response.json();
+                            const address = data.address || {};
+                            
+                            // Prioritize City, falling back to lower administrative names if unavailable
+                            const shortAddress = address.city || address.town || address.village || address.municipality || address.county || address.state || 'Unknown Area';
+                            
+                            if (addressSpan) {
+                                addressSpan.innerText = shortAddress;
+                                addressSpan.setAttribute('data-loaded', 'true');
+                                addressSpan.classList.remove('italic');
+                            }
+                        } catch (error) {
+                            if (addressSpan) {
+                                addressSpan.innerText = 'Location unavailable';
+                            }
+                        }
+                    });
+
                     markers.addLayer(marker);
                 }
             });
