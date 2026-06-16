@@ -169,7 +169,6 @@
                         if (addressSpan && addressSpan.getAttribute('data-loaded') === 'true') return;
 
                         try {
-                            // Zoom=10 queries regional levels like cities, towns, or districts
                             const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pump.latitude}&lon=${pump.longitude}&zoom=10&addressdetails=1`);
                             
                             if (!response.ok) throw new Error();
@@ -177,17 +176,21 @@
                             const data = await response.json();
                             const address = data.address || {};
                             
-                            // Prioritize City, falling back to lower administrative names if unavailable
                             const shortAddress = address.city || address.town || address.village || address.municipality || address.county || address.state || 'Unknown Area';
                             
                             if (addressSpan) {
                                 addressSpan.innerText = shortAddress;
                                 addressSpan.setAttribute('data-loaded', 'true');
                                 addressSpan.classList.remove('italic');
+
+                                // --- ADD THIS LINE ---
+                                // Forces Leaflet to recalculate the width/height to fit the new content
+                                marker.getPopup().update(); 
                             }
                         } catch (error) {
                             if (addressSpan) {
                                 addressSpan.innerText = 'Location unavailable';
+                                marker.getPopup().update(); // Update it here too just in case!
                             }
                         }
                     });
