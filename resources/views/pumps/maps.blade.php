@@ -100,14 +100,13 @@
             pumpData.forEach(pump => {
                 if (pump.latitude && pump.longitude) {
                     
-                    // Determine styling for the individual marker
                     const isOnline = pump.status === 'online';
                     const markerColor = isOnline ? 'bg-green-500' : 'bg-red-500';
                     const statusTextClass = isOnline ? 'text-green-600' : 'text-red-600';
                     const statusColor = isOnline ? 'text-green-400' : 'text-red-500';
                     const statusDot = isOnline ? 'bg-green-500' : 'bg-red-600';
 
-                    // Build the custom HTML marker (Dot + Text underneath)
+                    // Build the custom HTML marker
                     const markerHtml = `
                         <div class="flex flex-col items-center justify-center w-full">
                             <div class="w-4 h-4 rounded-full ${markerColor} border-2 border-white shadow-sm ring-2 ring-gray-200"></div>
@@ -117,23 +116,21 @@
                         </div>
                     `;
 
-                    // Register the custom icon
                     const customIcon = L.divIcon({
                         html: markerHtml,
                         className: 'custom-div-icon',
-                        iconSize: [80, 40], // Wide enough to hold the text
-                        iconAnchor: [40, 8]  // Anchor the center of the colored dot to the exact coordinate
+                        iconSize: [80, 40], 
+                        iconAnchor: [40, 8]  
                     });
 
-                    // Create the marker. Notice we are passing "pumpStatus" into the options!
-                    // This allows the iconCreateFunction above to read it when clustering.
                     const marker = L.marker([pump.latitude, pump.longitude], { 
                         icon: customIcon,
                         pumpStatus: pump.status 
                     });
 
-                    // Build the Popup HTML (using light theme classes as requested earlier)
-                    const popupContent = `
+                    // --- NEW: Helper function to generate the popup HTML dynamically ---
+                    // This allows us to easily redraw the popup when the address loads
+                    const generatePopupHtml = (addressText, isFetching) => `
                         <div class="p-4 w-60">
                             <div class="flex justify-between items-center border-b border-gray-200 pb-2 mb-3">
                                 <h3 class="font-bold text-lg truncate pr-2 text-gray-100" title="${pump.name || 'Unnamed Pump'}">
@@ -148,7 +145,10 @@
                             <div class="space-y-1 text-sm text-gray-300">
                                 <p><strong class="text-gray-400">ID:</strong> ${pump.id}</p>
                                 <p><strong class="text-gray-400">Status:</strong> <span class="${statusTextClass} font-bold uppercase">${pump.status}</span></p>
-                                <p><strong class="text-gray-400">Location:</strong> <span id="address-${pump.id}" class="text-gray-700 italic">Fetching address...</span></p>
+                                
+                                <p><strong class="text-gray-400">Location:</strong> 
+                                    <span class="${isFetching ? 'text-gray-400 italic' : 'text-gray-200 font-medium'}">${addressText}</span>
+                                </p>
                             </div>
 
                             <div class="mt-4">
@@ -159,19 +159,13 @@
                         </div>
                     `;
 
-                    marker.bindPopup(popupContent);
+                    // 1. Bind the initial popup telling the user it is loading
+                    marker.bindPopup(generatePopupHtml('Fetching address...', true));
 
-                    // Listen for the popup to open to fetch the city/area dynamically
+                    // 2. Fetch the actual data when they click it
                     marker.on('popupopen', async function() {
-                        // 1. Find the parent container element directly from Leaflet's active popup
-                        const popupElement = marker.getPopup().getElement();
-                        if (!popupElement) return;
-
-                        // 2. Find the span inside that specific popup wrapper
-                        const addressSpan = popupElement.querySelector(`#address-${pump.id}`);
-                        
-                        // Prevent duplicate network requests if already loaded
-                        if (addressSpan && addressSpan.getAttribute('data-loaded') === 'true') return;
+                        // If we already fetched it for this session, do nothing!
+                        if (pump.fetchedAddress) return;
 
                         try {
                             const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pump.latitude}&lon=${pump.longitude}&zoom=10&addressdetails=1`);
@@ -181,25 +175,18 @@
                             const data = await response.json();
                             const address = data.address || {};
                             
-                            const shortAddress = address.city || address.town || address.village || address.municipality || address.county || address.state || 'Unknown Area';
+                            // Save the string directly to the pump object so it persists
+                            pump.fetchedAddress = address.city || address.town || address.village || address.municipality || address.county || address.state || 'Unknown Area';
                             
-                            // 3. Re-query the span here to ensure we have a live reference after the async wait
-                            const liveAddressSpan = popupElement.querySelector(`#address-${pump.id}`);
+                            // --- NEW: Use Leaflet's built-in setContent ---
+                            // Rebuild the HTML string with the new address and replace the popup content completely
+                            marker.getPopup().setContent(generatePopupHtml(pump.fetchedAddress, false));
+                            marker.getPopup().update(); // Force resize for the new text
                             
-                            if (liveAddressSpan) {
-                                liveAddressSpan.innerText = shortAddress;
-                                liveAddressSpan.setAttribute('data-loaded', 'true');
-                                liveAddressSpan.classList.remove('italic');
-
-                                // Recalculates the width/height to fit the new text perfectly
-                                marker.getPopup().update(); 
-                            }
                         } catch (error) {
-                            const liveAddressSpan = popupElement.querySelector(`#address-${pump.id}`);
-                            if (liveAddressSpan) {
-                                liveAddressSpan.innerText = 'Location unavailable';
-                                marker.getPopup().update();
-                            }
+                            pump.fetchedAddress = 'Location unavailable';
+                            marker.getPopup().setContent(generatePopupHtml(pump.fetchedAddress, false));
+                            marker.getPopup().update();
                         }
                     });
 
