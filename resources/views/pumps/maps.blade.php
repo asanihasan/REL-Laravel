@@ -163,9 +163,14 @@
 
                     // Listen for the popup to open to fetch the city/area dynamically
                     marker.on('popupopen', async function() {
-                        const addressSpan = document.getElementById(`address-${pump.id}`);
+                        // 1. Find the parent container element directly from Leaflet's active popup
+                        const popupElement = marker.getPopup().getElement();
+                        if (!popupElement) return;
+
+                        // 2. Find the span inside that specific popup wrapper
+                        const addressSpan = popupElement.querySelector(`#address-${pump.id}`);
                         
-                        // Prevent duplicated requests if the user clicks the marker again
+                        // Prevent duplicate network requests if already loaded
                         if (addressSpan && addressSpan.getAttribute('data-loaded') === 'true') return;
 
                         try {
@@ -178,19 +183,22 @@
                             
                             const shortAddress = address.city || address.town || address.village || address.municipality || address.county || address.state || 'Unknown Area';
                             
-                            if (addressSpan) {
-                                addressSpan.innerText = shortAddress;
-                                addressSpan.setAttribute('data-loaded', 'true');
-                                addressSpan.classList.remove('italic');
+                            // 3. Re-query the span here to ensure we have a live reference after the async wait
+                            const liveAddressSpan = popupElement.querySelector(`#address-${pump.id}`);
+                            
+                            if (liveAddressSpan) {
+                                liveAddressSpan.innerText = shortAddress;
+                                liveAddressSpan.setAttribute('data-loaded', 'true');
+                                liveAddressSpan.classList.remove('italic');
 
-                                // --- ADD THIS LINE ---
-                                // Forces Leaflet to recalculate the width/height to fit the new content
+                                // Recalculates the width/height to fit the new text perfectly
                                 marker.getPopup().update(); 
                             }
                         } catch (error) {
-                            if (addressSpan) {
-                                addressSpan.innerText = 'Location unavailable';
-                                marker.getPopup().update(); // Update it here too just in case!
+                            const liveAddressSpan = popupElement.querySelector(`#address-${pump.id}`);
+                            if (liveAddressSpan) {
+                                liveAddressSpan.innerText = 'Location unavailable';
+                                marker.getPopup().update();
                             }
                         }
                     });
