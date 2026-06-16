@@ -104,6 +104,8 @@
                     const isOnline = pump.status === 'online';
                     const markerColor = isOnline ? 'bg-green-500' : 'bg-red-500';
                     const statusTextClass = isOnline ? 'text-green-600' : 'text-red-600';
+                    const statusColor = isOnline ? 'text-green-400' : 'text-red-500';
+                    const statusDot = isOnline ? 'bg-green-500' : 'bg-red-600';
 
                     // Build the custom HTML marker (Dot + Text underneath)
                     const markerHtml = `
