@@ -17,15 +17,15 @@
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
     <style>
-        /* Smooth out the Leaflet popup to match the light theme */
+        /* Smooth out the Leaflet popup to match Tailwind styling */
         .leaflet-popup-content-wrapper {
-            background-color: #ffffff;
-            color: #1f2937;
+            background-color: #1f2937; /* Tailwind gray-800 */
+            color: #f3f4f6; /* Tailwind gray-100 */
             border-radius: 0.5rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
         }
         .leaflet-popup-tip {
-            background-color: #ffffff;
+            background-color: #1f2937;
         }
         .leaflet-popup-content {
             margin: 0; 
@@ -85,8 +85,8 @@
                     return L.divIcon({
                         html: `
                             <div class="relative flex items-center justify-center rounded-full shadow-md" style="width: 44px; height: 44px; background: ${gradient}; padding: 4px;">
-                                <div class="flex items-center justify-center w-full h-full bg-yellow-400 rounded-full border border-yellow-500">
-                                    <span class="text-gray-900 font-bold text-sm">${total}</span>
+                                <div class="flex items-center justify-center w-full h-full bg-gray-800 rounded-full border border-gray-900">
+                                    <span class="text-white font-bold text-sm">${total}</span>
                                 </div>
                             </div>
                         `,
@@ -109,7 +109,7 @@
                     const markerHtml = `
                         <div class="flex flex-col items-center justify-center w-full">
                             <div class="w-4 h-4 rounded-full ${markerColor} border-2 border-white shadow-sm ring-2 ring-gray-200"></div>
-                            <span class="text-[10px] font-bold text-gray-700 mt-1 bg-white/80 px-1.5 py-0.5 rounded shadow-sm whitespace-nowrap">
+                            <span class="text-[10px] font-bold text-gray-700 mt-1 bg-white/80 border border-gray-800 px-1.5 py-0.5 rounded shadow-sm whitespace-nowrap">
                                 ${pump.name || 'Unnamed'}
                             </span>
                         </div>
@@ -132,17 +132,26 @@
 
                     // Build the Popup HTML
                     const popupContent = `
-                        <div class="p-3 w-56">
-                            <h3 class="font-bold text-base text-gray-800 border-b pb-2 mb-2 truncate" title="${pump.name}">${pump.name || 'Unnamed Pump'}</h3>
+                        <div class="p-4 w-60">
+                            <div class="flex justify-between items-center border-b border-gray-600 pb-2 mb-3">
+                                <h3 class="font-bold text-lg truncate pr-2" title="${pump.name || 'Unnamed Pump'}">
+                                    ${pump.name || 'Unnamed Pump'}
+                                </h3>
+                                <span class="relative flex h-3 w-3">
+                                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full ${statusDot} opacity-75"></span>
+                                  <span class="relative inline-flex rounded-full h-3 w-3 ${statusDot}"></span>
+                                </span>
+                            </div>
                             
-                            <div class="space-y-1 text-sm text-gray-600">
-                                <p><strong>ID:</strong> ${pump.id}</p>
-                                <p><strong>Status:</strong> <span class="${statusTextClass} font-bold uppercase">${pump.status}</span></p>
+                            <div class="space-y-1 text-sm text-gray-300">
+                                <p><strong class="text-gray-400">ID:</strong> ${pump.id}</p>
+                                <p><strong class="text-gray-400">Status:</strong> <span class="${statusColor} font-bold uppercase">${pump.status}</span></p>
+                                <p><strong class="text-gray-400">Location:</strong> ${pump.latitude}, ${pump.longitude}</p>
                             </div>
 
-                            <div class="mt-3">
-                                <a href="/pumps/${pump.id}" class="block w-full text-center bg-gray-800 hover:bg-gray-700 text-white px-3 py-2 rounded text-sm font-medium transition duration-150">
-                                    View Data
+                            <div class="mt-4">
+                                <a href="/pumps/${pump.id}" class="block w-full text-center bg-red-800 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">
+                                    View Telemetry
                                 </a>
                             </div>
                         </div>
