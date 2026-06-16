@@ -79,13 +79,13 @@
 
                     // Create a CSS conic gradient (Green for online, Red for offline)
                     // e.g., if 50%, it draws green from 0-50%, and red from 50-100%
-                    const gradient = `conic-gradient(#22c55e ${onlinePercentage}%, #ef4444 ${onlinePercentage}% 100%)`;
+                    const gradient = `conic-gradient(#3dfc83 ${onlinePercentage}%, #ff5e5e ${onlinePercentage}% 100%)`;
 
                     // Return the custom HTML for the cluster
                     return L.divIcon({
                         html: `
                             <div class="relative flex items-center justify-center rounded-full shadow-md" style="width: 44px; height: 44px; background: ${gradient}; padding: 4px;">
-                                <div class="flex items-center justify-center w-full h-full bg-gray-800 rounded-full border border-gray-900">
+                                <div class="flex items-center justify-center w-full h-full bg-gray-400 rounded-full border border-gray-100">
                                     <span class="text-white font-bold text-sm">${total}</span>
                                 </div>
                             </div>
