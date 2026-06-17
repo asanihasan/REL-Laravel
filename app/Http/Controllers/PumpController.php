@@ -30,6 +30,20 @@ class PumpController extends Controller
         return view('pumps.show', compact('pump', 'history'));
     }
 
+    public function monitor($id)
+    {
+        $pump = Pump::findOrFail($id);
+        
+        $history = DB::table('historical_pumps')
+                    ->where('pump_id', $id)
+                    ->orderBy('ts', 'desc')
+                    ->limit(50)
+                    ->get();
+
+        // Notice this points to a new blade file!
+        return view('pumps.monitor', compact('pump', 'history')); 
+    }
+
     public function update(Request $request, $id)
     {
         $pump = Pump::findOrFail($id);

@@ -16,6 +16,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('pumps', PumpController::class);
     Route::get('/pumps/{id}/data', [PumpController::class, 'data'])->name('pumps.data');
     Route::post('/pumps/{id}/control', [PumpController::class, 'control'])->name('pumps.control');
+    Route::get('/pumps/{id}/monitor', [PumpController::class, 'monitor'])->name('pumps.monitor');
     
     // NEW: Historical Data Endpoint
     Route::get('/pumps/{id}/history', [PumpController::class, 'history'])->name('pumps.history');
