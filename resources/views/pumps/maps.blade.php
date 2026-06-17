@@ -198,7 +198,9 @@
                     `;
 
                     // 3. Bind initial loading states to both Popup and Tooltip
-                    marker.bindPopup(generatePopupHtml('Fetching address...', true));
+                    marker.bindPopup(generatePopupHtml('Fetching address...', true), {
+                            minWidth: 240
+                        });
                     marker.bindTooltip(generateTooltipHtml('Hover to load...', true), {
                         direction: 'top',
                         offset: [0, -20], // Pushes the tooltip slightly above your pin
