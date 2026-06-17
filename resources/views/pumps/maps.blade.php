@@ -185,9 +185,15 @@
                     // --- 2. NEW: Matching Dark Tooltip Template ---
                     const generateTooltipHtml = (addressText, isFetching) => `
                         <div class="p-3 w-48">
-                            <h4 class="font-bold text-sm text-gray-100 border-b border-gray-600 pb-1 mb-2 truncate">
-                                ${pump.name || 'Unnamed Pump'}
-                            </h4>
+                            <div class="flex justify-between items-center border-b border-gray-600 pb-2 mb-3">
+                                <h3 class="font-bold text-lg truncate pr-2 text-gray-100" title="${pump.name || 'Unnamed Pump'}">
+                                    ${pump.name || 'Unnamed Pump'}
+                                </h3>
+                                <span class="relative flex h-3 w-3">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full ${statusDot} opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-3 w-3 ${statusDot}"></span>
+                                </span>
+                            </div>
                             <div class="text-xs text-gray-300 space-y-1">
                                 <p><strong class="text-gray-400">Status:</strong> <span class="${statusTextClass} font-bold uppercase">${pump.status}</span></p>
                                 <p><strong class="text-gray-400">Location:</strong> 
