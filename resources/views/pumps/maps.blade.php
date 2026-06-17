@@ -61,25 +61,33 @@
                 // This function runs every time a cluster is formed or updated
                 iconCreateFunction: function(cluster) {
                     const childMarkers = cluster.getAllChildMarkers();
-                    let onlineCount = 0;
-                    let offlineCount = 0;
+                    const total = childMarkers.length;
+                    
+                    // Divide the circle into equal slices based on the number of devices
+                    const sliceAngle = 360 / total;
+                    
+                    // Set a small gap (max 4 degrees)
+                    const gapAngle = Math.min(4, sliceAngle * 0.15);
 
-                    // Count the status of all devices inside this specific cluster
-                    childMarkers.forEach(marker => {
-                        if (marker.options.pumpStatus === 'online') {
-                            onlineCount++;
-                        } else {
-                            offlineCount++;
-                        }
+                    let gradientParts = [];
+                    
+                    // Loop through each device to build its specific segment of the dashed border
+                    childMarkers.forEach((marker, index) => {
+                        const isOnline = marker.options.pumpStatus === 'online';
+                        const color = isOnline ? '#22c55e' : '#ef4444'; // Green or Red
+
+                        const startAngle = index * sliceAngle;
+                        const endAngle = startAngle + sliceAngle - gapAngle;
+
+                        // 1. Draw the colored segment for the device
+                        gradientParts.push(`${color} ${startAngle}deg ${endAngle}deg`);
+                        
+                        // 2. Draw the transparent gap right after it
+                        gradientParts.push(`transparent ${endAngle}deg ${startAngle + sliceAngle}deg`);
                     });
 
-                    const total = childMarkers.length;
-                    // Calculate percentage to draw the pie chart border
-                    const onlinePercentage = (onlineCount / total) * 100;
-
-                    // Create a CSS conic gradient (Green for online, Red for offline)
-                    // e.g., if 50%, it draws green from 0-50%, and red from 50-100%
-                    const gradient = `conic-gradient(#70ffa5 ${onlinePercentage}%, #fa9898  ${onlinePercentage}% 100%)`;
+                    // Combine all the segments into one CSS string
+                    const gradient = `conic-gradient(${gradientParts.join(', ')})`;
 
                     // Return the custom HTML for the cluster
                     return L.divIcon({
@@ -101,26 +109,23 @@
                 if (pump.latitude && pump.longitude) {
                     
                     const isOnline = pump.status === 'online';
-                    const markerColor = isOnline ? 'bg-green-500' : 'bg-red-500';
-                    const statusTextClass = isOnline ? 'text-green-600' : 'text-red-600';
-                    const statusColor = isOnline ? 'text-green-400' : 'text-red-500';
                     const statusDot = isOnline ? 'bg-green-500' : 'bg-red-600';
+                    const pinFillColor = isOnline ? '#22c55e' : '#ef4444';
 
                     // Build the custom HTML marker
                     const markerHtml = `
-                        <div class="flex flex-col items-center justify-center w-full">
-                            <div class="w-4 h-4 rounded-full ${markerColor} border-2 border-white shadow-sm ring-2 ring-gray-200"></div>
-                            <span class="text-[10px] font-bold text-gray-700 mt-1 bg-white/80 border border-gray-800 px-1.5 py-0.5 rounded shadow-sm whitespace-nowrap">
-                                ${pump.name || 'Unnamed'}
-                            </span>
+                        <div class="flex items-center justify-center w-full h-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${pinFillColor}" class="w-8 h-8 drop-shadow-md stroke-white stroke-2">
+                                <path fill-rule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742c1.002-.722 2.607-1.99 3.61-3.376C18.225 16.826 20 14.434 20 11a8 8 0 10-16 0c0 3.434 1.775 5.826 2.78 7.218 1.003 1.387 2.608 2.654 3.61 3.376a16.974 16.974 0 001.144.742zM12 13.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" clip-rule="evenodd" />
+                            </svg>
                         </div>
                     `;
 
                     const customIcon = L.divIcon({
                         html: markerHtml,
                         className: 'custom-div-icon',
-                        iconSize: [80, 40], 
-                        iconAnchor: [40, 8]  
+                        iconSize: [32, 32],      // Changed to a clean square
+                        iconAnchor: [16, 32]     // Crucial: Anchors the bottom tip of the SVG to the map coordinate
                     });
 
                     const marker = L.marker([pump.latitude, pump.longitude], { 
@@ -144,16 +149,18 @@
                             
                             <div class="space-y-1 text-sm text-gray-300">
                                 <p><strong class="text-gray-400">ID:</strong> ${pump.id}</p>
-                                <p><strong class="text-gray-400">Status:</strong> <span class="${statusTextClass} font-bold uppercase">${pump.status}</span></p>
                                 
                                 <p><strong class="text-gray-400">Location:</strong> 
                                     <span class="${isFetching ? 'text-gray-400 italic' : 'text-gray-200 font-medium'}">${addressText}</span>
                                 </p>
                             </div>
 
-                            <div class="mt-4">
-                                <a href="/pumps/${pump.id}" class="block w-full text-center bg-gray-800 hover:bg-gray-700 text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150">
-                                    View Telemetry
+                            <div class="mt-4 flex gap-2 w-full">
+                                <a href="/pumps/${pump.id}" class="w-1/2 text-center bg-gray-800 hover:bg-gray-700 text-white px-2 py-2 rounded-md text-xs font-medium transition duration-150">
+                                    Grid View
+                                </a>
+                                <a href="/pumps/${pump.id}/monitor" class="w-1/2 text-center bg-gray-600 hover:bg-gray-500 text-white px-2 py-2 rounded-md text-xs font-medium transition duration-150">
+                                    Graph View
                                 </a>
                             </div>
                         </div>
@@ -164,6 +171,7 @@
 
                     // 2. Fetch the actual data when they click it
                     marker.on('popupopen', async function() {
+                        marker.getPopup().update()
                         // If we already fetched it for this session, do nothing!
                         if (pump.fetchedAddress) return;
 
