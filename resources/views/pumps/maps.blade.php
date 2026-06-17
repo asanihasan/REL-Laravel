@@ -57,7 +57,7 @@
             const pumpData = @json($pumpsWithLocations);
 
             // 1. Initialize map
-            const map = L.map('map').setView([-1.2, 116.0], 4);
+            const map = L.map('map').setView([-1.56, 117.89], 5.75);
 
             // 2. Light Theme Map Tiles
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
