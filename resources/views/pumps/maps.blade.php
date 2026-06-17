@@ -24,6 +24,21 @@
             border-radius: 0.5rem;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
         }
+        
+        /* Smooth out the Leaflet tooltip to match Tailwind Dark styling */
+        .leaflet-tooltip {
+            background-color: #1f2937; /* Tailwind gray-800 */
+            color: #f3f4f6; /* Tailwind gray-100 */
+            border: none;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            padding: 0;
+        }
+        /* Hide the default tiny triangle pointer for a cleaner look */
+        .leaflet-tooltip::before, .leaflet-tooltip::after {
+            display: none !important;
+        }
+
         .leaflet-popup-tip {
             background-color: #1f2937;
         }
@@ -137,7 +152,7 @@
                     // This allows us to easily redraw the popup when the address loads
                     const generatePopupHtml = (addressText, isFetching) => `
                         <div class="p-4 w-60">
-                            <div class="flex justify-between items-center border-b border-gray-200 pb-2 mb-3">
+                            <div class="flex justify-between items-center border-b border-gray-600 pb-2 mb-3">
                                 <h3 class="font-bold text-lg truncate pr-2 text-gray-100" title="${pump.name || 'Unnamed Pump'}">
                                     ${pump.name || 'Unnamed Pump'}
                                 </h3>
@@ -166,13 +181,35 @@
                         </div>
                     `;
 
-                    // 1. Bind the initial popup telling the user it is loading
-                    marker.bindPopup(generatePopupHtml('Fetching address...', true));
+                    // --- 2. NEW: Matching Dark Tooltip Template ---
+                    const generateTooltipHtml = (addressText, isFetching) => `
+                        <div class="p-3 w-48">
+                            <h4 class="font-bold text-sm text-gray-100 border-b border-gray-600 pb-1 mb-2 truncate">
+                                ${pump.name || 'Unnamed Pump'}
+                            </h4>
+                            <div class="text-xs text-gray-300 space-y-1">
+                                <p><strong class="text-gray-400">Status:</strong> <span class="${statusTextClass} font-bold uppercase">${pump.status}</span></p>
+                                <p><strong class="text-gray-400">Location:</strong> 
+                                    <span class="${isFetching ? 'text-gray-400 italic' : 'text-gray-200 font-medium'}">${addressText}</span>
+                                </p>
+                            </div>
+                        </div>
+                    `;
 
-                    // 2. Fetch the actual data when they click it
-                    marker.on('popupopen', async function() {
-                        marker.getPopup().update()
-                        // If we already fetched it for this session, do nothing!
+                    // 3. Bind initial loading states to both Popup and Tooltip
+                    marker.bindPopup(generatePopupHtml('Fetching address...', true));
+                    marker.bindTooltip(generateTooltipHtml('Hover to load...', true), {
+                        direction: 'top',
+                        offset: [0, -20], // Pushes the tooltip slightly above your pin
+                        className: 'custom-leaflet-tooltip'
+                    });
+
+                    // 4. Shared Fetch Logic for Hover and Click
+                    const fetchAddressIfNeeded = async () => {
+                        // If popup is open, force a layout update immediately
+                        if (marker.isPopupOpen()) marker.getPopup().update();
+
+                        // If already fetched, don't ping the API again!
                         if (pump.fetchedAddress) return;
 
                         try {
@@ -183,20 +220,30 @@
                             const data = await response.json();
                             const address = data.address || {};
                             
-                            // Save the string directly to the pump object so it persists
+                            // Save it permanently to the pump object
                             pump.fetchedAddress = address.city || address.town || address.village || address.municipality || address.county || address.state || 'Unknown Area';
                             
-                            // --- NEW: Use Leaflet's built-in setContent ---
-                            // Rebuild the HTML string with the new address and replace the popup content completely
+                            // Inject the fetched data into both templates
                             marker.getPopup().setContent(generatePopupHtml(pump.fetchedAddress, false));
-                            marker.getPopup().update(); // Force resize for the new text
+                            marker.getTooltip().setContent(generateTooltipHtml(pump.fetchedAddress, false));
+                            
+                            // Force resize if either is currently visible
+                            if (marker.isPopupOpen()) marker.getPopup().update();
+                            if (marker.isTooltipOpen()) marker.getTooltip().update();
                             
                         } catch (error) {
                             pump.fetchedAddress = 'Location unavailable';
                             marker.getPopup().setContent(generatePopupHtml(pump.fetchedAddress, false));
-                            marker.getPopup().update();
+                            marker.getTooltip().setContent(generateTooltipHtml(pump.fetchedAddress, false));
+                            
+                            if (marker.isPopupOpen()) marker.getPopup().update();
+                            if (marker.isTooltipOpen()) marker.getTooltip().update();
                         }
-                    });
+                    };
+
+                    // 5. Trigger the fetch whether they hover OR click
+                    marker.on('popupopen', fetchAddressIfNeeded);
+                    marker.on('tooltipopen', fetchAddressIfNeeded);
 
                     markers.addLayer(marker);
                 }
