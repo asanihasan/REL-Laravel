@@ -125,7 +125,7 @@
                     
                     const isOnline = pump.status === 'online';
                     const statusDot = isOnline ? 'bg-green-500' : 'bg-red-600';
-                    const statusTextClass = isOnline ? 'text-green-600' : 'text-red-600';
+                    // const statusTextClass = isOnline ? 'text-green-600' : 'text-red-600';
                     const pinFillColor = isOnline ? '#22c55e' : '#ef4444';
 
                     // Build the custom HTML marker
@@ -195,7 +195,6 @@
                                 </span>
                             </div>
                             <div class="text-xs text-gray-300 space-y-1">
-                                <p><strong class="text-gray-400">Status:</strong> <span class="${statusTextClass} font-bold uppercase">${pump.status}</span></p>
                                 <p><strong class="text-gray-400">Location:</strong> 
                                     <span class="${isFetching ? 'text-gray-400 italic' : 'text-gray-200 font-medium'}">${addressText}</span>
                                 </p>
