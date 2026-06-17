@@ -125,6 +125,7 @@
                     
                     const isOnline = pump.status === 'online';
                     const statusDot = isOnline ? 'bg-green-500' : 'bg-red-600';
+                    const statusTextClass = isOnline ? 'text-green-600' : 'text-red-600';
                     const pinFillColor = isOnline ? '#22c55e' : '#ef4444';
 
                     // Build the custom HTML marker
