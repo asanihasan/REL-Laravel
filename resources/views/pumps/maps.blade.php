@@ -57,7 +57,7 @@
             const pumpData = @json($pumpsWithLocations);
 
             // 1. Initialize map
-            const map = L.map('map').setView([-2.5489, 118.0149], 5);
+            const map = L.map('map').setView([-1.2, 116.0], 4);
 
             // 2. Light Theme Map Tiles
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
@@ -260,9 +260,10 @@
             // 5. Add clusters to map and auto-fit
             map.addLayer(markers);
 
-            if (pumpData.length > 0) {
-                map.fitBounds(markers.getBounds(), { padding: [50, 50] });
-            }
+            // Auto Zoom to all markers
+            // if (pumpData.length > 0) {
+            //     map.fitBounds(markers.getBounds(), { padding: [50, 50] });
+            // }
         });
     </script>
 @endsection
