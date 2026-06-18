@@ -151,36 +151,51 @@
 
                     // --- NEW: Helper function to generate the popup HTML dynamically ---
                     // This allows us to easily redraw the popup when the address loads
-                    const generatePopupHtml = (addressText, isFetching) => `
-                        <div class="p-4 w-60">
-                            <div class="flex justify-between items-center border-b border-gray-600 pb-2 mb-3">
-                                <h3 class="font-bold text-lg truncate pr-2 text-gray-100" title="${pump.name || 'Unnamed Pump'}">
-                                    ${pump.name || 'Unnamed Pump'}
-                                </h3>
-                                <span class="relative flex h-3 w-3">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full ${statusDot} opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-3 w-3 ${statusDot}"></span>
-                                </span>
-                            </div>
-                            
-                            <div class="space-y-1 text-sm text-gray-300">
-                                <p><strong class="text-gray-400">ID:</strong> ${pump.id}</p>
-                                
-                                <p><strong class="text-gray-400">Location:</strong> 
-                                    <span class="${isFetching ? 'text-gray-400 italic' : 'text-gray-200 font-medium'}">${addressText}</span>
-                                </p>
-                            </div>
+                    const generatePopupHtml = (addressText, isFetching) => {
+                        // Safely extract nested JSON values with fallbacks to prevent crashes
+                        const isRunning = pump.auto_manual_status && pump.auto_manual_status.engine_running;
+                        const flowRate = pump.pressure_or_flow && pump.pressure_or_flow.flow ? pump.pressure_or_flow.flow : 0;
+                        const rpm = pump.rpm || 0;
 
-                            <div class="mt-4 flex gap-2 w-full">
-                                <a href="/pumps/${pump.id}" class="w-1/2 text-center bg-gray-800 hover:bg-gray-700 text-white px-2 py-2 rounded-md text-xs font-medium transition duration-150">
-                                    Grid View
-                                </a>
-                                <a href="/pumps/${pump.id}/monitor" class="w-1/2 text-center bg-gray-600 hover:bg-gray-500 text-white px-2 py-2 rounded-md text-xs font-medium transition duration-150">
-                                    Graph View
-                                </a>
+                        // Color code the engine state
+                        const engineStateHtml = isRunning 
+                            ? '<span class="text-green-400 font-medium">Running</span>' 
+                            : '<span class="text-gray-500 font-medium">Stopped</span>';
+
+                        return `
+                            <div class="p-4 w-60">
+                                <div class="flex justify-between items-center border-b border-gray-600 pb-2 mb-3">
+                                    <h3 class="font-bold text-lg truncate pr-2 text-gray-100" title="${pump.name || 'Unnamed Pump'}">
+                                        ${pump.name || 'Unnamed Pump'}
+                                    </h3>
+                                    <span class="relative flex h-3 w-3">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full ${statusDot} opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-3 w-3 ${statusDot}"></span>
+                                    </span>
+                                </div>
+                                
+                                <div class="space-y-1 text-sm text-gray-300">
+                                    <p><strong class="text-gray-400">ID:</strong> ${pump.id}</p>
+                                    <p><strong class="text-gray-400">Engine:</strong> ${engineStateHtml}</p>
+                                    <p><strong class="text-gray-400">RPM:</strong> <span class="text-gray-200">${rpm}</span></p>
+                                    <p><strong class="text-gray-400">Flow:</strong> <span class="text-gray-200">${flowRate} L/s</span></p>
+                                    
+                                    <p><strong class="text-gray-400">Location:</strong> 
+                                        <span class="${isFetching ? 'text-gray-400 italic' : 'text-gray-200 font-medium'}">${addressText}</span>
+                                    </p>
+                                </div>
+
+                                <div class="mt-4 flex gap-2 w-full">
+                                    <a href="/pumps/${pump.id}" class="w-1/2 text-center bg-gray-800 hover:bg-gray-700 text-white px-2 py-2 rounded-md text-xs font-medium transition duration-150">
+                                        Grid View
+                                    </a>
+                                    <a href="/pumps/${pump.id}/monitor" class="w-1/2 text-center bg-gray-600 hover:bg-gray-500 text-white px-2 py-2 rounded-md text-xs font-medium transition duration-150">
+                                        Graph View
+                                    </a>
+                                </div>
                             </div>
-                        </div>
-                    `;
+                        `;
+                    };
 
                     // --- 2. NEW: Matching Dark Tooltip Template ---
                     const generateTooltipHtml = (addressText, isFetching) => `
