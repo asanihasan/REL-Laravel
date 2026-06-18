@@ -13,7 +13,9 @@ class Pump extends Model
     protected $keyType = 'string';
     public $incrementing = false;
     
-    // All fields that can be mass assigned
+    // Append custom computed attributes so they appear in JSON responses (like your map API)
+    protected $appends = ['status', 'connection'];
+    
     protected $fillable = [
         'id', 'name', 'location', 'last_update',
         'pressure_or_flow', 'auto_manual_status', 'digital_inputs',
@@ -28,16 +30,30 @@ class Pump extends Model
         'serial_number'
     ];
 
-    // Automatically convert JSON columns to PHP arrays
     protected $casts = [
         'pressure_or_flow' => 'array',
         'auto_manual_status' => 'array',
         'digital_inputs' => 'array',
         'coolant_level_probe' => 'boolean',
+        'modbus_status' => 'boolean', // Added so strict boolean checks work
         'last_update' => 'datetime',
     ];
 
+    // 1. New Status: Offline if Modbus is false, otherwise checks freshness
     public function getStatusAttribute()
+    {
+        // If Modbus is completely offline, the pump is offline immediately
+        if ($this->modbus_status === false) {
+            return 'offline';
+        }
+
+        // If Modbus is true, rely on the 10-second data freshness check
+        if (!$this->last_update) return 'offline';
+        return $this->last_update->diffInSeconds(now()) > 10 ? 'offline' : 'online';
+    }
+
+    // 2. New Connection: Only cares about data freshness (your old logic)
+    public function getConnectionAttribute()
     {
         if (!$this->last_update) return 'offline';
         return $this->last_update->diffInSeconds(now()) > 10 ? 'offline' : 'online';
