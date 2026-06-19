@@ -22,6 +22,7 @@ class User extends Authenticatable
         'password',
         'user_group_id',
         'telegram_id',
+        'telegram_link_token',
         'engine_running',
         'engine_stopped',
         'high_rpm',
