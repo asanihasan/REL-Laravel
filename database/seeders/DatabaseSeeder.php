@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\User;
-use App\Models\UserGroup; // Make sure to import this!
+use App\Models\UserGroup;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
@@ -15,13 +15,11 @@ class DatabaseSeeder extends Seeder
         $superAdminGroup = UserGroup::updateOrCreate(
             ['id' => 1],
             [
-                'name' => 'Super Admin',
-                'control' => true,
-                'engine' => true,
-                'pump' => true,
-                'historical' => true,
+                'name'         => 'Super Admin',
+                'view'         => true,
+                'control'      => true,
+                'historical'   => true,
                 'data_manager' => true,
-                'user_management' => true,
             ]
         );
 
@@ -31,8 +29,10 @@ class DatabaseSeeder extends Seeder
         if (!$adminUser) {
             // 3a. If they don't exist, create them with the new group ID
             User::create([
-                'username' => 'admin',
-                'password' => Hash::make('RELadmin01!'),
+                'username'      => 'admin',
+                'name'          => 'Administrator',
+                'email'         => 'admin@rel.co.id',
+                'password'      => Hash::make('RELadmin01!'),
                 'user_group_id' => $superAdminGroup->id,
             ]);
         } else {
