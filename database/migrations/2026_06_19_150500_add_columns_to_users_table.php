@@ -13,6 +13,10 @@ return new class extends Migration
             $table->string('first_name')->after('username')->nullable();
             $table->string('last_name')->after('first_name')->nullable();
 
+            // Telegram Integration
+            $table->string('telegram_id')->nullable()->after('last_name');
+            $table->string('telegram_link_token')->nullable()->after('telegram_id');
+
             // Alert/Status boolean columns
             $table->boolean('engine_running')->default(false);
             $table->boolean('engine_stopped')->default(false);
@@ -27,10 +31,11 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // Drop all columns if the migration is rolled back
             $table->dropColumn([
                 'first_name',
                 'last_name',
+                'telegram_id',
+                'telegram_link_token',
                 'engine_running',
                 'engine_stopped',
                 'high_rpm',
