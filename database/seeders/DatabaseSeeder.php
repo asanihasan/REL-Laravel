@@ -6,7 +6,7 @@ use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\UserGroup;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB; // <-- Make sure to add this import!
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
         if (!$adminUser) {
             User::create([
                 'username'      => 'admin',
-                'name'          => 'Administrator',
+                'first_name'    => 'Administrator', // <-- Changed from 'name' to 'first_name'
                 'email'         => 'pmo.admin@rel.co.id',
                 'password'      => Hash::make('RELadmin01!'),
                 'user_group_id' => $superAdminGroup->id,

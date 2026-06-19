@@ -28,18 +28,29 @@ class UserManagementController extends Controller
     {
         $request->validate([
             'username'      => 'required|string|max:255|unique:users,username',
-            'name'          => 'required|string|max:255',
+            'first_name'    => 'required|string|max:255',
+            'last_name'     => 'nullable|string|max:255', // Allowed to be empty
             'email'         => 'required|email|max:255|unique:users,email',
             'user_group_id' => 'required|exists:user_groups,id',
             'password'      => 'required|string|min:6',
         ]);
 
         User::create([
-            'username'      => $request->username,
-            'name'          => $request->name,
-            'email'         => $request->email,
-            'user_group_id' => $request->user_group_id,
-            'password'      => Hash::make($request->password), // Always hash passwords!
+            'username'         => $request->username,
+            'first_name'       => $request->first_name,
+            'last_name'        => $request->last_name,
+            'email'            => $request->email,
+            'user_group_id'    => $request->user_group_id,
+            'password'         => Hash::make($request->password), 
+            
+            // Checkbox logic: returns true if checked, false if not sent
+            'engine_running'   => $request->has('engine_running'),
+            'engine_stopped'   => $request->has('engine_stopped'),
+            'high_rpm'         => $request->has('high_rpm'),
+            'low_rpm'          => $request->has('low_rpm'),
+            'low_fuel_level'   => $request->has('low_fuel_level'),
+            'location_change'  => $request->has('location_change'),
+            'modbus_comm_lost' => $request->has('modbus_comm_lost'),
         ]);
 
         return redirect()->back()->with('success', 'User created successfully.');
@@ -49,34 +60,40 @@ class UserManagementController extends Controller
     {
         $user = User::findOrFail($id);
 
-        // 1. Base validation rules
         $rules = [
-            'username' => 'required|string|max:255|unique:users,username,' . $id,
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|max:255|unique:users,email,' . $id,
-            'password' => 'nullable|string|min:6',
+            'username'   => 'required|string|max:255|unique:users,username,' . $id,
+            'first_name' => 'required|string|max:255',
+            'last_name'  => 'nullable|string|max:255', // Allowed to be empty
+            'email'      => 'required|email|max:255|unique:users,email,' . $id,
+            'password'   => 'nullable|string|min:6',
         ];
 
-        // 2. Only require user_group_id if it's NOT the primary admin
         if ($id != 1) {
             $rules['user_group_id'] = 'required|exists:user_groups,id';
         }
 
         $request->validate($rules);
 
-        // 3. Prepare data to update
         $data = [
-            'username' => $request->username,
-            'name'     => $request->name,
-            'email'    => $request->email,
+            'username'         => $request->username,
+            'first_name'       => $request->first_name,
+            'last_name'        => $request->last_name,
+            'email'            => $request->email,
+            
+            // Checkbox logic updates
+            'engine_running'   => $request->has('engine_running'),
+            'engine_stopped'   => $request->has('engine_stopped'),
+            'high_rpm'         => $request->has('high_rpm'),
+            'low_rpm'          => $request->has('low_rpm'),
+            'low_fuel_level'   => $request->has('low_fuel_level'),
+            'location_change'  => $request->has('location_change'),
+            'modbus_comm_lost' => $request->has('modbus_comm_lost'),
         ];
 
-        // 4. Only update the group ID if it's NOT the primary admin
         if ($id != 1) {
             $data['user_group_id'] = $request->user_group_id;
         }
 
-        // 5. Update password if provided
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
