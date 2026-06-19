@@ -45,7 +45,7 @@ class UserManagementController extends Controller
         return redirect()->back()->with('success', 'User created successfully.');
     }
 
-        public function updateUser(Request $request, $id)
+USERblic function updateUser(Request $request, $id)
     {
         $user = User::findOrFail($id);
 
@@ -145,11 +145,21 @@ class UserManagementController extends Controller
 
     public function destroyGroup($id)
     {
+        // 1. Block deleting the primary admin group
         if ($id == 1) {
             return redirect()->back()->with('error', 'The primary administrator group cannot be deleted.');
         }
 
-        UserGroup::findOrFail($id)->delete();
+        // 2. Check if any users are assigned to this group
+        $group = UserGroup::withCount('users')->findOrFail($id);
+
+        if ($group->users_count > 0) {
+            return redirect()->back()->with('error', 'This group cannot be deleted because it still has ' . $group->users_count . ' user(s) assigned to it.');
+        }
+
+        // 3. Delete if empty
+        $group->delete();
         return redirect()->back()->with('success', 'User Group deleted successfully.');
     }
+
 }
