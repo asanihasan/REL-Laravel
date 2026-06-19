@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PumpController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserManagementController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -25,7 +26,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/maps', [App\Http\Controllers\PumpController::class, 'maps'])->name('pumps.maps');
 
     // User Management Placeholder
-    Route::view('/manage/users', 'manage.user')->name('manage.user');
+    Route::get('/manage/users', [UserManagementController::class, 'index'])->name('manage.user');
 
     // Alerts Placeholder
     Route::view('/manage/alerts', 'manage.alert')->name('manage.alert');
