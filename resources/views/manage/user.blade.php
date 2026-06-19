@@ -272,10 +272,13 @@
     }
 
     // --- User Form Logic ---
-    function openUserModal(user = null) {
+        function openUserModal(user = null) {
         // Reset form completely
         $('#userForm')[0].reset();
         $('#passwordError').addClass('hidden');
+        
+        // Ensure the dropdown is enabled by default when opening the modal
+        $('#modalGroupId').prop('disabled', false);
 
         if (user) {
             // Edit Mode
@@ -290,6 +293,12 @@
             $('#modalName').val(user.name);
             $('#modalEmail').val(user.email);
             $('#modalGroupId').val(user.user_group_id);
+
+            // Lock the group selection if it is User 1
+            if (user.id == 1) {
+                $('#modalGroupId').prop('disabled', true);
+            }
+
         } else {
             // Add Mode
             $('#userModalTitle').text('Add User');
