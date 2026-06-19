@@ -14,7 +14,6 @@ return new class extends Migration
             $table->string('last_name')->after('first_name')->nullable();
 
             // Telegram Integration
-            $table->string('telegram_id')->nullable()->after('last_name');
             $table->string('telegram_link_token')->nullable()->after('telegram_id');
 
             // Alert/Status boolean columns
