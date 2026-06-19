@@ -14,6 +14,9 @@ services:
       - "ptrei-app04.postgres.database.azure.com:10.0.1.4"
     networks:
           - iot-net
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
 
 networks:
   iot-net:
