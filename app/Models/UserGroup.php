@@ -9,7 +9,9 @@ class UserGroup extends Model
 {
     use HasFactory;
 
-    // The fields that can be mass-assigned when creating or updating a group
+    // Tell Laravel to stop trying to update 'created_at' and 'updated_at'
+    public $timestamps = false;
+
     protected $fillable = [
         'name',
         'view',
@@ -18,7 +20,6 @@ class UserGroup extends Model
         'data_manager',
     ];
 
-    // Automatically cast these columns to strict booleans so they work perfectly with your checkboxes
     protected $casts = [
         'view' => 'boolean',
         'control' => 'boolean',
@@ -26,7 +27,6 @@ class UserGroup extends Model
         'data_manager' => 'boolean',
     ];
 
-    // Relationship: A User Group can have multiple Users assigned to it
     public function users()
     {
         return $this->hasMany(User::class, 'user_group_id');
