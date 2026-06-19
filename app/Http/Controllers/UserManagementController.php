@@ -45,7 +45,7 @@ class UserManagementController extends Controller
         return redirect()->back()->with('success', 'User created successfully.');
     }
 
-USERblic function updateUser(Request $request, $id)
+    public function updateUser(Request $request, $id)
     {
         $user = User::findOrFail($id);
 
