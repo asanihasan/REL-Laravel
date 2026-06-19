@@ -45,28 +45,38 @@ class UserManagementController extends Controller
         return redirect()->back()->with('success', 'User created successfully.');
     }
 
-    public function updateUser(Request $request, $id)
+        public function updateUser(Request $request, $id)
     {
         $user = User::findOrFail($id);
 
-        $request->validate([
-            // Ignore the current user's ID so they can keep their own username/email
-            'username'      => 'required|string|max:255|unique:users,username,' . $id,
-            'name'          => 'required|string|max:255',
-            'email'         => 'required|email|max:255|unique:users,email,' . $id,
-            'user_group_id' => 'required|exists:user_groups,id',
-            'password'      => 'nullable|string|min:6', // Nullable because of "leave blank" logic
-        ]);
-
-        // Prepare data to update
-        $data = [
-            'username'      => $request->username,
-            'name'          => $request->name,
-            'email'         => $request->email,
-            'user_group_id' => $request->user_group_id,
+        // 1. Base validation rules
+        $rules = [
+            'username' => 'required|string|max:255|unique:users,username,' . $id,
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|max:255|unique:users,email,' . $id,
+            'password' => 'nullable|string|min:6',
         ];
 
-        // Only update password if the user typed a new one
+        // 2. Only require user_group_id if it's NOT the primary admin
+        if ($id != 1) {
+            $rules['user_group_id'] = 'required|exists:user_groups,id';
+        }
+
+        $request->validate($rules);
+
+        // 3. Prepare data to update
+        $data = [
+            'username' => $request->username,
+            'name'     => $request->name,
+            'email'    => $request->email,
+        ];
+
+        // 4. Only update the group ID if it's NOT the primary admin
+        if ($id != 1) {
+            $data['user_group_id'] = $request->user_group_id;
+        }
+
+        // 5. Update password if provided
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
