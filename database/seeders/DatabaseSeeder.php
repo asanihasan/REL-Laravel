@@ -6,12 +6,13 @@ use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\UserGroup;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB; // <-- Make sure to add this import!
 
 class DatabaseSeeder extends Seeder
 {
     public function run()
     {
-        // 1. Create the Super Admin group first so the ID exists
+        // 1. Create the Super Admin group
         $superAdminGroup = UserGroup::updateOrCreate(
             ['id' => 1],
             [
@@ -27,20 +28,24 @@ class DatabaseSeeder extends Seeder
         $adminUser = User::where('username', 'admin')->first();
 
         if (!$adminUser) {
-            // 3a. If they don't exist, create them with the new group ID
             User::create([
                 'username'      => 'admin',
                 'name'          => 'Administrator',
-                'email'         => 'admin@rel.co.id',
+                'email'         => 'pmo.admin@rel.co.id',
                 'password'      => Hash::make('RELadmin01!'),
                 'user_group_id' => $superAdminGroup->id,
             ]);
         } else {
-            // 3b. If they already exist, just update their group ID 
-            // (This protects their password in case they changed it!)
             $adminUser->update([
                 'user_group_id' => $superAdminGroup->id,
             ]);
+        }
+
+        // 3. AUTOMATED POSTGRESQL FIX
+        // Fast-forward the auto-increment counters so they don't collide with the forced IDs
+        if (config('database.default') === 'pgsql') {
+            DB::statement("SELECT setval('user_groups_id_seq', (SELECT MAX(id) FROM user_groups))");
+            DB::statement("SELECT setval('users_id_seq', (SELECT MAX(id) FROM users))");
         }
     }
 }
