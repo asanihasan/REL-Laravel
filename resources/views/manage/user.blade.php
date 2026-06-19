@@ -1,77 +1,83 @@
 @extends('layouts.app')
 
-@section('title', 'User Management')
-
 @section('content')
-<div class="bg-white p-6 rounded-lg shadow-md">
-    <div class="flex justify-between items-center mb-4">
+<div class="container mx-auto px-4 py-8">
+    
+    @if(session('success'))
+        <div class="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded shadow-sm flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded shadow-sm flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded shadow-sm">
+            <ul class="list-disc list-inside">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-800">User Management</h1>
     </div>
 
-    <div class="border-b border-gray-200 mb-6">
-        <nav class="flex space-x-6">
-            <button id="tab-users" onclick="switchTab('users')" class="text-red-600 border-red-600 border-b-2 py-2 px-1 text-sm font-medium transition-colors">
-                Users
-            </button>
-            <button id="tab-groups" onclick="switchTab('groups')" class="text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300 border-b-2 py-2 px-1 text-sm font-medium transition-colors">
-                User Groups
-            </button>
-        </nav>
+    <div class="flex space-x-6 mb-6 border-b border-gray-200">
+        <button onclick="switchTab('users')" id="tab-users" class="px-4 py-3 flex items-center gap-2 border-b-2 border-red-600 text-red-600 font-semibold transition">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+            </svg>
+            Users
+        </button>
+        <button onclick="switchTab('groups')" id="tab-groups" class="px-4 py-3 flex items-center gap-2 border-b-2 border-transparent text-gray-500 hover:text-red-600 font-semibold transition">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+            </svg>
+            User Groups
+        </button>
     </div>
-    
-    <div id="content-users" class="tab-content">
-        <div class="flex justify-end mb-4">
-            <button onclick="openUserModal()" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition font-medium text-sm flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
+
+    <div id="users-content">
+        <div class="mb-4 flex justify-end">
+            <button onclick="openUserModal()" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition font-medium flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
                 Add User
             </button>
         </div>
-        
-        <div class="overflow-x-auto">
-            <table id="usersTable" class="display w-full text-sm text-left">
-                <thead class="bg-gray-50 text-gray-600 uppercase">
+
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-gray-50 border-b">
                     <tr>
-                        <th class="p-3">Username</th>
-                        <th class="p-3">Name</th>
-                        <th class="p-3">Email</th>
-                        <th class="p-3">Telegram ID</th>
-                        <th class="p-3">User Group</th>
-                        <th class="p-3">Action</th>
+                        <th class="p-3 text-sm font-semibold text-gray-600">Username</th>
+                        <th class="p-3 text-sm font-semibold text-gray-600">Name</th>
+                        <th class="p-3 text-sm font-semibold text-gray-600">Email</th>
+                        <th class="p-3 text-sm font-semibold text-gray-600">Group</th>
+                        <th class="p-3 text-sm font-semibold text-gray-600 text-center">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
+                <tbody class="divide-y divide-gray-200">
                     @foreach($users as $user)
-                    <tr class="hover:bg-gray-50 transition">
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-3 font-medium text-gray-800">{{ $user->username }}</td>
+                        <td class="p-3">{{ $user->first_name }} {{ $user->last_name }}</td>
+                        <td class="p-3 text-gray-600">{{ $user->email }}</td>
                         <td class="p-3">
-                            <div class="font-medium text-gray-800">{{ $user->username }}</div>
-                            <div class="text-[10px] text-gray-400 mt-0.5">{{ $user->created_at->format('d M Y, H:i') }}</div>
-                        </td>
-                        <td class="p-3">{{ $user->name }}</td>
-                        <td class="p-3 text-gray-500">{{ $user->email }}</td>
-                        <td class="p-3">
-                            @if(is_null($user->telegram_id))
-                                <button onclick="openTelegramModal({{ $user->id }})" class="inline-flex items-center px-2 py-1 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded text-xs transition">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                                    Add Telegram ID
-                                </button>
-                            @else
-                                <div class="flex items-center space-x-2">
-                                    <span class="font-mono text-gray-600">{{ $user->telegram_id }}</span>
-                                    <button onclick="openTelegramModal({{ $user->id }})" class="p-1 bg-gray-100 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded transition" title="Edit">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3 h-3"><path d="M5.433 13.917l1.262-3.155A4 4 0 017.58 9.42l6.92-6.918a2.121 2.121 0 013 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 01-.65-.65z" /><path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0010 3H4.75A2.75 2.75 0 002 5.75v9.5A2.75 2.75 0 004.75 18h9.5A2.75 2.75 0 0017 15.25V10a.75.75 0 00-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5z" /></svg>
-                                    </button>
-                                </div>
-                            @endif
-                        </td>
-                        <td class="p-3">
-                            <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium">
-                                {{ $user->userGroup ? $user->userGroup->name : 'None' }}
+                            <span class="px-2 py-1 bg-red-50 text-red-700 text-xs rounded-full font-medium">
+                                {{ $user->userGroup->name ?? 'No Group' }}
                             </span>
                         </td>
                         <td class="p-3">
-                            <div class="flex items-center space-x-2">
+                            <div class="flex items-center justify-center space-x-2">
                                 <button onclick="openUserModal({{ $user->toJson() }})" class="p-2 bg-yellow-50 text-yellow-600 hover:bg-yellow-100 rounded transition" title="Edit">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path d="M5.433 13.917l1.262-3.155A4 4 0 017.58 9.42l6.92-6.918a2.121 2.121 0 013 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 01-.65-.65z" /><path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0010 3H4.75A2.75 2.75 0 002 5.75v9.5A2.75 2.75 0 004.75 18h9.5A2.75 2.75 0 0017 15.25V10a.75.75 0 00-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5z" /></svg>
                                 </button>
@@ -93,44 +99,37 @@
         </div>
     </div>
 
-    <div id="content-groups" class="tab-content hidden">
-        <div class="flex justify-end mb-4">
-            <button onclick="openGroupModal()" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition font-medium text-sm flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+    <div id="groups-content" class="hidden">
+        <div class="mb-4 flex justify-end">
+            <button onclick="openGroupModal()" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition font-medium flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
                 Add Group
             </button>
         </div>
-        
-        <div class="overflow-x-auto">
-            <table id="groupsTable" class="display w-full text-sm text-left">
-                <thead class="bg-gray-50 text-gray-600 uppercase">
+
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-gray-50 border-b">
                     <tr>
-                        <th class="p-3">Group Name</th>
-                        <th class="p-3 text-center">View</th>
-                        <th class="p-3 text-center">Control</th>
-                        <th class="p-3 text-center">Historical</th>
-                        <th class="p-3 text-center">Manage Data</th>
-                        <th class="p-3">Action</th>
+                        <th class="p-3 text-sm font-semibold text-gray-600">Group Name</th>
+                        <th class="p-3 text-sm font-semibold text-gray-600">Permissions</th>
+                        <th class="p-3 text-sm font-semibold text-gray-600 text-center">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
+                <tbody class="divide-y divide-gray-200">
                     @foreach($userGroups as $group)
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="p-3 font-medium">{{ $group->name }}</td>
-                        <td class="p-3 text-center">
-                            @if($group->view) <svg class="w-5 h-5 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> @else - @endif
-                        </td>
-                        <td class="p-3 text-center">
-                            @if($group->control) <svg class="w-5 h-5 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> @else - @endif
-                        </td>
-                        <td class="p-3 text-center">
-                            @if($group->historical) <svg class="w-5 h-5 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> @else - @endif
-                        </td>
-                        <td class="p-3 text-center">
-                            @if($group->data_manager) <svg class="w-5 h-5 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> @else - @endif
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-3 font-medium text-gray-800">{{ $group->name }}</td>
+                        <td class="p-3">
+                            <div class="flex flex-wrap gap-1">
+                                @if($group->view) <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">View</span> @endif
+                                @if($group->control) <span class="px-2 py-1 bg-green-50 text-green-700 text-xs rounded-full">Control</span> @endif
+                                @if($group->historical) <span class="px-2 py-1 bg-purple-50 text-purple-700 text-xs rounded-full">Historical</span> @endif
+                                @if($group->data_manager) <span class="px-2 py-1 bg-yellow-50 text-yellow-700 text-xs rounded-full">Data Manager</span> @endif
+                            </div>
                         </td>
                         <td class="p-3">
-                            <div class="flex items-center space-x-2">
+                            <div class="flex items-center justify-center space-x-2">
                                 <button onclick="openGroupModal({{ $group->toJson() }})" class="p-2 bg-yellow-50 text-yellow-600 hover:bg-yellow-100 rounded transition" title="Edit">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path d="M5.433 13.917l1.262-3.155A4 4 0 017.58 9.42l6.92-6.918a2.121 2.121 0 013 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 01-.65-.65z" /><path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0010 3H4.75A2.75 2.75 0 002 5.75v9.5A2.75 2.75 0 004.75 18h9.5A2.75 2.75 0 0017 15.25V10a.75.75 0 00-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5z" /></svg>
                                 </button>
@@ -153,10 +152,16 @@
     </div>
 </div>
 
-<div id="userModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white p-6 rounded-lg w-full max-w-md shadow-xl transform transition-all">
-        <h2 id="userModalTitle" class="text-lg font-bold mb-4 border-b pb-2">User</h2>
-        <form id="userForm" method="POST" onsubmit="return validatePasswords()">
+<div id="userModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg w-full max-w-2xl mx-4 overflow-hidden">
+        <div class="px-6 py-4 border-b flex justify-between items-center bg-gray-50">
+            <h3 id="userModalTitle" class="text-lg font-bold text-gray-800">Add User</h3>
+            <button onclick="closeModal('userModal')" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        
+        <form id="userForm" method="POST" action="/users" class="px-6 py-4 max-h-[80vh] overflow-y-auto">
             @csrf
             <input type="hidden" name="_method" id="userFormMethod" value="POST">
             
@@ -165,51 +170,90 @@
                 <input type="text" name="username" id="modalUsername" class="w-full border border-gray-300 p-2 rounded focus:ring-red-500 focus:border-red-500" required>
             </div>
             
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                <input type="text" name="name" id="modalName" class="w-full border border-gray-300 p-2 rounded focus:ring-red-500 focus:border-red-500" required>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                    <input type="text" name="first_name" id="modalFirstName" class="w-full border border-gray-300 p-2 rounded focus:ring-red-500 focus:border-red-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Last Name <span class="text-xs text-gray-400 font-normal">(Optional)</span></label>
+                    <input type="text" name="last_name" id="modalLastName" class="w-full border border-gray-300 p-2 rounded focus:ring-red-500 focus:border-red-500">
+                </div>
             </div>
-
+            
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                 <input type="email" name="email" id="modalEmail" class="w-full border border-gray-300 p-2 rounded focus:ring-red-500 focus:border-red-500" required>
             </div>
-
+            
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">User Group</label>
                 <select name="user_group_id" id="modalGroupId" class="w-full border border-gray-300 p-2 rounded focus:ring-red-500 focus:border-red-500" required>
-                    <option value="" disabled selected>Select a group...</option>
+                    <option value="">Select a group...</option>
                     @foreach($userGroups as $group)
                         <option value="{{ $group->id }}">{{ $group->name }}</option>
                     @endforeach
                 </select>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <input type="password" name="password" id="modalPassword" class="w-full border border-gray-300 p-2 rounded focus:ring-red-500 focus:border-red-500">
-                    <p class="text-[10px] text-gray-400 mt-1" id="passwordHint">Leave blank to keep current</p>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-                    <input type="password" id="modalPasswordConfirm" class="w-full border border-gray-300 p-2 rounded focus:ring-red-500 focus:border-red-500">
+            <div class="mt-6 mb-4">
+                <h4 class="font-semibold text-gray-700 border-b pb-2 mb-3">Alert Preferences</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-gray-50 p-4 rounded border border-gray-200">
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" name="engine_running" id="modalAlertEngineRunning" class="rounded text-red-600 focus:ring-red-500 h-4 w-4">
+                        <span class="text-sm text-gray-700">Engine Running</span>
+                    </label>
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" name="engine_stopped" id="modalAlertEngineStopped" class="rounded text-red-600 focus:ring-red-500 h-4 w-4">
+                        <span class="text-sm text-gray-700">Engine Stopped</span>
+                    </label>
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" name="high_rpm" id="modalAlertHighRpm" class="rounded text-red-600 focus:ring-red-500 h-4 w-4">
+                        <span class="text-sm text-gray-700">High RPM</span>
+                    </label>
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" name="low_rpm" id="modalAlertLowRpm" class="rounded text-red-600 focus:ring-red-500 h-4 w-4">
+                        <span class="text-sm text-gray-700">Low RPM</span>
+                    </label>
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" name="low_fuel_level" id="modalAlertLowFuel" class="rounded text-red-600 focus:ring-red-500 h-4 w-4">
+                        <span class="text-sm text-gray-700">Low Fuel Level</span>
+                    </label>
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" name="location_change" id="modalAlertLocation" class="rounded text-red-600 focus:ring-red-500 h-4 w-4">
+                        <span class="text-sm text-gray-700">Location Change</span>
+                    </label>
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" name="modbus_comm_lost" id="modalAlertModbus" class="rounded text-red-600 focus:ring-red-500 h-4 w-4">
+                        <span class="text-sm text-gray-700">Modbus Comm Lost</span>
+                    </label>
                 </div>
             </div>
-            <p id="passwordError" class="text-red-500 text-xs hidden mb-4">Passwords do not match!</p>
-
-            <div class="flex justify-end space-x-2">
-                <button type="button" onclick="closeModals()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition">Cancel</button>
-                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">Save User</button>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <input type="password" name="password" id="modalPassword" class="w-full border border-gray-300 p-2 rounded focus:ring-red-500 focus:border-red-500">
+                <p id="passwordHint" class="text-xs text-gray-500 mt-1"></p>
+            </div>
+            
+            <div class="flex justify-end space-x-3 pt-4 border-t">
+                <button type="button" onclick="closeModal('userModal')" class="px-4 py-2 border rounded text-gray-600 hover:bg-gray-50">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Save User</button>
             </div>
         </form>
     </div>
 </div>
 
-<div id="groupModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white p-6 rounded-lg w-full max-w-sm shadow-xl transform transition-all">
-        <h2 id="groupModalTitle" class="text-lg font-bold mb-4 border-b pb-2">Group</h2>
-        <form id="groupForm" method="POST">
+<div id="groupModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg w-full max-w-md mx-4 overflow-hidden">
+        <div class="px-6 py-4 border-b flex justify-between items-center bg-gray-50">
+            <h3 id="groupModalTitle" class="text-lg font-bold text-gray-800">Add Group</h3>
+            <button onclick="closeModal('groupModal')" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        
+        <form id="groupForm" method="POST" action="/user-groups" class="px-6 py-4">
             @csrf
             <input type="hidden" name="_method" id="groupFormMethod" value="POST">
             
@@ -219,88 +263,85 @@
             </div>
             
             <div class="space-y-3 mb-6 bg-gray-50 p-4 rounded border" id="groupCheckboxesWrapper">
-                <label class="flex items-center space-x-2 cursor-pointer">
-                    <input type="checkbox" name="view" id="modalGroupView" class="rounded text-red-600 focus:ring-red-500">
-                    <span class="text-sm text-gray-700 font-medium">View</span>
+                <h4 class="font-medium text-sm text-gray-700 border-b pb-1">Permissions</h4>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" name="view" id="modalGroupView" class="rounded text-red-600 focus:ring-red-500 h-4 w-4">
+                    <span class="text-sm text-gray-700">View Data</span>
                 </label>
-                <label class="flex items-center space-x-2 cursor-pointer">
-                    <input type="checkbox" name="control" id="modalGroupControl" class="rounded text-red-600 focus:ring-red-500">
-                    <span class="text-sm text-gray-700 font-medium">Control</span>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" name="control" id="modalGroupControl" class="rounded text-red-600 focus:ring-red-500 h-4 w-4">
+                    <span class="text-sm text-gray-700">Control Pumps</span>
                 </label>
-                <label class="flex items-center space-x-2 cursor-pointer">
-                    <input type="checkbox" name="historical" id="modalGroupHistorical" class="rounded text-red-600 focus:ring-red-500">
-                    <span class="text-sm text-gray-700 font-medium">Historical</span>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" name="historical" id="modalGroupHistorical" class="rounded text-red-600 focus:ring-red-500 h-4 w-4">
+                    <span class="text-sm text-gray-700">View Historical</span>
                 </label>
-                <label class="flex items-center space-x-2 cursor-pointer">
-                    <input type="checkbox" name="data_manager" id="modalGroupDataManager" class="rounded text-red-600 focus:ring-red-500">
-                    <span class="text-sm text-gray-700 font-medium">Manage Data</span>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" name="data_manager" id="modalGroupDataManager" class="rounded text-red-600 focus:ring-red-500 h-4 w-4">
+                    <span class="text-sm text-gray-700">Data Manager</span>
                 </label>
             </div>
-
-            <div class="flex justify-end space-x-2">
-                <button type="button" onclick="closeModals()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition">Cancel</button>
-                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">Save Group</button>
+            
+            <div class="flex justify-end space-x-3">
+                <button type="button" onclick="closeModal('groupModal')" class="px-4 py-2 border rounded text-gray-600 hover:bg-gray-50">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Save Group</button>
             </div>
         </form>
     </div>
 </div>
 
-<div id="telegramModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white p-6 rounded-lg w-96 shadow-xl transform transition-all">
-        <h2 class="text-lg font-bold mb-4 border-b pb-2">Manage Telegram ID</h2>
-        <div class="py-6 text-center text-gray-500 italic">Empty modal content</div>
-        <div class="flex justify-end space-x-2 mt-4">
-            <button type="button" onclick="closeModals()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Close</button>
-        </div>
-    </div>
-</div>
-
-@endsection
-
-@section('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    $(document).ready(function() {
-        $('#usersTable').DataTable({ "order": [], "pageLength": 10 });
-        $('#groupsTable').DataTable({ "order": [], "pageLength": 10 });
-    });
-
-    function switchTab(tabName) {
-        $('.tab-content').addClass('hidden');
-        $('#tab-users, #tab-groups').removeClass('text-red-600 border-red-600').addClass('text-gray-500 border-transparent');
-        $('#content-' + tabName).removeClass('hidden');
-        $('#tab-' + tabName).removeClass('text-gray-500 border-transparent').addClass('text-red-600 border-red-600');
+    function switchTab(tab) {
+        if (tab === 'users') {
+            $('#users-content').removeClass('hidden');
+            $('#groups-content').addClass('hidden');
+            
+            $('#tab-users').addClass('border-red-600 text-red-600').removeClass('border-transparent text-gray-500');
+            $('#tab-groups').removeClass('border-red-600 text-red-600').addClass('border-transparent text-gray-500');
+        } else {
+            $('#groups-content').removeClass('hidden');
+            $('#users-content').addClass('hidden');
+            
+            $('#tab-groups').addClass('border-red-600 text-red-600').removeClass('border-transparent text-gray-500');
+            $('#tab-users').removeClass('border-red-600 text-red-600').addClass('border-transparent text-gray-500');
+        }
     }
 
-    // --- User Form Logic ---
-        function openUserModal(user = null) {
-        // Reset form completely
+    function closeModal(id) {
+        $('#' + id).addClass('hidden');
+    }
+
+    function openUserModal(user = null) {
         $('#userForm')[0].reset();
-        $('#passwordError').addClass('hidden');
-        
-        // Ensure the dropdown is enabled by default when opening the modal
         $('#modalGroupId').prop('disabled', false);
 
         if (user) {
-            // Edit Mode
             $('#userModalTitle').text('Edit User');
             $('#userForm').attr('action', '/users/' + user.id);
             $('#userFormMethod').val('PUT');
             $('#passwordHint').text('Leave blank to keep current password');
             $('#modalPassword').removeAttr('required');
             
-            // Populate Data
             $('#modalUsername').val(user.username);
-            $('#modalName').val(user.name);
+            $('#modalFirstName').val(user.first_name);
+            $('#modalLastName').val(user.last_name);
             $('#modalEmail').val(user.email);
             $('#modalGroupId').val(user.user_group_id);
+            
+            // Checkboxes
+            $('#modalAlertEngineRunning').prop('checked', user.engine_running);
+            $('#modalAlertEngineStopped').prop('checked', user.engine_stopped);
+            $('#modalAlertHighRpm').prop('checked', user.high_rpm);
+            $('#modalAlertLowRpm').prop('checked', user.low_rpm);
+            $('#modalAlertLowFuel').prop('checked', user.low_fuel_level);
+            $('#modalAlertLocation').prop('checked', user.location_change);
+            $('#modalAlertModbus').prop('checked', user.modbus_comm_lost);
 
-            // Lock the group selection if it is User 1
             if (user.id == 1) {
                 $('#modalGroupId').prop('disabled', true);
             }
-
         } else {
-            // Add Mode
             $('#userModalTitle').text('Add User');
             $('#userForm').attr('action', '/users');
             $('#userFormMethod').val('POST');
@@ -310,19 +351,6 @@
         $('#userModal').removeClass('hidden');
     }
 
-    function validatePasswords() {
-        const pass = $('#modalPassword').val();
-        const confirm = $('#modalPasswordConfirm').val();
-        
-        // If password is typed, it must match confirm password
-        if (pass && pass !== confirm) {
-            $('#passwordError').removeClass('hidden');
-            return false;
-        }
-        return true;
-    }
-
-    // --- Group Form Logic ---
     function openGroupModal(group = null) {
         $('#groupForm')[0].reset();
 
@@ -332,7 +360,6 @@
             $('#groupFormMethod').val('PUT');
             $('#modalGroupName').val(group.name);
             
-            // Hide checkboxes if ID is 1
             if (group.id == 1) {
                 $('#groupCheckboxesWrapper').addClass('hidden');
             } else {
@@ -346,27 +373,9 @@
             $('#groupModalTitle').text('Add Group');
             $('#groupForm').attr('action', '/user-groups');
             $('#groupFormMethod').val('POST');
-            $('#groupCheckboxesWrapper').removeClass('hidden'); // Ensure visible for adding
+            $('#groupCheckboxesWrapper').removeClass('hidden'); 
         }
         $('#groupModal').removeClass('hidden');
-    }
-
-
-    // --- Telegram Form Logic ---
-    function openTelegramModal(id) {
-        $('#telegramModal').removeClass('hidden');
-    }
-
-    function closeModals() {
-        $('#userModal, #groupModal, #telegramModal').addClass('hidden');
-    }
-
-    window.onclick = function(event) {
-        if (event.target == document.getElementById('userModal') || 
-            event.target == document.getElementById('groupModal') || 
-            event.target == document.getElementById('telegramModal')) {
-            closeModals();
-        }
     }
 </script>
 @endsection

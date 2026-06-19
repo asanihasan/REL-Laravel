@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\UserGroup;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class UserManagementController extends Controller
 {
@@ -177,6 +179,25 @@ class UserManagementController extends Controller
         // 3. Delete if empty
         $group->delete();
         return redirect()->back()->with('success', 'User Group deleted successfully.');
+    }
+
+    public function generateTelegramLink()
+    {
+        $user = Auth::user();
+        
+        // Generate a random 32-character token
+        $token = Str::random(32);
+        
+        // Save it to the user's database row
+        $user->update([
+            'telegram_link_token' => $token
+        ]);
+
+        // Pull the username from .env and build the deep link
+        $botUsername = env('TELEGRAM_BOT_USERNAME');
+        $telegramUrl = "https://t.me/{$botUsername}?start={$token}";
+
+        return redirect()->back()->with('telegramUrl', $telegramUrl);
     }
 
 }

@@ -43,3 +43,5 @@ Route::middleware('auth')->group(function () {
     // Alerts Placeholder
     Route::view('/manage/alerts', 'manage.alert')->name('manage.alert');
 });
+
+Route::post('/telegram/webhook', [App\Http\Controllers\TelegramController::class, 'handleWebhook']);
