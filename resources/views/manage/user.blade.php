@@ -61,6 +61,7 @@
                         <th class="p-3 text-sm font-semibold text-gray-600">Username</th>
                         <th class="p-3 text-sm font-semibold text-gray-600">Name</th>
                         <th class="p-3 text-sm font-semibold text-gray-600">Email</th>
+                        <th class="p-3 text-sm font-semibold text-gray-600">Telegram</th>
                         <th class="p-3 text-sm font-semibold text-gray-600">Group</th>
                         <th class="p-3 text-sm font-semibold text-gray-600 text-center">Actions</th>
                     </tr>
@@ -71,6 +72,18 @@
                         <td class="p-3 font-medium text-gray-800">{{ $user->username }}</td>
                         <td class="p-3">{{ $user->first_name }} {{ $user->last_name }}</td>
                         <td class="p-3 text-gray-600">{{ $user->email }}</td>
+                        <td class="p-3">
+                            @if($user->telegram_id)
+                                <div class="text-sm text-gray-800 font-medium">{{ $user->telegram_id }}</div>
+                                <button onclick="openTelegramModal({{ $user->id }})" class="text-xs px-2 py-1 mt-1 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded border transition">
+                                    Update ID
+                                </button>
+                            @else
+                                <button onclick="openTelegramModal({{ $user->id }})" class="text-xs px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded border border-blue-200 transition">
+                                    Add ID
+                                </button>
+                            @endif
+                        </td>
                         <td class="p-3">
                             <span class="px-2 py-1 bg-red-50 text-red-700 text-xs rounded-full font-medium">
                                 {{ $user->userGroup->name ?? 'No Group' }}
@@ -290,6 +303,32 @@
     </div>
 </div>
 
+<div id="telegramModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg w-full max-w-sm mx-4 overflow-hidden shadow-xl">
+        <div class="px-6 py-4 border-b flex justify-between items-center bg-gray-50">
+            <h3 class="text-lg font-bold text-gray-800">Link Telegram</h3>
+            <button onclick="closeModal('telegramModal')" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        
+        <div class="p-6 flex flex-col items-center text-center">
+            <p class="text-sm text-gray-600 mb-6">Scan this QR code with your phone camera, or copy the link below.</p>
+
+            <div id="qrLoading" class="my-8 text-gray-500 animate-pulse">Generating secure link...</div>
+
+            <img id="qrImage" src="" alt="Telegram QR Code" class="hidden w-48 h-48 border rounded shadow-sm mb-6">
+
+            <div id="qrLinkContainer" class="hidden w-full flex items-center justify-center space-x-2 bg-gray-50 p-3 rounded border break-all">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+                <a href="#" id="qrLink" target="_blank" class="text-sm text-blue-600 hover:underline font-medium truncate"></a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     function switchTab(tab) {
@@ -376,6 +415,31 @@
             $('#groupCheckboxesWrapper').removeClass('hidden'); 
         }
         $('#groupModal').removeClass('hidden');
+    }
+
+    function openTelegramModal(userId) {
+        // Reset and show modal
+        $('#telegramModal').removeClass('hidden');
+        $('#qrImage, #qrLinkContainer').addClass('hidden');
+        $('#qrLoading').removeClass('hidden').text('Generating secure link...');
+
+        // AJAX request to generate the token
+        $.post('/users/' + userId + '/telegram-link', {
+            _token: '{{ csrf_token() }}'
+        }, function(response) {
+            if(response.url) {
+                $('#qrLoading').addClass('hidden');
+                
+                // Use a free public API to instantly generate the QR code image from the URL
+                $('#qrImage').attr('src', 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(response.url)).removeClass('hidden');
+                
+                // Set the link text and href
+                $('#qrLink').attr('href', response.url).text(response.url);
+                $('#qrLinkContainer').removeClass('hidden');
+            }
+        }).fail(function() {
+            $('#qrLoading').text('Error generating link. Please try again.');
+        });
     }
 </script>
 @endsection

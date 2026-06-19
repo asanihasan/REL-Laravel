@@ -181,23 +181,19 @@ class UserManagementController extends Controller
         return redirect()->back()->with('success', 'User Group deleted successfully.');
     }
 
-    public function generateTelegramLink()
+    public function generateUserTelegramLink($id)
     {
-        $user = Auth::user();
-        
-        // Generate a random 32-character token
+        $user = User::findOrFail($id);
         $token = Str::random(32);
         
-        // Save it to the user's database row
         $user->update([
             'telegram_link_token' => $token
         ]);
 
-        // Pull the username from .env and build the deep link
         $botUsername = env('TELEGRAM_BOT_USERNAME');
-        $telegramUrl = "https://t.me/{$botUsername}?start={$token}";
+        $url = "https://t.me/{$botUsername}?start={$token}";
 
-        return redirect()->back()->with('telegramUrl', $telegramUrl);
+        return response()->json(['url' => $url]);
     }
 
 }
