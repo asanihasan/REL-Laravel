@@ -9,32 +9,26 @@ class UserGroup extends Model
 {
     use HasFactory;
 
-    // Disables standard Laravel created_at and updated_at behavior
-    public $timestamps = false;
-
-    // Specifies which columns are allowed to be bulk-inserted
+    // The fields that can be mass-assigned when creating or updating a group
     protected $fillable = [
         'name',
+        'view',
         'control',
-        'engine',
-        'pump',
         'historical',
         'data_manager',
-        'user_management',
     ];
 
-    // Ensures Eloquent treats these fields as strict booleans (true/false)
+    // Automatically cast these columns to strict booleans so they work perfectly with your checkboxes
     protected $casts = [
+        'view' => 'boolean',
         'control' => 'boolean',
-        'engine' => 'boolean',
-        'pump' => 'boolean',
         'historical' => 'boolean',
         'data_manager' => 'boolean',
-        'user_management' => 'boolean',
     ];
 
+    // Relationship: A User Group can have multiple Users assigned to it
     public function users()
     {
-        return $this->hasMany(User::class);
+        return $this->hasMany(User::class, 'user_group_id');
     }
 }
