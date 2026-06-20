@@ -24,7 +24,7 @@
         [x-cloak] { display: none !important; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col font-sans" x-data="{ sidebarOpen: false }">
+<body class="bg-gray-100 min-h-screen flex flex-col font-sans" x-data="{ sidebarOpen: false, showTelegramBanner: true }">
 
     <nav class="bg-red-900 text-white shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -141,12 +141,13 @@
     </footer>
 
     @if(Auth::check() && is_null(Auth::user()->telegram_id))
-        <div x-data="{ showTelegramBanner: true }" 
-             x-show="showTelegramBanner" 
-             x-transition.opacity
+        <div x-show="showTelegramBanner" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 translate-y-4"
+             x-transition:enter-end="opacity-100 translate-y-0"
              class="fixed bottom-6 right-6 bg-white border border-gray-200 shadow-xl rounded-lg p-4 z-50 max-w-xs flex flex-col gap-3 relative">
             
-            <button @click="showTelegramBanner = false" type="button" class="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition p-1" title="Dismiss">
+            <button @click="showTelegramBanner = false" type="button" class="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition p-1">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -160,7 +161,7 @@
                 </div>
                 <div>
                     <h4 class="text-sm font-bold text-gray-800">Telegram Not Linked</h4>
-                    <p class="text-xs text-gray-600 mt-1">Activate your Telegram to receive system alerts directly to your phone.</p>
+                    <p class="text-xs text-gray-600 mt-1">Activate your Telegram to receive system alerts.</p>
                 </div>
             </div>
             <button type="button" onclick="openGlobalTelegramModal({{ Auth::id() }})" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 rounded transition">
