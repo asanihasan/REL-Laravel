@@ -14,4 +14,6 @@ services:
       - "ptrei-app04.postgres.database.azure.com:10.0.1.4"
     networks:
       - iot-net
-    # DELETE THE DNS BLOCK ENTIRELY
+networks:
+  iot-net:
+    external: true
