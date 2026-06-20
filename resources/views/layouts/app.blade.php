@@ -31,13 +31,13 @@
             <div class="flex items-center justify-between h-16">
                 
                 <div class="flex items-center">
-                    <a href="{{ route('pumps.index') }}" class="flex-shrink-0">
+                    <a href="{{ route('pumps.maps') }}" class="flex-shrink-0">
                         <img src="https://rel.co.id/wp-content/uploads/2023/05/cropped-REL_WHITE_LOGO_ONLY.png" alt="REL Logo" class="h-10 w-auto">
                     </a>
                 </div>
 
                 <div class="flex items-center space-x-4">
-                    <span class="text-sm font-semibold text-red-100 hidden sm:block">{{ Auth::user()->username ?? 'Guest' }}</span>
+                    <span class="text-sm font-semibold text-red-100 hidden sm:block">{{ Auth::user()->first_name ?? 'Guest' }}</span>
 
                     <button @click="sidebarOpen = true" class="p-2 rounded-md hover:bg-red-800 text-white focus:outline-none transition" title="Menu">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-7 h-7">
@@ -134,6 +134,102 @@
         </div>
     </footer>
 
+    @if(Auth::check() && is_null(Auth::user()->telegram_id))
+        <div class="fixed bottom-6 right-6 bg-white border border-gray-200 shadow-xl rounded-lg p-4 z-50 max-w-xs flex flex-col gap-3">
+            <div class="flex items-start gap-3">
+                <div class="bg-blue-100 p-2 rounded-full text-blue-600 flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.125A59.769 59.769 0 0121.485 12 59.768 59.768 0 013.27 20.875L5.999 12Zm0 0h7.5" />
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="text-sm font-bold text-gray-800">Telegram Not Linked</h4>
+                    <p class="text-xs text-gray-600 mt-1">Activate your Telegram to receive system alerts directly to your phone.</p>
+                </div>
+            </div>
+            <button type="button" onclick="openGlobalTelegramModal({{ Auth::id() }})" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 rounded transition">
+               Activate Telegram
+            </button>
+
+        </div>
+    @endif
+    <div id="globalTelegramModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center overflow-y-auto overflow-x-hidden bg-black bg-opacity-50 transition-opacity">
+        <div class="relative p-4 w-full max-w-md max-h-full">
+            <div class="relative bg-white rounded-lg shadow">
+                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        Link Telegram Account
+                    </h3>
+                    <button type="button" onclick="closeGlobalTelegramModal()" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center">
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                        </svg>
+                        <span class="sr-only">Close modal</span>
+                    </button>
+                </div>
+                <div class="p-4 md:p-5 text-center">
+                    <p class="text-sm text-gray-600 mb-4">Scan this QR Code using your phone's camera, or click the link to open Telegram directly.</p>
+                    
+                    <div id="globalQrContainer" class="flex justify-center mb-4 min-h-[200px] items-center">
+                        <svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+
+                    <a id="globalTelegramLink" href="#" target="_blank" class="hidden text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
+                        <svg class="w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                            <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 5.523 4.477 10 10 10s10-4.477 10-10Zm-6.521-3.693c-.66.27-3.953 1.688-9.88 4.254-.51.2-.757.397-.74.587.026.31.353.413.82.56l.164.053 1.91.63c.433.143.992.26 1.436.148.498-.125 2.378-1.554 2.476-1.636.035-.03.076-.02.054.026-.06.126-1.488 1.4-1.656 1.573-.06.062-.123.128-.066.236.057.108 1.121.724 1.706 1.11.272.18.522.344.757.498.536.35 1.01.66 1.605.606.353-.032.715-.367.904-1.393.435-2.357 1.298-7.314 1.48-9.48.016-.204-.047-.35-.157-.425-.111-.077-.282-.074-.476.012Z" clip-rule="evenodd"/>
+                        </svg>
+                        Open in Telegram
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openGlobalTelegramModal(userId) {
+            // Show the modal
+            document.getElementById('globalTelegramModal').classList.remove('hidden');
+            
+            // Reset the container state
+            document.getElementById('globalQrContainer').innerHTML = '<svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+            document.getElementById('globalTelegramLink').classList.add('hidden');
+
+            // Add CSRF token for the POST request
+            let csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            
+            // Fetch the QR code from the endpoint we fixed earlier
+            fetch(`/users/${userId}/telegram-link`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken || '{{ csrf_token() }}' // Fallback for layout use
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.qr_code && data.link) {
+                    document.getElementById('globalQrContainer').innerHTML = data.qr_code;
+                    let linkBtn = document.getElementById('globalTelegramLink');
+                    linkBtn.href = data.link;
+                    linkBtn.classList.remove('hidden');
+                } else {
+                    document.getElementById('globalQrContainer').innerHTML = '<p class="text-red-500">Failed to generate QR code.</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('globalQrContainer').innerHTML = '<p class="text-red-500">Network error occurred.</p>';
+            });
+        }
+
+        function closeGlobalTelegramModal() {
+            document.getElementById('globalTelegramModal').classList.add('hidden');
+        }
+    </script>
+    
     @yield('scripts')
 
 </body>
