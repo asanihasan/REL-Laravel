@@ -8,16 +8,10 @@ services:
     restart: always
     working_dir: /var/www
     ports:
-      - "8080:80" # Host 8080 maps to Container 80
+      - "8080:80"
     extra_hosts:
       - "host.docker.internal:host-gateway"
       - "ptrei-app04.postgres.database.azure.com:10.0.1.4"
     networks:
-          - iot-net
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
-
-networks:
-  iot-net:
-    external: true
+      - iot-net
+    # DELETE THE DNS BLOCK ENTIRELY
