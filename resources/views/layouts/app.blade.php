@@ -37,7 +37,13 @@
                 </div>
 
                 <div class="flex items-center space-x-4">
-                    <span class="text-sm font-semibold text-red-100 hidden sm:block">{{ Auth::user()->first_name ?? 'Guest' }}</span>
+                    <div class="hidden sm:flex items-center gap-2 text-red-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                        </svg>
+                        <span class="text-sm font-semibold">{{ Auth::user()->first_name ?? 'Guest' }}</span>
+                    </div>
+
 
                     <button @click="sidebarOpen = true" class="p-2 rounded-md hover:bg-red-800 text-white focus:outline-none transition" title="Menu">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-7 h-7">
@@ -135,8 +141,18 @@
     </footer>
 
     @if(Auth::check() && is_null(Auth::user()->telegram_id))
-        <div class="fixed bottom-6 right-6 bg-white border border-gray-200 shadow-xl rounded-lg p-4 z-50 max-w-xs flex flex-col gap-3">
-            <div class="flex items-start gap-3">
+        <div x-data="{ showTelegramBanner: true }" 
+             x-show="showTelegramBanner" 
+             x-transition.opacity
+             class="fixed bottom-6 right-6 bg-white border border-gray-200 shadow-xl rounded-lg p-4 z-50 max-w-xs flex flex-col gap-3 relative">
+            
+            <button @click="showTelegramBanner = false" type="button" class="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition p-1" title="Dismiss">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <div class="flex items-start gap-3 mt-2">
                 <div class="bg-blue-100 p-2 rounded-full text-blue-600 flex-shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.125A59.769 59.769 0 0121.485 12 59.768 59.768 0 013.27 20.875L5.999 12Zm0 0h7.5" />
@@ -148,11 +164,11 @@
                 </div>
             </div>
             <button type="button" onclick="openGlobalTelegramModal({{ Auth::id() }})" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 rounded transition">
-               Activate Telegram
+                Activate Telegram
             </button>
-
         </div>
     @endif
+
     <div id="globalTelegramModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center overflow-y-auto overflow-x-hidden bg-black bg-opacity-50 transition-opacity">
         <div class="relative p-4 w-full max-w-md max-h-full">
             <div class="relative bg-white rounded-lg shadow">
@@ -193,35 +209,50 @@
             // Show the modal
             document.getElementById('globalTelegramModal').classList.remove('hidden');
             
-            // Reset the container state
-            document.getElementById('globalQrContainer').innerHTML = '<svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+            // Reset the container state to loading
+            document.getElementById('globalQrContainer').innerHTML = `
+                <div class="flex flex-col items-center">
+                    <svg class="animate-spin h-8 w-8 text-blue-600 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="text-sm text-gray-500">Generating secure link...</span>
+                </div>`;
             document.getElementById('globalTelegramLink').classList.add('hidden');
 
-            // Add CSRF token for the POST request
             let csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
             
-            // Fetch the QR code from the endpoint we fixed earlier
+            // Native fetch replacing the jQuery AJAX call
             fetch(`/users/${userId}/telegram-link`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken || '{{ csrf_token() }}' // Fallback for layout use
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken || '{{ csrf_token() }}'
                 }
             })
             .then(response => response.json())
             .then(data => {
-                if(data.qr_code && data.link) {
-                    document.getElementById('globalQrContainer').innerHTML = data.qr_code;
+                if(data.url) {
+                    // Build the QR Server URL using the returned Telegram link
+                    let qrImageUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(data.url);
+                    
+                    // Inject the image into the container
+                    document.getElementById('globalQrContainer').innerHTML = `
+                        <img src="${qrImageUrl}" alt="Telegram QR Code" class="w-48 h-48 border rounded shadow-sm mx-auto">
+                    `;
+                    
+                    // Update the link button
                     let linkBtn = document.getElementById('globalTelegramLink');
-                    linkBtn.href = data.link;
+                    linkBtn.href = data.url;
                     linkBtn.classList.remove('hidden');
                 } else {
-                    document.getElementById('globalQrContainer').innerHTML = '<p class="text-red-500">Failed to generate QR code.</p>';
+                    document.getElementById('globalQrContainer').innerHTML = '<p class="text-red-500 font-semibold">Failed to generate QR code.</p>';
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                document.getElementById('globalQrContainer').innerHTML = '<p class="text-red-500">Network error occurred.</p>';
+                document.getElementById('globalQrContainer').innerHTML = '<p class="text-red-500 font-semibold">Network error occurred.</p>';
             });
         }
 
@@ -229,6 +260,7 @@
             document.getElementById('globalTelegramModal').classList.add('hidden');
         }
     </script>
+
     
     @yield('scripts')
 
