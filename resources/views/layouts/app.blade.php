@@ -140,12 +140,13 @@
         </div>
     </footer>
 
-    @if(Auth::check() && is_null(Auth::user()->telegram_id))
+    @if(Auth::check() && empty(Auth::user()->telegram_id))
         <div x-show="showTelegramBanner" 
+             x-cloak 
              x-transition:enter="transition ease-out duration-300"
              x-transition:enter-start="opacity-0 translate-y-4"
              x-transition:enter-end="opacity-100 translate-y-0"
-             class="fixed bottom-6 right-6 bg-white border border-gray-200 shadow-xl rounded-lg p-4 z-50 max-w-xs flex flex-col gap-3 relative">
+             class="fixed bottom-6 right-6 z-[9999] w-80 bg-white border border-gray-200 shadow-2xl rounded-xl p-4 flex flex-col gap-3">
             
             <button @click="showTelegramBanner = false" type="button" class="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition p-1">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
@@ -161,7 +162,7 @@
                 </div>
                 <div>
                     <h4 class="text-sm font-bold text-gray-800">Telegram Not Linked</h4>
-                    <p class="text-xs text-gray-600 mt-1">Activate your Telegram to receive system alerts.</p>
+                    <p class="text-xs text-gray-600 mt-1">Activate your Telegram to receive alerts.</p>
                 </div>
             </div>
             <button type="button" onclick="openGlobalTelegramModal({{ Auth::id() }})" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 rounded transition">
@@ -169,6 +170,7 @@
             </button>
         </div>
     @endif
+
 
     <div id="globalTelegramModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center overflow-y-auto overflow-x-hidden bg-black bg-opacity-50 transition-opacity">
         <div class="relative p-4 w-full max-w-md max-h-full">
