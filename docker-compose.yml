@@ -12,6 +12,8 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
       - "ptrei-app04.postgres.database.azure.com:10.0.1.4"
+    dns:
+      - 168.63.129.16
     networks:
       - iot-net
 networks:
