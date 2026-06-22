@@ -13,13 +13,24 @@
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
     <style>
+        /* Add padding inside the white card so nothing touches the edges */
+        .dataTables_wrapper {
+            padding: 1.5rem; 
+        }
+        
+        /* Add space between the search bar and the table headers */
+        .dataTables_wrapper .dataTables_filter {
+            margin-bottom: 1rem; 
+        }
+
         .dataTables_wrapper .dataTables_length select,
         .dataTables_wrapper .dataTables_filter input {
             border: 1px solid #e2e8f0;
             padding: 4px 8px;
             border-radius: 4px;
-            margin-bottom: 10px;
+            margin-left: 8px; /* Adds a tiny gap between "Search:" text and the input box */
         }
+        
         /* Prevents Alpine flickering before load */
         [x-cloak] { display: none !important; }
     </style>
