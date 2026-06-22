@@ -48,13 +48,12 @@
                 </div>
 
                 <div class="flex items-center space-x-4">
-                    <div class="hidden sm:flex items-center gap-2 text-red-100">
+                    <button onclick="openCredentialModal()" class="hidden sm:flex items-center gap-2 text-red-100 hover:text-white transition focus:outline-none" title="Update Credentials">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                         </svg>
                         <span class="text-sm font-semibold">{{ Auth::user()->first_name ?? 'Guest' }}</span>
-                    </div>
-
+                    </button>
 
                     <button @click="sidebarOpen = true" class="p-2 rounded-md hover:bg-red-800 text-white focus:outline-none transition" title="Menu">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-7 h-7">
@@ -277,6 +276,55 @@
 
     
     @yield('scripts')
+
+    @auth
+    <div id="credentialModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center overflow-y-auto overflow-x-hidden bg-black bg-opacity-50 transition-opacity">
+        <div class="relative p-4 w-full max-w-md max-h-full">
+            <div class="relative bg-white rounded-lg shadow">
+                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
+                    <h3 class="text-lg font-semibold text-gray-900">Update Credentials</h3>
+                    <button type="button" onclick="closeCredentialModal()" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center">
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg>
+                    </button>
+                </div>
+                
+                <form action="/users/{{ Auth::id() }}/credentials" method="POST" class="p-4 md:p-5">
+                    @csrf
+                    @method('PUT')
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                        <input type="text" name="username" value="{{ Auth::user()->username }}" class="w-full border border-gray-300 p-2 rounded focus:ring-red-500 focus:border-red-500" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                        <input type="password" name="password" class="w-full border border-gray-300 p-2 rounded focus:ring-red-500 focus:border-red-500" placeholder="Leave blank to keep current">
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+                        <input type="password" name="password_confirmation" class="w-full border border-gray-300 p-2 rounded focus:ring-red-500 focus:border-red-500" placeholder="Confirm new password">
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="closeCredentialModal()" class="px-4 py-2 border rounded text-gray-600 hover:bg-gray-50 transition">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openCredentialModal() {
+            document.getElementById('credentialModal').classList.remove('hidden');
+        }
+        function closeCredentialModal() {
+            document.getElementById('credentialModal').classList.add('hidden');
+        }
+    </script>
+    @endauth
 
 </body>
 </html>
