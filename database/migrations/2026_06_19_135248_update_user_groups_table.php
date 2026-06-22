@@ -15,9 +15,10 @@ return new class extends Migration
             // 1. Drop the old columns
             $table->dropColumn(['engine', 'pump']);
             
-            // 2. Add the new boolean column
+            // 2. Add the new boolean columns
             // Adding a default value prevents database crashes if you already have existing rows
             $table->boolean('view')->default(false); 
+            $table->boolean('administrator')->default(false); 
         });
     }
 
@@ -27,8 +28,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('user_groups', function (Blueprint $table) {
-            // 1. Remove the view column if we roll back
-            $table->dropColumn('view');
+            // 1. Remove the new columns if we roll back
+            $table->dropColumn(['view', 'administrator']);
             
             // 2. Re-add the old columns 
             // (Assuming they were booleans previously based on standard permission setups. 
