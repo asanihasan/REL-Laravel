@@ -135,12 +135,6 @@
     </div>
 
     <main class="flex-grow @yield('main_class', 'container mx-auto px-4 py-8 max-w-7xl')">
-        @if(session('success'))
-            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 shadow-sm" role="alert">
-                <p>{{ session('success') }}</p>
-            </div>
-        @endif
-
         @yield('content')
     </main>
 
