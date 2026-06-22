@@ -18,6 +18,7 @@ class UserGroup extends Model
         'control',
         'historical',
         'data_manager',
+        'administrator', // <-- Added here
     ];
 
     protected $casts = [
@@ -25,6 +26,7 @@ class UserGroup extends Model
         'control' => 'boolean',
         'historical' => 'boolean',
         'data_manager' => 'boolean',
+        'administrator' => 'boolean', // <-- Added here
     ];
 
     public function users()
