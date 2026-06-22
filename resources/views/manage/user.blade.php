@@ -338,18 +338,20 @@
         // Initialize Users Table
         $('#usersTable').DataTable({
             paging: false,
-            order: [[0, 'desc']], // Sorts by Username/Created Time (Column 0) descending
+            info: false, // <-- THIS REMOVES THE BOTTOM TEXT
+            order: [[0, 'desc']], 
             columnDefs: [
-                { orderable: false, targets: 5 } // Disables sorting on the Actions column
+                { orderable: false, targets: 5 } 
             ]
         });
 
         // Initialize Groups Table
         $('#groupsTable').DataTable({
             paging: false,
-            order: [[0, 'desc']], // Sorts by Group Name/Created Time descending
+            info: false, // <-- THIS REMOVES THE BOTTOM TEXT
+            order: [[0, 'desc']], 
             columnDefs: [
-                { orderable: false, targets: 2 } // Disables sorting on the Actions column
+                { orderable: false, targets: 2 } 
             ]
         });
     });
