@@ -16,11 +16,12 @@ class DatabaseSeeder extends Seeder
         $superAdminGroup = UserGroup::updateOrCreate(
             ['id' => 1],
             [
-                'name'         => 'Super Admin',
-                'view'         => true,
-                'control'      => true,
-                'historical'   => true,
-                'data_manager' => true,
+                'name'          => 'Super Admin',
+                'view'          => true,
+                'control'       => true,
+                'historical'    => true,
+                'data_manager'  => true,
+                'administrator' => true, // <-- Added the new administrator permission here
             ]
         );
 
@@ -30,7 +31,7 @@ class DatabaseSeeder extends Seeder
         if (!$adminUser) {
             User::create([
                 'username'      => 'admin',
-                'first_name'    => 'Administrator', // <-- Changed from 'name' to 'first_name'
+                'first_name'    => 'Administrator', 
                 'email'         => 'pmo.admin@rel.co.id',
                 'password'      => Hash::make('RELadmin01!'),
                 'user_group_id' => $superAdminGroup->id,
