@@ -292,6 +292,8 @@
                     @csrf
                     @method('PUT')
                     
+                    <input type="hidden" name="return_to" value="{{ request()->fullUrl() }}">
+                    
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
                         <input type="text" name="username" value="{{ Auth::user()->username }}" class="w-full border border-gray-300 p-2 rounded focus:ring-red-500 focus:border-red-500" required>
