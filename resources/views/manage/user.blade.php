@@ -55,7 +55,7 @@
         </div>
 
         <div class="bg-white rounded-lg shadow overflow-hidden">
-            <table class="w-full text-left border-collapse">
+               <table id="usersTable" class="w-full text-left border-collapse">
                 <thead class="bg-gray-50 border-b">
                     <tr>
                         <th class="p-3 text-sm font-semibold text-gray-600">Username</th>
@@ -69,7 +69,12 @@
                 <tbody class="divide-y divide-gray-200">
                     @foreach($users as $user)
                     <tr class="hover:bg-gray-50">
-                        <td class="p-3 font-medium text-gray-800">{{ $user->username }}</td>
+                        <td class="p-3" data-sort="{{ $user->created_at }}">
+                            <div class="font-medium text-gray-800">{{ $user->username }}</div>
+                            <div class="text-xs text-gray-500 mt-0.5">
+                                {{ $user->created_at ? $user->created_at->format('d M Y, H:i') : '-' }}
+                            </div>
+                        </td>
                         <td class="p-3">{{ $user->first_name }} {{ $user->last_name }}</td>
                         <td class="p-3 text-gray-600">{{ $user->email }}</td>
                         <td class="p-3">
@@ -121,7 +126,7 @@
         </div>
 
         <div class="bg-white rounded-lg shadow overflow-hidden">
-            <table class="w-full text-left border-collapse">
+            <table id="groupsTable" class="w-full text-left border-collapse">
                 <thead class="bg-gray-50 border-b">
                     <tr>
                         <th class="p-3 text-sm font-semibold text-gray-600">Group Name</th>
@@ -132,7 +137,7 @@
                 <tbody class="divide-y divide-gray-200">
                     @foreach($userGroups as $group)
                     <tr class="hover:bg-gray-50">
-                        <td class="p-3 font-medium text-gray-800">{{ $group->name }}</td>
+                        <td class="p-3 font-medium text-gray-800" data-sort="{{ $group->created_at }}">{{ $group->name }}</td>
                         <td class="p-3">
                             <div class="flex flex-wrap gap-1">
                                 @if($group->view) <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">View</span> @endif
@@ -330,6 +335,27 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Initialize Users Table
+        $('#usersTable').DataTable({
+            paging: false,
+            order: [[0, 'desc']], // Sorts by Username/Created Time (Column 0) descending
+            columnDefs: [
+                { orderable: false, targets: 5 } // Disables sorting on the Actions column
+            ]
+        });
+
+        // Initialize Groups Table
+        $('#groupsTable').DataTable({
+            paging: false,
+            order: [[0, 'desc']], // Sorts by Group Name/Created Time descending
+            columnDefs: [
+                { orderable: false, targets: 2 } // Disables sorting on the Actions column
+            ]
+        });
+    });
+</script>
 <script>
     function switchTab(tab) {
         if (tab === 'users') {
