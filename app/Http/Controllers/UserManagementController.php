@@ -196,4 +196,38 @@ class UserManagementController extends Controller
         return response()->json(['url' => $url]);
     }
 
+    public function updateCredentials(Request $request, $id)
+    {
+        $user = \App\Models\User::findOrFail($id);
+
+        // SECURITY CHECK: Non-administrators can ONLY edit themselves.
+        $currentUser = \Illuminate\Support\Facades\Auth::user();
+        if (!$currentUser->userGroup->administrator && $currentUser->id !== $user->id) {
+            return back()->with('error', 'Unauthorized: You can only update your own credentials.');
+        }
+
+        // Validate the incoming data
+        $rules = [
+            'username' => 'required|string|unique:users,username,' . $user->id,
+        ];
+
+        // Only validate password if they actually typed something in
+        if ($request->filled('password')) {
+            $rules['password'] = 'required|string|min:6|confirmed';
+        }
+
+        $request->validate($rules);
+
+        // Apply changes
+        $user->username = $request->input('username');
+        
+        if ($request->filled('password')) {
+            $user->password = \Illuminate\Support\Facades\Hash::make($request->input('password'));
+        }
+
+        $user->save();
+
+        return back()->with('success', 'Credentials updated successfully.');
+    }
+
 }
