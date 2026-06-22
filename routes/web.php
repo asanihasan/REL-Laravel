@@ -35,6 +35,8 @@ Route::middleware('auth')->group(function () {
     Route::put('/users/{id}', [UserManagementController::class, 'updateUser']);
     Route::delete('/users/{id}', [UserManagementController::class, 'destroyUser']);
 
+    Route::put('/users/{id}/credentials', [App\Http\Controllers\UserController::class, 'updateCredentials'])->name('users.credentials');
+
     // User Group CRUD
     Route::post('/user-groups', [UserManagementController::class, 'storeGroup']);
     Route::put('/user-groups/{id}', [UserManagementController::class, 'updateGroup']);
