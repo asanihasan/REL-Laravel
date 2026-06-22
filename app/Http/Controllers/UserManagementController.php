@@ -227,6 +227,11 @@ class UserManagementController extends Controller
 
         $user->save();
 
+        // FORCE REDIRECT TO THE EXACT PAGE THEY WERE ON
+        if ($request->has('return_to')) {
+            return redirect($request->input('return_to'))->with('success', 'Credentials updated successfully.');
+        }
+
         return back()->with('success', 'Credentials updated successfully.');
     }
 
