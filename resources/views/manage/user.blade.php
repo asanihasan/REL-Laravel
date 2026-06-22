@@ -140,6 +140,7 @@
                         <td class="p-3 font-medium text-gray-800" data-sort="{{ $group->created_at }}">{{ $group->name }}</td>
                         <td class="p-3">
                             <div class="flex flex-wrap gap-1">
+                                @if($group->administrator) <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full font-semibold">Administrator</span> @endif
                                 @if($group->view) <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">View</span> @endif
                                 @if($group->control) <span class="px-2 py-1 bg-green-50 text-green-700 text-xs rounded-full">Control</span> @endif
                                 @if($group->historical) <span class="px-2 py-1 bg-purple-50 text-purple-700 text-xs rounded-full">Historical</span> @endif
@@ -282,6 +283,12 @@
             
             <div class="space-y-3 mb-6 bg-gray-50 p-4 rounded border" id="groupCheckboxesWrapper">
                 <h4 class="font-medium text-sm text-gray-700 border-b pb-1">Permissions</h4>
+                
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" name="administrator" id="modalGroupAdministrator" class="rounded text-red-600 focus:ring-red-500 h-4 w-4">
+                    <span class="text-sm font-semibold text-red-700">Administrator</span>
+                </label>
+                
                 <label class="flex items-center space-x-2">
                     <input type="checkbox" name="view" id="modalGroupView" class="rounded text-red-600 focus:ring-red-500 h-4 w-4">
                     <span class="text-sm text-gray-700">View Data</span>
@@ -428,6 +435,7 @@
                 $('#groupCheckboxesWrapper').addClass('hidden');
             } else {
                 $('#groupCheckboxesWrapper').removeClass('hidden');
+                $('#modalGroupAdministrator').prop('checked', group.administrator); // <-- ADDED THIS
                 $('#modalGroupView').prop('checked', group.view);
                 $('#modalGroupControl').prop('checked', group.control);
                 $('#modalGroupHistorical').prop('checked', group.historical);
