@@ -144,36 +144,101 @@
         </div>
     </footer>
 
-    @if(Auth::check() && empty(Auth::user()->telegram_id))
-        <div x-show="showTelegramBanner" 
-             x-cloak 
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0 translate-y-4"
-             x-transition:enter-end="opacity-100 translate-y-0"
-             class="fixed bottom-6 right-6 z-[9999] w-80 bg-white border border-gray-200 shadow-2xl rounded-xl p-4 flex flex-col gap-3">
-            
-            <button @click="showTelegramBanner = false" type="button" class="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition p-1">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-
-            <div class="flex items-start gap-3 mt-2">
-                <div class="bg-blue-100 p-2 rounded-full text-blue-600 flex-shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.125A59.769 59.769 0 0121.485 12 59.768 59.768 0 013.27 20.875L5.999 12Zm0 0h7.5" />
-                    </svg>
+    <div class="fixed bottom-6 right-6 z-[9999] flex flex-col gap-4 items-end pointer-events-none w-80">
+        @if(session('success'))
+            <div x-data="{ showToast: true }" 
+                 x-show="showToast" 
+                 x-init="setTimeout(() => showToast = false, 5000)"
+                 x-transition:enter="transition ease-out duration-300 transform"
+                 x-transition:enter-start="opacity-0 translate-x-8"
+                 x-transition:enter-end="opacity-100 translate-x-0"
+                 x-transition:leave="transition ease-in duration-200 transform"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0 translate-x-8"
+                 class="pointer-events-auto relative w-full p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded shadow-xl flex items-start gap-3">
+                
+                <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                <div class="flex-1 pr-4">
+                    <p class="text-sm font-medium">{{ session('success') }}</p>
                 </div>
-                <div>
-                    <h4 class="text-sm font-bold text-gray-800">Telegram Not Linked</h4>
-                    <p class="text-xs text-gray-600 mt-1">Activate your Telegram to receive alerts.</p>
-                </div>
+                <button @click="showToast = false" class="absolute top-2 right-2 text-green-600 hover:text-green-800 transition p-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
             </div>
-            <button type="button" onclick="openGlobalTelegramModal({{ Auth::id() }})" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 rounded transition">
-                Activate Telegram
-            </button>
-        </div>
-    @endif
+        @endif
+
+        @if(session('error'))
+            <div x-data="{ showToast: true }" 
+                 x-show="showToast" 
+                 x-transition:enter="transition ease-out duration-300 transform"
+                 x-transition:enter-start="opacity-0 translate-x-8"
+                 x-transition:enter-end="opacity-100 translate-x-0"
+                 class="pointer-events-auto relative w-full p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded shadow-xl flex items-start gap-3">
+                
+                <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                <div class="flex-1 pr-4">
+                    <p class="text-sm font-medium">{{ session('error') }}</p>
+                </div>
+                <button @click="showToast = false" class="absolute top-2 right-2 text-red-600 hover:text-red-800 transition p-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+        @endif
+
+        @if($errors->any())
+            <div x-data="{ showToast: true }" 
+                 x-show="showToast" 
+                 x-transition:enter="transition ease-out duration-300 transform"
+                 x-transition:enter-start="opacity-0 translate-x-8"
+                 x-transition:enter-end="opacity-100 translate-x-0"
+                 class="pointer-events-auto relative w-full p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded shadow-xl flex items-start gap-3">
+                
+                <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                <div class="flex-1 pr-4">
+                    <ul class="list-disc list-inside text-sm font-medium space-y-1">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                <button @click="showToast = false" class="absolute top-2 right-2 text-red-600 hover:text-red-800 transition p-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+        @endif
+
+        @if(Auth::check() && empty(Auth::user()->telegram_id))
+            <div x-show="showTelegramBanner" 
+                 x-cloak 
+                 x-transition:enter="transition ease-out duration-300 transform"
+                 x-transition:enter-start="opacity-0 translate-y-4"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 class="pointer-events-auto relative w-full bg-white border border-gray-200 shadow-xl rounded-lg p-4 flex flex-col gap-3">
+                
+                <button @click="showTelegramBanner = false" type="button" class="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition p-1" title="Dismiss">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+
+                <div class="flex items-start gap-3 mt-2">
+                    <div class="bg-blue-100 p-2 rounded-full text-blue-600 flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.125A59.769 59.769 0 0121.485 12 59.768 59.768 0 013.27 20.875L5.999 12Zm0 0h7.5" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-gray-800">Telegram Not Linked</h4>
+                        <p class="text-xs text-gray-600 mt-1">Activate your Telegram to receive alerts.</p>
+                    </div>
+                </div>
+                <button type="button" onclick="openGlobalTelegramModal({{ Auth::id() }})" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 rounded transition">
+                    Activate Telegram
+                </button>
+            </div>
+        @endif
+    </div>
+
 
 
     <div id="globalTelegramModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center overflow-y-auto overflow-x-hidden bg-black bg-opacity-50 transition-opacity">
