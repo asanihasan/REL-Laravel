@@ -38,7 +38,7 @@
                         <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Network</span>
                     </div>
                     <div class="flex items-center gap-1.5" title="Modbus Connection">
-                        <div id="dot_modbus" class="w-2.5 h-2.5 rounded-full {{ $pump->modbus_status ? 'bg-green-500' : 'bg-red-500' }} transition-colors duration-300"></div>
+                        <div id="dot_modbus" class="w-2.5 h-2.5 rounded-full {{ strtolower($pump->status ?? '') == 'online' ? 'bg-green-500' : 'bg-red-500' }} transition-colors duration-300"></div>
                         <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Modbus</span>
                     </div>
                 </div>
@@ -455,14 +455,6 @@
             defaultDate: [new Date(Date.now() - 24 * 60 * 60 * 1000), new Date()]
         });
         
-        const pumpData = {{ Js::from($pump) }};
-        
-        // Force the dynamic join properties into the JS object
-        pumpData.latitude = {{ Js::from($pump->latitude) }};
-        pumpData.longitude = {{ Js::from($pump->longitude) }};
-        
-        console.log(pumpData);
-
         loadHistory();
 
         // Real-time Dashboard Update (1000ms)
@@ -500,8 +492,6 @@
                     updateGauge('gauge_engine_temp', data.engine_temp_mech);
                     updateGauge('gauge_coolant_temp', data.coolant_temp);
                     updateGauge('gauge_fuel_level', data.fuel_level);
-
-                    console.log(data)
                 }
             });
         }, 1000);
