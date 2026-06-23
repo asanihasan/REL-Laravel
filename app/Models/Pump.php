@@ -58,4 +58,10 @@ class Pump extends Model
         if (!$this->last_update) return 'offline';
         return $this->last_update->diffInSeconds(now()) > 10 ? 'offline' : 'online';
     }
+
+    public function scopeWithLocation($query)
+    {
+        return $query->leftJoin('pump_locations', 'pumps.id', '=', 'pump_locations.pump_id')
+                     ->addSelect('pumps.*', 'pump_locations.latitude', 'pump_locations.longitude');
+    }
 }

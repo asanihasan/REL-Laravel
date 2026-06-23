@@ -436,6 +436,11 @@
         });
         
         const pumpData = {{ Js::from($pump) }};
+        
+        // Force the dynamic join properties into the JS object
+        pumpData.latitude = {{ Js::from($pump->latitude) }};
+        pumpData.longitude = {{ Js::from($pump->longitude) }};
+        
         console.log(pumpData);
 
         loadHistory();

@@ -18,9 +18,7 @@ class PumpController extends Controller
 
     public function show($id)
     {
-        $pump = Pump::leftJoin('pump_locations', 'pumps.id', '=', 'pump_locations.pump_id')
-            ->select('pumps.*', 'pump_locations.latitude', 'pump_locations.longitude')
-            ->findOrFail($id);
+        $pump = Pump::withLocation()->findOrFail($id);
         
         // Fetch history
         $history = DB::table('historical_pumps')
@@ -104,11 +102,8 @@ class PumpController extends Controller
     public function data($id)
     {
         // 1. Fetch the single pump, explicitly asking for the coordinates via Left Join
-        $pump = Pump::leftJoin('pump_locations', 'pumps.id', '=', 'pump_locations.pump_id')
-            ->select('pumps.*', 'pump_locations.latitude', 'pump_locations.longitude')
-            ->findOrFail($id);
+        $pump = Pump::withLocation()->findOrFail($id);
 
-        // (Optional) If your 'status' relies on an accessor, ensure it's appended
         $pump->append('status');
 
         return response()->json($pump);
@@ -136,13 +131,10 @@ class PumpController extends Controller
 
     public function maps()
     {
-        // 1. Join the pumps table with the pump_locations table
-        // 2. Select everything from pumps, and just the coordinates from locations
-        $pumpsWithLocations = Pump::join('pump_locations', 'pumps.id', '=', 'pump_locations.pump_id')
-            ->select('pumps.*', 'pump_locations.latitude', 'pump_locations.longitude')
-            ->get();
+        // 1. Fetch ALL pumps with their locations attached
+        $pumpsWithLocations = Pump::withLocation()->get();
 
-        // Force Laravel to append the custom 'status' attribute to every pump in the collection
+        // 2. Force Laravel to append the custom 'status' attribute to every pump in the collection
         $pumpsWithLocations->each->append('status');
 
         return view('pumps.maps', compact('pumpsWithLocations'));
