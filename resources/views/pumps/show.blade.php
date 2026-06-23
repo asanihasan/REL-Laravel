@@ -26,6 +26,17 @@
                     <svg class="w-4 h-4 mr-1 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     {{ $pump->location }}
                 </p>
+                
+                <div class="flex items-center gap-4 mt-3">
+                    <div class="flex items-center gap-1.5" title="Network Connection">
+                        <div id="dot_network" class="w-2.5 h-2.5 rounded-full {{ strtolower($pump->connection ?? '') == 'online' ? 'bg-green-500' : 'bg-red-500' }} transition-colors duration-300"></div>
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Network</span>
+                    </div>
+                    <div class="flex items-center gap-1.5" title="Modbus Connection">
+                        <div id="dot_modbus" class="w-2.5 h-2.5 rounded-full {{ $pump->modbus_status ? 'bg-green-500' : 'bg-red-500' }} transition-colors duration-300"></div>
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Modbus</span>
+                    </div>
+                </div>
             </div>
 
             <div class="flex flex-row gap-3 md:flex-col items-center md:items-end justify-between md:justify-start bg-gray-50 md:bg-transparent p-3 md:p-0 rounded-lg">
@@ -403,6 +414,8 @@
                     $('#disp_fuel_rate').text(data.fuel_rate);
                     $('#disp_fuel_level_text').text(data.fuel_level);
                     $('#disp_fuel_level_bar').css('width', Math.min(data.fuel_level, 100) + '%');
+                    $('#dot_network').removeClass('bg-green-500 bg-red-500').addClass((data.connection || '').toLowerCase() === 'online' ? 'bg-green-500' : 'bg-red-500');
+                    $('#dot_modbus').removeClass('bg-green-500 bg-red-500').addClass(data.modbus_status ? 'bg-green-500' : 'bg-red-500');
                     
                     renderDigitalInputs(data.digital_inputs);
                     renderControllerMode(data.auto_manual_status);

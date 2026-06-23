@@ -6,6 +6,8 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
     .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: #1e3a8a !important; color: white !important; border: none; border-radius: 4px; }
@@ -18,7 +20,8 @@
 <div class="space-y-3">
     
     <div id="headerStatusContainer" class="bg-white p-6 rounded-lg shadow-md border-t-4 {{ $pump->status == 'online' ? 'border-green-500' : 'border-red-500' }} transition-colors duration-300">
-        <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-3">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+            
             <div class="flex-grow">
                 <div class="flex flex-wrap items-center gap-3">
                     <h1 class="text-2xl md:text-3xl font-bold text-gray-800">{{ $pump->name }}</h1>
@@ -28,9 +31,20 @@
                     <svg class="w-4 h-4 mr-1 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     {{ $pump->location }}
                 </p>
+                
+                <div class="flex items-center gap-4 mt-3">
+                    <div class="flex items-center gap-1.5" title="Network Connection">
+                        <div id="dot_network" class="w-2.5 h-2.5 rounded-full {{ strtolower($pump->connection ?? '') == 'online' ? 'bg-green-500' : 'bg-red-500' }} transition-colors duration-300"></div>
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Network</span>
+                    </div>
+                    <div class="flex items-center gap-1.5" title="Modbus Connection">
+                        <div id="dot_modbus" class="w-2.5 h-2.5 rounded-full {{ $pump->modbus_status ? 'bg-green-500' : 'bg-red-500' }} transition-colors duration-300"></div>
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Modbus</span>
+                    </div>
+                </div>
             </div>
 
-            <div class="flex flex-row gap-2 md:flex-col items-center md:items-end justify-between md:justify-start bg-gray-50 md:bg-transparent p-3 md:p-0 rounded-lg">
+            <div class="flex flex-row gap-3 md:flex-col items-center md:items-end justify-between md:justify-start bg-gray-50 md:bg-transparent p-3 md:p-0 rounded-lg">
                 <div id="statusBadge" class="inline-flex items-center px-4 py-2 rounded-lg text-white font-bold shadow-sm {{ $pump->status == 'online' ? 'bg-green-600' : 'bg-red-600' }} transition-colors duration-300">
                     <span class="animate-pulse mr-2 text-xl">•</span> 
                     <span id="statusText">{{ ucfirst($pump->status) }}</span>
@@ -186,6 +200,12 @@
                 <tbody class="divide-y"></tbody>
             </table>
         </div>
+    </div>
+
+    <div class="bg-white p-5 rounded-lg shadow-md border-t-4 border-blue-600 mt-2">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Location Map</h3>
+        
+        <div id="pumpMap" class="w-full h-80 rounded border z-[1]"></div>
     </div>
 </div>
 @endsection
@@ -456,6 +476,8 @@
                     $('#statusBadge').toggleClass('bg-green-600', isOnline).toggleClass('bg-red-600', !isOnline);
                     $('#statusText').text(isOnline ? 'Online' : 'Offline');
                     $('#lastUpdateText').text('Updated: ' + getLocalTime(data.last_update));
+                    $('#dot_network').removeClass('bg-green-500 bg-red-500').addClass((data.connection || '').toLowerCase() === 'online' ? 'bg-green-500' : 'bg-red-500');
+                    $('#dot_modbus').removeClass('bg-green-500 bg-red-500').addClass(data.modbus_status ? 'bg-green-500' : 'bg-red-500');
                     
                     // Update Row 1
                     $('#val_oil_pressure').text(data.oil_pressure ?? '0');
@@ -483,6 +505,54 @@
                 }
             });
         }, 1000);
+
+        const pumpLat = {{ $pump->latitude ?? 'null' }};
+        const pumpLon = {{ $pump->longitude ?? 'null' }};
+        const pumpStatus = "{{ $pump->status ?? 'offline' }}";
+
+        const mapContainer = document.getElementById('pumpMap');
+
+        if (pumpLat !== null && pumpLon !== null) {
+            // 1. Initialize map centered on the pump
+            const map = L.map('pumpMap').setView([pumpLat, pumpLon], 13);
+
+            // 2. Add Light Theme Tiles
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap &copy; CARTO',
+                subdomains: 'abcd',
+                maxZoom: 20
+            }).addTo(map);
+
+            // 3. Create Custom Colored Pin
+            const pinColor = (pumpStatus === 'online') ? '#22c55e' : '#ef4444';
+            const svgIcon = L.divIcon({
+                html: `
+                    <div class="flex items-center justify-center w-full h-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${pinColor}" class="w-8 h-8 drop-shadow-md stroke-white stroke-2">
+                            <path fill-rule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742c1.002-.722 2.607-1.99 3.61-3.376C18.225 16.826 20 14.434 20 11a8 8 0 10-16 0c0 3.434 1.775 5.826 2.78 7.218 1.003 1.387 2.608 2.654 3.61 3.376a16.974 16.974 0 001.144.742zM12 13.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                `,
+                className: 'custom-div-icon',
+                iconSize: [32, 32],
+                iconAnchor: [16, 32] 
+            });
+
+            // 4. Add Marker to Map
+            L.marker([pumpLat, pumpLon], { icon: svgIcon })
+                .addTo(map)
+                .bindPopup(`<b>{{ $pump->name }}</b><br>Lat: ${pumpLat}<br>Lon: ${pumpLon}`);
+                
+        } else {
+            // Graceful fallback if no coordinates exist
+            mapContainer.innerHTML = `
+                <div class="flex flex-col items-center justify-center w-full h-full bg-gray-50 text-gray-400">
+                    <svg class="w-12 h-12 mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <span class="font-bold">Location data not available</span>
+                    <span class="text-xs mt-1">Install GPS module to enable mapping.</span>
+                </div>
+            `;
+        }
     });
 </script>
 @endsection
