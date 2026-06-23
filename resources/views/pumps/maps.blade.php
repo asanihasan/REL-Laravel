@@ -179,7 +179,7 @@
                                     <p><strong class="text-gray-400">RPM:</strong> <span class="text-gray-200">${rpm}</span></p>
                                     <p><strong class="text-gray-400">Flow:</strong> <span class="text-gray-200">${flowRate} L/s</span></p>
                                     
-                                    <p><strong class="text-gray-400">Location:</strong> 
+                                    <p class="whitespace-normal break-words"><strong class="text-gray-400">Location:</strong> 
                                         <span class="text-gray-200 font-medium">${displayLocation}</span>
                                     </p>
                                 </div>
@@ -208,7 +208,7 @@
                                 </span>
                             </div>
                             <div class="text-xs text-gray-300 space-y-1">
-                                <p><strong class="text-gray-400">Location:</strong> 
+                                <p class="whitespace-normal break-words"><strong class="text-gray-400">Location:</strong> 
                                     <span class="text-gray-200 font-medium">${displayLocation}</span>
                                 </p>
                             </div>
