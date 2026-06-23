@@ -229,7 +229,7 @@
         var option = {
             series: [{
                 type: 'gauge',
-                radius: '95%',          // <-- ADDED: Makes the gauge significantly larger
+                radius: '90%',          // <-- ADDED: Makes the gauge significantly larger
                 center: ['50%', '55%'], // <-- ADDED: Centers it perfectly under your title text
                 min: min,
                 max: max,
@@ -240,9 +240,9 @@
                         width: 10,
                         // <-- UPDATED: Light Blue (50%), Medium Blue (85%), Dark Blue (100%)
                         color: [
-                            [0.5, '#93c5fd'], 
-                            [0.85, '#3b82f6'], 
-                            [1, '#1e3a8a']
+                            [0.5, '#93fdaa'], 
+                            [0.85, '#f1ff72'], 
+                            [1, '#ff7b7b']
                         ] 
                     } 
                 },
