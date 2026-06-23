@@ -435,6 +435,8 @@
             defaultDate: [new Date(Date.now() - 24 * 60 * 60 * 1000), new Date()]
         });
         
+        console.log(JSON.parse("{{ json_encode($pump) }}"))
+        
         loadHistory();
 
         // Real-time Dashboard Update (1000ms)
@@ -474,6 +476,5 @@
             });
         }, 1000);
     });
-    console.log(JSON.parse("{{ json_encode($pump) }}"))
 </script>
 @endsection
