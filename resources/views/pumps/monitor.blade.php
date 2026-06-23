@@ -1,22 +1,24 @@
 @extends('layouts.app')
 
-@section('title', 'Pump Detail: ' . $pump->name)
+@section('title', 'Pump Graphical Detail: ' . $pump->name)
 
 @section('content')
-<!-- External Styles for History Section -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+
 <style>
     .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: #1e3a8a !important; color: white !important; border: none; border-radius: 4px; }
     .dataTables_wrapper .dataTables_filter input { border: 1px solid #d1d5db; border-radius: 0.375rem; padding: 0.25rem 0.5rem; margin-bottom: 1rem; }
+    
+    /* Smooth color transition for indicators */
+    .indicator-circle { transition: background-color 0.3s ease; }
 </style>
 
 <div class="space-y-6">
     
-    <!-- Responsive Header -->
     <div id="headerStatusContainer" class="bg-white p-6 rounded-lg shadow-md border-t-4 {{ $pump->status == 'online' ? 'border-green-500' : 'border-red-500' }} transition-colors duration-300">
         <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
-            
             <div class="flex-grow">
                 <div class="flex flex-wrap items-center gap-3">
                     <h1 class="text-2xl md:text-3xl font-bold text-gray-800">{{ $pump->name }}</h1>
@@ -40,7 +42,79 @@
         </div>
     </div>
 
-    <!-- Remote Control Panel -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-4 rounded-lg shadow-sm border text-center flex flex-col justify-center">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Oil Pressure</span>
+            <div class="text-2xl font-bold text-gray-800"><span id="val_oil_pressure">{{ $pump->oil_pressure ?? 0 }}</span> <span class="text-sm text-gray-500 font-normal">PSI</span></div>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-sm border text-center flex flex-col justify-center">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Battery</span>
+            <div class="text-2xl font-bold text-gray-800"><span id="val_battery">{{ $pump->battery_potential ?? 0 }}</span> <span class="text-sm text-gray-500 font-normal">V</span></div>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-sm border text-center flex flex-col justify-center">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Engine Hour</span>
+            <div class="text-2xl font-bold text-gray-800"><span id="val_engine_hours">{{ $pump->engine_hours ?? 0 }}</span> <span class="text-sm text-gray-500 font-normal">h</span></div>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-sm border text-center flex flex-col justify-center">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Fuel Rate</span>
+            <div class="text-2xl font-bold text-gray-800"><span id="val_fuel_rate">{{ $pump->fuel_rate ?? 0 }}</span> <span class="text-sm text-gray-500 font-normal">L/h</span></div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div class="bg-white p-4 rounded-lg shadow-sm border flex flex-col items-center justify-center gap-2">
+            <div id="ind_engine_running" class="indicator-circle w-6 h-6 rounded-full bg-gray-300 shadow-inner"></div>
+            <span class="text-xs font-bold text-gray-600 text-center">Engine Running</span>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-sm border flex flex-col items-center justify-center gap-2">
+            <div id="ind_auto" class="indicator-circle w-6 h-6 rounded-full bg-gray-300 shadow-inner"></div>
+            <span class="text-xs font-bold text-gray-600 text-center">Auto</span>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-sm border flex flex-col items-center justify-center gap-2">
+            <div id="ind_manual" class="indicator-circle w-6 h-6 rounded-full bg-gray-300 shadow-inner"></div>
+            <span class="text-xs font-bold text-gray-600 text-center">Manual</span>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-sm border flex flex-col items-center justify-center gap-2">
+            <div id="ind_warm_up" class="indicator-circle w-6 h-6 rounded-full bg-gray-300 shadow-inner"></div>
+            <span class="text-xs font-bold text-gray-600 text-center">Warmup</span>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-sm border flex flex-col items-center justify-center gap-2">
+            <div id="ind_cool_down" class="indicator-circle w-6 h-6 rounded-full bg-gray-300 shadow-inner"></div>
+            <span class="text-xs font-bold text-gray-600 text-center">Cooldown</span>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-sm border flex flex-col items-center justify-center gap-2">
+            <div id="ind_common_alarm" class="indicator-circle w-6 h-6 rounded-full bg-gray-300 shadow-inner"></div>
+            <span class="text-xs font-bold text-gray-600 text-center">Common Alarm</span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+        <div class="bg-white rounded-lg shadow-sm border overflow-hidden flex flex-col">
+            <div class="text-center pt-2 text-xs font-bold text-gray-500">RPM</div>
+            <div id="gauge_rpm" class="w-full h-40"></div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border overflow-hidden flex flex-col">
+            <div class="text-center pt-2 text-xs font-bold text-gray-500">Engine Speed</div>
+            <div id="gauge_engine_speed" class="w-full h-40"></div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border overflow-hidden flex flex-col">
+            <div class="text-center pt-2 text-xs font-bold text-gray-500">Flow</div>
+            <div id="gauge_flow" class="w-full h-40"></div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border overflow-hidden flex flex-col">
+            <div class="text-center pt-2 text-xs font-bold text-gray-500">Engine Temp</div>
+            <div id="gauge_engine_temp" class="w-full h-40"></div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border overflow-hidden flex flex-col">
+            <div class="text-center pt-2 text-xs font-bold text-gray-500">Coolant Temp</div>
+            <div id="gauge_coolant_temp" class="w-full h-40"></div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border overflow-hidden flex flex-col">
+            <div class="text-center pt-2 text-xs font-bold text-gray-500">Fuel Level</div>
+            <div id="gauge_fuel_level" class="w-full h-40"></div>
+        </div>
+    </div>
+
     <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-600 relative overflow-hidden">
         <div id="controlLoader" class="hidden absolute inset-0 bg-white/80 z-20 flex items-center justify-center backdrop-blur-sm transition-all duration-300">
             <div class="flex flex-col items-center">
@@ -84,103 +158,6 @@
         <div id="controlMessage" class="hidden mt-4 p-3 rounded text-sm font-bold border-l-4"></div>
     </div>
 
-    <!-- Real-time Data Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="space-y-6">
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <h3 class="text-lg font-bold border-b pb-3 mb-4 text-gray-700">Engine Performance</h3>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-blue-50 p-4 rounded text-center">
-                        <span class="block text-xs text-blue-600 font-bold uppercase tracking-wider">RPM</span>
-                        <span id="disp_rpm" class="text-2xl font-bold text-gray-800">{{ $pump->rpm }}</span>
-                    </div>
-                    <div class="bg-blue-50 p-4 rounded text-center">
-                        <span class="block text-xs text-blue-600 font-bold uppercase tracking-wider">Load</span>
-                        <span class="text-2xl font-bold text-gray-800"><span id="disp_load">{{ $pump->percent_load }}</span>%</span>
-                    </div>
-                    <div class="col-span-2 flex justify-between border-b pb-2">
-                        <span class="text-sm text-gray-500">Engine Hours</span>
-                        <span class="font-medium font-mono"><span id="disp_engine_hours">{{ $pump->engine_hours }}</span> h</span>
-                    </div>
-                    <div class="col-span-2 flex justify-between border-b pb-2">
-                        <span class="text-sm text-gray-500">Fuel Rate</span>
-                        <span class="font-medium font-mono"><span id="disp_fuel_rate">{{ $pump->fuel_rate }}</span> L/h</span>
-                    </div>
-                    <div class="col-span-2 mt-2">
-                        <div class="flex justify-between text-xs mb-1">
-                            <span class="text-gray-500">Fuel Level</span>
-                            <span class="font-bold"><span id="disp_fuel_level_text">{{ $pump->fuel_level }}</span>%</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-3">
-                            <div id="disp_fuel_level_bar" class="bg-yellow-500 h-3 rounded-full transition-all duration-1000" style="width: {{ min($pump->fuel_level, 100) }}%"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <h3 class="text-lg font-bold border-b pb-3 mb-4 text-gray-700">Digital Inputs</h3>
-                <div id="digitalInputsContainer" class="grid grid-cols-2 gap-2 text-sm">
-                    <!-- JS handles updates -->
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white p-6 rounded-lg shadow-md h-fit">
-            <h3 class="text-lg font-bold border-b pb-3 mb-4 text-gray-700">Sensors</h3>
-            <div class="space-y-6">
-                <div>
-                    <h4 class="text-xs font-bold text-gray-400 uppercase mb-3">Temperatures (°C)</h4>
-                    <div class="space-y-2">
-                        <div class="flex justify-between border-b border-gray-100"><span>Coolant</span> <span class="font-bold" id="disp_coolant_temp">{{ $pump->coolant_temp }}</span></div>
-                        <!-- <div class="flex justify-between border-b border-gray-100"><span>Oil</span> <span class="font-bold" id="disp_oil_temp">{{ $pump->oil_temp }}</span></div>
-                        <div class="flex justify-between border-b border-gray-100"><span>Pump</span> <span class="font-bold" id="disp_pump_temp">{{ $pump->pump_temp }}</span></div> -->
-                        <div class="flex justify-between border-b border-gray-100"><span>Oil</span> <span class="font-bold" id=""> - </span></div>
-                        <div class="flex justify-between border-b border-gray-100"><span>Pump</span> <span class="font-bold" id=""> - </span></div>
-                    </div>
-                </div>
-                <div>
-                    <h4 class="text-xs font-bold text-gray-400 uppercase mb-3">Pressures (PSI)</h4>
-                    <div class="space-y-2">
-                        <div class="flex justify-between border-b border-gray-100"><span>Oil</span> <span class="font-bold" id="disp_oil_pressure">{{ $pump->oil_pressure }}</span></div>
-                        <div class="flex justify-between border-b border-gray-100"><span>Suction</span> <span class="font-bold" id="disp_suction_pressure">{{ $pump->suction_pressure }}</span></div>
-                        <div class="flex justify-between border-b border-gray-100 bg-blue-50 px-2 rounded font-bold"><span>Discharge</span> <span class="text-blue-700" id="disp_discharge_pressure">{{ $pump->pump_press2 }}</span></div>
-                    </div>
-                </div>
-                <div>
-                    <h4 class="text-xs font-bold text-gray-400 uppercase mb-3">Flow Rate (L/s)</h4>
-                    <div class="space-y-2">
-                        <div class="flex justify-between border-b border-gray-100 bg-green-50 px-2 rounded font-bold">
-                            <span>Flow</span> 
-                            <span class="text-green-700" id="disp_flow">{{ $pump->pressure_or_flow['flow'] ?? 0 }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="space-y-6">
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <h3 class="text-lg font-bold border-b pb-3 mb-4 text-gray-700">System</h3>
-                <div class="grid grid-cols-2 gap-4 text-center">
-                    <div class="bg-gray-50 p-3 rounded border">
-                        <span class="block text-xs text-gray-500 uppercase">Battery</span>
-                        <span class="text-lg font-mono font-bold text-gray-800"><span id="disp_battery">{{ $pump->battery_potential }}</span> V</span>
-                    </div>
-                    <div class="bg-gray-50 p-3 rounded border">
-                        <span class="block text-xs text-gray-500 uppercase">System</span>
-                        <span class="text-lg font-mono font-bold text-gray-800"><span id="disp_system">{{ $pump->electrical_potential }}</span> V</span>
-                    </div>
-                </div>
-            </div>
-            <div id="controllerModeContainer" class="bg-white p-6 rounded-lg shadow-md">
-                <h3 class="text-lg font-bold border-b pb-3 mb-4 text-gray-700">Controller Mode</h3>
-                <!-- Content handled by JS -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Historical Logs Section -->
     <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-gray-800">
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
             <h3 class="text-xl font-bold text-gray-800">Historical Logs</h3>
@@ -221,15 +198,13 @@
 <script>
     let historyDataTable;
     let flatpickrInstance;
-    let currentHistoryData = []; // Full raw data for export
+    let currentHistoryData = []; 
 
-    /**
-     * Helper: Convert Database UTC String to Browser Local String
-     * Appends " UTC" to ensure JS treats the input correctly regardless of browser locale
-     */
+    // Charts dictionary
+    const charts = {};
+
     function getLocalTime(isoString) {
         if (!isoString) return 'N/A';
-        // If string lacks 'Z' or offset, append ' UTC' so constructor treats it as UTC
         let utcString = isoString;
         if (!utcString.includes('Z') && !utcString.includes('+')) {
             utcString += ' UTC';
@@ -241,16 +216,55 @@
         });
     }
 
-    /**
-     * Helper: Format Local Date to UTC string for Backend Query
-     * This ensures the backend (Carbon) receives UTC values for SQL querying.
-     */
     function formatToUTC(date) {
         const pad = (n) => n.toString().padStart(2, '0');
         return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())} ${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}:${pad(date.getUTCSeconds())}`;
     }
 
-    // --- 1. Historical Logic ---
+    // --- 1. Gauge Initialization Helper ---
+    function initGauge(domId, min, max, unit) {
+        var chartDom = document.getElementById(domId);
+        var myChart = echarts.init(chartDom);
+        var option = {
+            series: [{
+                type: 'gauge',
+                min: min,
+                max: max,
+                progress: { show: true, width: 8 },
+                axisLine: { lineStyle: { width: 8 } },
+                axisTick: { show: false },
+                splitLine: { length: 10, lineStyle: { width: 1, color: '#999' } },
+                axisLabel: { distance: 15, color: '#999', fontSize: 10 },
+                pointer: { icon: 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z', length: '12%', width: 10, offsetCenter: [0, '-60%'], itemStyle: { color: '#1e3a8a' } },
+                anchor: { show: true, showAbove: true, size: 10, itemStyle: { borderWidth: 2 } },
+                title: { show: false },
+                detail: { valueAnimation: true, fontSize: 18, offsetCenter: [0, '50%'], formatter: '{value} ' + unit },
+                data: [{ value: 0 }]
+            }]
+        };
+        myChart.setOption(option);
+        charts[domId] = myChart;
+    }
+
+    function updateGauge(domId, value) {
+        if(charts[domId]) {
+            charts[domId].setOption({
+                series: [{ data: [{ value: value || 0 }] }]
+            });
+        }
+    }
+
+    // --- 2. Indicator Update Helper ---
+    function updateIndicator(domId, status) {
+        const el = $('#' + domId);
+        if(status === true || status === 1 || status === "1" || status === "true") {
+            el.removeClass('bg-gray-300').addClass('bg-green-500');
+        } else {
+            el.removeClass('bg-green-500').addClass('bg-gray-300');
+        }
+    }
+
+    // --- 3. Historical Logic ---
     function loadHistory() {
         const range = flatpickrInstance.selectedDates;
         let url = `/pumps/{{ $pump->id }}/history`;
@@ -259,12 +273,10 @@
             let startDate = new Date(range[0]);
             let endDate = range[1] ? new Date(range[1]) : new Date(range[0]);
 
-            // Requirement: Automatically set 00:00 - 23:59 if same day is selected
             if (startDate.toDateString() === endDate.toDateString()) {
                 startDate.setHours(0, 0, 0, 0);
                 endDate.setHours(23, 59, 59, 999);
             }
-            
             url += `?start=${encodeURIComponent(formatToUTC(startDate))}&end=${encodeURIComponent(formatToUTC(endDate))}`;
         }
 
@@ -275,7 +287,7 @@
             url: url,
             method: 'GET',
             success: function(data) {
-                currentHistoryData = data; // Cache full dataset for export
+                currentHistoryData = data; 
                 const tbody = $('#historyTable tbody').empty();
                 
                 data.forEach(row => {
@@ -306,7 +318,6 @@
         });
     }
 
-    // Export FULL dataset using JSON mapping (ignores table pagination)
     function exportToExcel() {
         if (!currentHistoryData || currentHistoryData.length === 0) {
             alert("No data available to export. Please filter some results first.");
@@ -331,7 +342,7 @@
         XLSX.writeFile(wb, `Pump_{{ $pump->id }}_Log_${new Date().getTime()}.xlsx`);
     }
 
-    // --- 2. Control Logic ---
+    // --- 4. Control Logic ---
     function sendControl(action, value = null) {
         if (!confirm('Send command: ' + action + '?')) return;
         const loader = $('#controlLoader').removeClass('hidden');
@@ -347,8 +358,6 @@
 
     function setRpm() {
         const rpmValue = $('#rpmInput').val();
-        
-        // Convert to a number for accurate comparison
         const rpm = Number(rpmValue);
     
         if (rpmValue === "") {
@@ -356,7 +365,6 @@
             return;
         }
     
-        // Check if the value is within the 800 - 2000 range
         if (rpm >= 800 && rpm <= 2000) {
             sendControl('rpm', rpm);
         } else {
@@ -365,8 +373,21 @@
     }
 
 
-    // --- 3. Initialize ---
+    // --- 5. Initialize & Loop ---
     $(document).ready(function() {
+        // Initialize Gauges (Adjust Max values as needed based on your pump specs)
+        initGauge('gauge_rpm', 0, 3000, '');
+        initGauge('gauge_engine_speed', 0, 3000, '');
+        initGauge('gauge_flow', 0, 1000, 'L/s');
+        initGauge('gauge_engine_temp', 0, 150, '°C');
+        initGauge('gauge_coolant_temp', 0, 150, '°C');
+        initGauge('gauge_fuel_level', 0, 100, '%');
+
+        // Handle window resize for charts
+        window.addEventListener('resize', function() {
+            Object.values(charts).forEach(chart => chart.resize());
+        });
+
         flatpickrInstance = flatpickr("#dateRangePicker", {
             mode: "range", 
             enableTime: true, 
@@ -388,52 +409,30 @@
                     $('#statusText').text(isOnline ? 'Online' : 'Offline');
                     $('#lastUpdateText').text('Updated: ' + getLocalTime(data.last_update));
                     
-                    $('#disp_rpm').text(data.rpm);
-                    $('#disp_load').text(data.percent_load);
-                    $('#disp_coolant_temp').text(data.coolant_temp);
-                    $('#disp_oil_temp').text(data.oil_temp);
-                    $('#disp_pump_temp').text(data.pump_temp);
-                    $('#disp_oil_pressure').text(data.oil_pressure);
-                    $('#disp_suction_pressure').text(data.suction_pressure);
-                    $('#disp_discharge_pressure').text(data.pump_press2);
-                    $('#disp_flow').text(data.pressure_or_flow?.flow ?? '0');
-                    $('#disp_battery').text(data.battery_potential);
-                    $('#disp_system').text(data.electrical_potential);
-                    $('#disp_engine_hours').text(data.engine_hours);
-                    $('#disp_fuel_rate').text(data.fuel_rate);
-                    $('#disp_fuel_level_text').text(data.fuel_level);
-                    $('#disp_fuel_level_bar').css('width', Math.min(data.fuel_level, 100) + '%');
-                    
-                    renderDigitalInputs(data.digital_inputs);
-                    renderControllerMode(data.auto_manual_status);
+                    // Update Row 1
+                    $('#val_oil_pressure').text(data.oil_pressure ?? '0');
+                    $('#val_battery').text(data.battery_potential ?? '0');
+                    $('#val_engine_hours').text(data.engine_hours ?? '0');
+                    $('#val_fuel_rate').text(data.fuel_rate ?? '0');
+
+                    // Update Row 2 (Indicators)
+                    updateIndicator('ind_engine_running', data.auto_manual_status?.engine_running);
+                    updateIndicator('ind_auto', data.auto_manual_status?.auto);
+                    updateIndicator('ind_manual', data.auto_manual_status?.manual);
+                    updateIndicator('ind_warm_up', data.auto_manual_status?.warm_up);
+                    updateIndicator('ind_cool_down', data.auto_manual_status?.cool_down);
+                    updateIndicator('ind_common_alarm', data.auto_manual_status?.common_alarm);
+
+                    // Update Row 3 (Gauges)
+                    updateGauge('gauge_rpm', data.rpm);
+                    updateGauge('gauge_engine_speed', data.engine_speed_mech);
+                    updateGauge('gauge_flow', data.pressure_or_flow?.flow);
+                    updateGauge('gauge_engine_temp', data.engine_temp_mech);
+                    updateGauge('gauge_coolant_temp', data.coolant_temp);
+                    updateGauge('gauge_fuel_level', data.fuel_level);
                 }
             });
         }, 1000);
     });
-
-    function renderDigitalInputs(inputs) {
-        const c = $('#digitalInputsContainer').empty();
-        $.each(inputs || {}, (k, v) => {
-            if (k === 'remote_start' || k === 'remote_stop') {
-                const active = v.active;
-                const mode = v.mode;
-                c.append(`<div class="flex justify-between p-2 rounded ${active ? 'bg-green-100 text-green-800' : 'bg-gray-50 text-gray-400'}"><span class="capitalize text-xs font-semibold">${k.replace(/_/g, ' ')}</span><span class="font-bold text-xs">${mode}</span></div>`);
-            }
-        });
-        $.each(inputs || {}, (k, v) => {
-            if (k !== 'remote_start' && k !== 'remote_stop') {
-                const active = typeof v === 'object' ? v.active : v;
-                const mode = typeof v === 'object' ? v.mode : "";
-                c.append(`<div class="flex justify-between p-2 rounded ${active ? 'bg-green-100 text-green-800' : 'bg-gray-50 text-gray-400'}"><span class="capitalize text-xs font-semibold">${k.replace(/_/g, ' ')}</span><span class="font-bold text-xs">${mode}</span></div>`);
-            }
-        });
-    }
-
-    function renderControllerMode(modes) {
-        const c = $('#controllerModeContainer').find('.mode-item').remove().end();
-        $.each(modes || {}, (k, active) => {
-            c.append(`<div class="mode-item flex items-center justify-between p-1"><span class="text-sm capitalize ${active ? 'text-gray-800 font-bold' : 'text-gray-400'}">${k.replace(/_/g, ' ')}</span><div class="w-3 h-3 rounded-full ${active ? 'bg-green-500 shadow-sm' : 'bg-gray-200'}"></div></div>`);
-        });
-    }
 </script>
 @endsection
