@@ -125,7 +125,6 @@
                     
                     const isOnline = pump.status === 'online';
                     const statusDot = isOnline ? 'bg-green-500' : 'bg-red-600';
-                    // const statusTextClass = isOnline ? 'text-green-600' : 'text-red-600';
                     const pinFillColor = isOnline ? '#22c55e' : '#ef4444';
 
                     // Build the custom HTML marker
@@ -140,8 +139,8 @@
                     const customIcon = L.divIcon({
                         html: markerHtml,
                         className: 'custom-div-icon',
-                        iconSize: [32, 32],      // Changed to a clean square
-                        iconAnchor: [16, 32]     // Crucial: Anchors the bottom tip of the SVG to the map coordinate
+                        iconSize: [32, 32],      
+                        iconAnchor: [16, 32]     
                     });
 
                     const marker = L.marker([pump.latitude, pump.longitude], { 
@@ -149,15 +148,15 @@
                         pumpStatus: pump.status 
                     });
 
-                    // --- NEW: Helper function to generate the popup HTML dynamically ---
-                    // This allows us to easily redraw the popup when the address loads
-                    const generatePopupHtml = (addressText, isFetching) => {
-                        // Safely extract nested JSON values with fallbacks to prevent crashes
+                    // Grab the pre-saved location from the database, or provide a fallback
+                    const displayLocation = pump.location ? pump.location : 'Unknown Area';
+
+                    // --- HTML Templates ---
+                    const generatePopupHtml = () => {
                         const isRunning = pump.auto_manual_status && pump.auto_manual_status.engine_running;
                         const flowRate = pump.pressure_or_flow && pump.pressure_or_flow.flow ? pump.pressure_or_flow.flow : 0;
                         const rpm = pump.rpm || 0;
 
-                        // Color code the engine state
                         const engineStateHtml = isRunning 
                             ? '<span class="text-green-400 font-medium">Running</span>' 
                             : '<span class="text-gray-500 font-medium">Stopped</span>';
@@ -181,7 +180,7 @@
                                     <p><strong class="text-gray-400">Flow:</strong> <span class="text-gray-200">${flowRate} L/s</span></p>
                                     
                                     <p><strong class="text-gray-400">Location:</strong> 
-                                        <span class="${isFetching ? 'text-gray-400 italic' : 'text-gray-200 font-medium'}">${addressText}</span>
+                                        <span class="text-gray-200 font-medium">${displayLocation}</span>
                                     </p>
                                 </div>
 
@@ -197,8 +196,7 @@
                         `;
                     };
 
-                    // --- 2. NEW: Matching Dark Tooltip Template ---
-                    const generateTooltipHtml = (addressText, isFetching) => `
+                    const generateTooltipHtml = () => `
                         <div class="p-3 w-48">
                             <div class="flex justify-between items-center border-b border-gray-600 pb-2 mb-3">
                                 <h3 class="font-bold text-lg truncate pr-2 text-gray-100" title="${pump.name || 'Unnamed Pump'}">
@@ -211,74 +209,29 @@
                             </div>
                             <div class="text-xs text-gray-300 space-y-1">
                                 <p><strong class="text-gray-400">Location:</strong> 
-                                    <span class="${isFetching ? 'text-gray-400 italic' : 'text-gray-200 font-medium'}">${addressText}</span>
+                                    <span class="text-gray-200 font-medium">${displayLocation}</span>
                                 </p>
                             </div>
                         </div>
                     `;
 
-                    // 3. Bind initial loading states to both Popup and Tooltip
-                    marker.bindPopup(generatePopupHtml('Fetching address...', true), {
-                            minWidth: 240
-                        });
-                    marker.bindTooltip(generateTooltipHtml('Hover to load...', true), {
+                    // Bind directly with the final templates
+                    marker.bindPopup(generatePopupHtml(), {
+                        minWidth: 240
+                    });
+                    
+                    marker.bindTooltip(generateTooltipHtml(), {
                         direction: 'top',
-                        offset: [0, -20], // Pushes the tooltip slightly above your pin
+                        offset: [0, -20], 
                         className: 'custom-leaflet-tooltip'
                     });
-
-                    // 4. Shared Fetch Logic for Hover and Click
-                    const fetchAddressIfNeeded = async () => {
-                        // If popup is open, force a layout update immediately
-                        if (marker.isPopupOpen()) marker.getPopup().update();
-
-                        // If already fetched, don't ping the API again!
-                        if (pump.fetchedAddress) return;
-
-                        try {
-                            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pump.latitude}&lon=${pump.longitude}&zoom=10&addressdetails=1`);
-                            
-                            if (!response.ok) throw new Error();
-                            
-                            const data = await response.json();
-                            const address = data.address || {};
-                            
-                            // Save it permanently to the pump object
-                            pump.fetchedAddress = address.city || address.town || address.village || address.municipality || address.county || address.state || 'Unknown Area';
-                            
-                            // Inject the fetched data into both templates
-                            marker.getPopup().setContent(generatePopupHtml(pump.fetchedAddress, false));
-                            marker.getTooltip().setContent(generateTooltipHtml(pump.fetchedAddress, false));
-                            
-                            // Force resize if either is currently visible
-                            if (marker.isPopupOpen()) marker.getPopup().update();
-                            if (marker.isTooltipOpen()) marker.getTooltip().update();
-                            
-                        } catch (error) {
-                            pump.fetchedAddress = 'Location unavailable';
-                            marker.getPopup().setContent(generatePopupHtml(pump.fetchedAddress, false));
-                            marker.getTooltip().setContent(generateTooltipHtml(pump.fetchedAddress, false));
-                            
-                            if (marker.isPopupOpen()) marker.getPopup().update();
-                            if (marker.isTooltipOpen()) marker.getTooltip().update();
-                        }
-                    };
-
-                    // 5. Trigger the fetch whether they hover OR click
-                    marker.on('popupopen', fetchAddressIfNeeded);
-                    marker.on('tooltipopen', fetchAddressIfNeeded);
 
                     markers.addLayer(marker);
                 }
             });
 
-            // 5. Add clusters to map and auto-fit
+            // 5. Add clusters to map
             map.addLayer(markers);
-
-            // Auto Zoom to all markers
-            // if (pumpData.length > 0) {
-            //     map.fitBounds(markers.getBounds(), { padding: [50, 50] });
-            // }
         });
     </script>
 @endsection
