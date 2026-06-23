@@ -222,35 +222,37 @@
     }
 
     // --- 1. Gauge Initialization Helper ---
+    // --- 1. Gauge Initialization Helper ---
     function initGauge(domId, min, max, unit) {
         var chartDom = document.getElementById(domId);
         var myChart = echarts.init(chartDom);
         var option = {
             series: [{
                 type: 'gauge',
+                radius: '95%',          // <-- ADDED: Makes the gauge significantly larger
+                center: ['50%', '55%'], // <-- ADDED: Centers it perfectly under your title text
                 min: min,
                 max: max,
-                splitNumber: 2, // Reduces visual clutter
-                progress: { show: false }, // Hidden so colored axisLine shows through
+                splitNumber: 2, 
+                progress: { show: false }, 
                 axisLine: { 
                     lineStyle: { 
                         width: 10,
-                        // Multi-color gradient thresholds: 50% Green, 85% Yellow, 100% Red
+                        // <-- UPDATED: Light Blue (50%), Medium Blue (85%), Dark Blue (100%)
                         color: [
-                            [0.5, '#22c55e'], 
-                            [0.85, '#eab308'], 
-                            [1, '#ef4444']
+                            [0.5, '#93c5fd'], 
+                            [0.85, '#3b82f6'], 
+                            [1, '#1e3a8a']
                         ] 
                     } 
                 },
                 axisTick: { show: false },
-                splitLine: { show: false }, // Hides inner ticks for a clean arc
+                splitLine: { show: false }, 
                 axisLabel: { 
-                    distance: 12, // Pushes text outside the gauge
+                    distance: 12, 
                     color: '#6b7280', 
                     fontSize: 10,
                     formatter: function(value) {
-                        // Only display the min and max labels
                         if (value === min || value === max) {
                             return value;
                         }
@@ -271,7 +273,7 @@
                     fontSize: 15, 
                     fontWeight: 'bold',
                     color: '#1f2937',
-                    offsetCenter: [0, '70%'], // Placed nicely under the needle
+                    offsetCenter: [0, '70%'], 
                     formatter: '{value} ' + unit 
                 },
                 data: [{ value: 0 }]
