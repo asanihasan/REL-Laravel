@@ -207,8 +207,9 @@
             </div>
         @endif
 
-        @if(Auth::check() && empty(Auth::user()->telegram_id))
-            <div x-show="showTelegramBanner" 
+        @if(session('telegram_prompt'))
+            <div x-data="{ showTelegramBanner: true }" 
+                 x-show="showTelegramBanner" 
                  x-cloak 
                  x-transition:enter="transition ease-out duration-300 transform"
                  x-transition:enter-start="opacity-0 translate-y-4"
@@ -237,6 +238,7 @@
                 </button>
             </div>
         @endif
+        
     </div>
 
 

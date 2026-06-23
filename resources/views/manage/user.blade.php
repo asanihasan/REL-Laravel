@@ -31,7 +31,7 @@
         </div>
 
         <div class="bg-white rounded-lg shadow overflow-hidden">
-               <table id="usersTable" class="w-full text-left border-collapse">
+               <table id="usersTable" class="w-full text-left border-collapse whitespace-nowrap">
                 <thead class="bg-gray-50 border-b">
                     <tr>
                         <th class="p-3 text-sm font-semibold text-gray-600">Username</th>
@@ -102,7 +102,7 @@
         </div>
 
         <div class="bg-white rounded-lg shadow overflow-hidden">
-            <table id="groupsTable" class="w-full text-left border-collapse">
+            <table id="groupsTable" class="w-full text-left border-collapse whitespace-nowrap">
                 <thead class="bg-gray-50 border-b">
                     <tr>
                         <th class="p-3 text-sm font-semibold text-gray-600">Group Name</th>

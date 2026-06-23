@@ -126,6 +126,7 @@ class UserManagementController extends Controller
 
         UserGroup::create([
             'name'         => $request->name,
+            'administrator' => $request->boolean('administrator'),
             'view'         => $request->has('view'),
             'control'      => $request->has('control'),
             'historical'   => $request->has('historical'),
@@ -152,6 +153,7 @@ class UserManagementController extends Controller
             // For all other groups, update everything
             $group->update([
                 'name'         => $request->name,
+                'administrator' => $request->boolean('administrator'),
                 'view'         => $request->has('view'),
                 'control'      => $request->has('control'),
                 'historical'   => $request->has('historical'),

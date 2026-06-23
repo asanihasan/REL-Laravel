@@ -35,6 +35,11 @@ class AuthController extends Controller
         // 4. Attempt login
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
+
+            if (empty(\Illuminate\Support\Facades\Auth::user()->telegram_id)) {
+                $request->session()->flash('telegram_prompt', true);
+            }
+            
             return redirect()->intended(route('pumps.maps'));
         }
 
