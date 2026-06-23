@@ -12,13 +12,13 @@
     .dataTables_wrapper .dataTables_filter input { border: 1px solid #d1d5db; border-radius: 0.375rem; padding: 0.25rem 0.5rem; margin-bottom: 1rem; }
     
     /* Smooth color transition for indicators */
-    .indicator-circle { transition: background-color 0.3s ease; }
+    .indicator-circle { transition: all 0.3s ease; }
 </style>
 
-<div class="space-y-6">
+<div class="space-y-3">
     
     <div id="headerStatusContainer" class="bg-white p-6 rounded-lg shadow-md border-t-4 {{ $pump->status == 'online' ? 'border-green-500' : 'border-red-500' }} transition-colors duration-300">
-        <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-3">
             <div class="flex-grow">
                 <div class="flex flex-wrap items-center gap-3">
                     <h1 class="text-2xl md:text-3xl font-bold text-gray-800">{{ $pump->name }}</h1>
@@ -30,7 +30,7 @@
                 </p>
             </div>
 
-            <div class="flex flex-row gap-3 md:flex-col items-center md:items-end justify-between md:justify-start bg-gray-50 md:bg-transparent p-3 md:p-0 rounded-lg">
+            <div class="flex flex-row gap-2 md:flex-col items-center md:items-end justify-between md:justify-start bg-gray-50 md:bg-transparent p-3 md:p-0 rounded-lg">
                 <div id="statusBadge" class="inline-flex items-center px-4 py-2 rounded-lg text-white font-bold shadow-sm {{ $pump->status == 'online' ? 'bg-green-600' : 'bg-red-600' }} transition-colors duration-300">
                     <span class="animate-pulse mr-2 text-xl">•</span> 
                     <span id="statusText">{{ ucfirst($pump->status) }}</span>
@@ -42,53 +42,53 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white p-4 rounded-lg shadow-sm border text-center flex flex-col justify-center">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
+        <div class="bg-white p-3 rounded-lg shadow-sm border text-center flex flex-col justify-center">
             <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Oil Pressure</span>
-            <div class="text-2xl font-bold text-gray-800"><span id="val_oil_pressure">{{ $pump->oil_pressure ?? 0 }}</span> <span class="text-sm text-gray-500 font-normal">PSI</span></div>
+            <div class="text-2xl font-bold text-gray-800"><span id="val_oil_pressure">{{ $pump->oil_pressure ?? 0 }}</span> <span class="text-xs text-gray-500 font-normal">PSI</span></div>
         </div>
-        <div class="bg-white p-4 rounded-lg shadow-sm border text-center flex flex-col justify-center">
+        <div class="bg-white p-3 rounded-lg shadow-sm border text-center flex flex-col justify-center">
             <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Battery</span>
-            <div class="text-2xl font-bold text-gray-800"><span id="val_battery">{{ $pump->battery_potential ?? 0 }}</span> <span class="text-sm text-gray-500 font-normal">V</span></div>
+            <div class="text-2xl font-bold text-gray-800"><span id="val_battery">{{ $pump->battery_potential ?? 0 }}</span> <span class="text-xs text-gray-500 font-normal">V</span></div>
         </div>
-        <div class="bg-white p-4 rounded-lg shadow-sm border text-center flex flex-col justify-center">
+        <div class="bg-white p-3 rounded-lg shadow-sm border text-center flex flex-col justify-center">
             <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Engine Hour</span>
-            <div class="text-2xl font-bold text-gray-800"><span id="val_engine_hours">{{ $pump->engine_hours ?? 0 }}</span> <span class="text-sm text-gray-500 font-normal">h</span></div>
+            <div class="text-2xl font-bold text-gray-800"><span id="val_engine_hours">{{ $pump->engine_hours ?? 0 }}</span> <span class="text-xs text-gray-500 font-normal">h</span></div>
         </div>
-        <div class="bg-white p-4 rounded-lg shadow-sm border text-center flex flex-col justify-center">
+        <div class="bg-white p-3 rounded-lg shadow-sm border text-center flex flex-col justify-center">
             <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Fuel Rate</span>
-            <div class="text-2xl font-bold text-gray-800"><span id="val_fuel_rate">{{ $pump->fuel_rate ?? 0 }}</span> <span class="text-sm text-gray-500 font-normal">L/h</span></div>
+            <div class="text-2xl font-bold text-gray-800"><span id="val_fuel_rate">{{ $pump->fuel_rate ?? 0 }}</span> <span class="text-xs text-gray-500 font-normal">L/h</span></div>
         </div>
     </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <div class="bg-white p-4 rounded-lg shadow-sm border flex flex-col items-center justify-center gap-2">
-            <div id="ind_engine_running" class="indicator-circle w-6 h-6 rounded-full bg-gray-300 shadow-inner"></div>
-            <span class="text-xs font-bold text-gray-600 text-center">Engine Running</span>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+        <div class="bg-white py-4 rounded-lg shadow-sm border flex flex-col items-center justify-center gap-3">
+            <div id="ind_engine_running" class="indicator-circle w-5 h-5 rounded-full bg-gray-300 ring-4 ring-gray-300/30"></div>
+            <span class="text-[11px] uppercase font-bold text-gray-600 text-center">Engine Running</span>
         </div>
-        <div class="bg-white p-4 rounded-lg shadow-sm border flex flex-col items-center justify-center gap-2">
-            <div id="ind_auto" class="indicator-circle w-6 h-6 rounded-full bg-gray-300 shadow-inner"></div>
-            <span class="text-xs font-bold text-gray-600 text-center">Auto</span>
+        <div class="bg-white py-4 rounded-lg shadow-sm border flex flex-col items-center justify-center gap-3">
+            <div id="ind_auto" class="indicator-circle w-5 h-5 rounded-full bg-gray-300 ring-4 ring-gray-300/30"></div>
+            <span class="text-[11px] uppercase font-bold text-gray-600 text-center">Auto</span>
         </div>
-        <div class="bg-white p-4 rounded-lg shadow-sm border flex flex-col items-center justify-center gap-2">
-            <div id="ind_manual" class="indicator-circle w-6 h-6 rounded-full bg-gray-300 shadow-inner"></div>
-            <span class="text-xs font-bold text-gray-600 text-center">Manual</span>
+        <div class="bg-white py-4 rounded-lg shadow-sm border flex flex-col items-center justify-center gap-3">
+            <div id="ind_manual" class="indicator-circle w-5 h-5 rounded-full bg-gray-300 ring-4 ring-gray-300/30"></div>
+            <span class="text-[11px] uppercase font-bold text-gray-600 text-center">Manual</span>
         </div>
-        <div class="bg-white p-4 rounded-lg shadow-sm border flex flex-col items-center justify-center gap-2">
-            <div id="ind_warm_up" class="indicator-circle w-6 h-6 rounded-full bg-gray-300 shadow-inner"></div>
-            <span class="text-xs font-bold text-gray-600 text-center">Warmup</span>
+        <div class="bg-white py-4 rounded-lg shadow-sm border flex flex-col items-center justify-center gap-3">
+            <div id="ind_warm_up" class="indicator-circle w-5 h-5 rounded-full bg-gray-300 ring-4 ring-gray-300/30"></div>
+            <span class="text-[11px] uppercase font-bold text-gray-600 text-center">Warmup</span>
         </div>
-        <div class="bg-white p-4 rounded-lg shadow-sm border flex flex-col items-center justify-center gap-2">
-            <div id="ind_cool_down" class="indicator-circle w-6 h-6 rounded-full bg-gray-300 shadow-inner"></div>
-            <span class="text-xs font-bold text-gray-600 text-center">Cooldown</span>
+        <div class="bg-white py-4 rounded-lg shadow-sm border flex flex-col items-center justify-center gap-3">
+            <div id="ind_cool_down" class="indicator-circle w-5 h-5 rounded-full bg-gray-300 ring-4 ring-gray-300/30"></div>
+            <span class="text-[11px] uppercase font-bold text-gray-600 text-center">Cooldown</span>
         </div>
-        <div class="bg-white p-4 rounded-lg shadow-sm border flex flex-col items-center justify-center gap-2">
-            <div id="ind_common_alarm" class="indicator-circle w-6 h-6 rounded-full bg-gray-300 shadow-inner"></div>
-            <span class="text-xs font-bold text-gray-600 text-center">Common Alarm</span>
+        <div class="bg-white py-4 rounded-lg shadow-sm border flex flex-col items-center justify-center gap-3">
+            <div id="ind_common_alarm" class="indicator-circle w-5 h-5 rounded-full bg-gray-300 ring-4 ring-gray-300/30"></div>
+            <span class="text-[11px] uppercase font-bold text-gray-600 text-center">Common Alarm</span>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-2">
         <div class="bg-white rounded-lg shadow-sm border overflow-hidden flex flex-col">
             <div class="text-center pt-2 text-xs font-bold text-gray-500">RPM</div>
             <div id="gauge_rpm" class="w-full h-40"></div>
@@ -115,7 +115,7 @@
         </div>
     </div>
 
-    <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-600 relative overflow-hidden">
+    <div class="bg-white p-5 rounded-lg shadow-md border-l-4 border-blue-600 relative overflow-hidden mt-2">
         <div id="controlLoader" class="hidden absolute inset-0 bg-white/80 z-20 flex items-center justify-center backdrop-blur-sm transition-all duration-300">
             <div class="flex flex-col items-center">
                 <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mb-2"></div>
@@ -123,53 +123,53 @@
             </div>
         </div>
 
-        <h3 class="text-lg font-bold border-b pb-3 mb-4 text-gray-700 flex items-center">
+        <h3 class="text-lg font-bold border-b pb-2 mb-3 text-gray-700 flex items-center">
             <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
             Remote Control Panel
         </h3>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <button onclick="sendControl('start')" class="control-btn bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded shadow transition transform active:scale-95 flex justify-center items-center">
-                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-center">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <button onclick="sendControl('start')" class="control-btn bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-3 text-sm rounded shadow transition transform active:scale-95 flex justify-center items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     Start
                 </button>
-                <button onclick="sendControl('stop')" class="control-btn bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded shadow transition transform active:scale-95 flex justify-center items-center">
-                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path></svg>
+                <button onclick="sendControl('stop')" class="control-btn bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-3 text-sm rounded shadow transition transform active:scale-95 flex justify-center items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path></svg>
                     Stop
                 </button>
-                <button onclick="sendControl('auto')" class="control-btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded shadow transition transform active:scale-95 flex justify-center items-center">
-                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                <button onclick="sendControl('auto')" class="control-btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 text-sm rounded shadow transition transform active:scale-95 flex justify-center items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                     Auto
                 </button>
-                <button onclick="sendControl('reset')" class="control-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded shadow transition transform active:scale-95 flex justify-center items-center">
-                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                <button onclick="sendControl('reset')" class="control-btn bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-3 text-sm rounded shadow transition transform active:scale-95 flex justify-center items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                     Reset
                 </button>
             </div>
 
-            <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Set Target RPM</label>
+            <div class="bg-gray-50 p-2 rounded-lg border border-gray-200">
+                <label class="block text-[11px] font-bold text-gray-500 uppercase mb-1">Set Target RPM</label>
                 <div class="flex gap-2 md:flex-row flex-col">
-                    <input type="number" id="rpmInput" placeholder="800 - 2000" min="800" max="2000" class="flex-grow border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button onclick="setRpm()" class="control-btn bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-6 rounded shadow transition hover:shadow-lg whitespace-nowrap">Set RPM</button>
+                    <input type="number" id="rpmInput" placeholder="800 - 2000" min="800" max="2000" class="flex-grow border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="setRpm()" class="control-btn bg-blue-800 hover:bg-blue-900 text-white text-sm font-bold py-1 px-4 rounded shadow transition hover:shadow-lg whitespace-nowrap">Set</button>
                 </div>
             </div>
         </div>
-        <div id="controlMessage" class="hidden mt-4 p-3 rounded text-sm font-bold border-l-4"></div>
+        <div id="controlMessage" class="hidden mt-3 p-2 rounded text-sm font-bold border-l-4"></div>
     </div>
 
-    <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-gray-800">
-        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+    <div class="bg-white p-5 rounded-lg shadow-md border-t-4 border-gray-800 mt-2">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-3">
             <h3 class="text-xl font-bold text-gray-800">Historical Logs</h3>
-            <div class="flex flex-wrap items-center gap-3">
-                <input type="text" id="dateRangePicker" class="border rounded-lg px-4 py-2 text-sm w-64 focus:ring-2 focus:ring-blue-500" placeholder="Select Range">
-                <button onclick="loadHistory()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold">Filter</button>
-                <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold">Export All to XLS</button>
+            <div class="flex flex-wrap items-center gap-2">
+                <input type="text" id="dateRangePicker" class="border rounded px-3 py-1 text-sm w-56 focus:ring-2 focus:ring-blue-500" placeholder="Select Range">
+                <button onclick="loadHistory()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm font-bold">Filter</button>
+                <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-bold">Export XLS</button>
             </div>
         </div>
 
         <div class="overflow-x-auto">
-            <table id="historyTable" class="w-full text-left text-sm">
+            <table id="historyTable" class="w-full text-left text-sm whitespace-nowrap">
                 <thead class="bg-gray-50 border-b">
                     <tr>
                         <th>Timestamp (Local)</th>
@@ -230,15 +230,50 @@
                 type: 'gauge',
                 min: min,
                 max: max,
-                progress: { show: true, width: 8 },
-                axisLine: { lineStyle: { width: 8 } },
+                splitNumber: 2, // Reduces visual clutter
+                progress: { show: false }, // Hidden so colored axisLine shows through
+                axisLine: { 
+                    lineStyle: { 
+                        width: 10,
+                        // Multi-color gradient thresholds: 50% Green, 85% Yellow, 100% Red
+                        color: [
+                            [0.5, '#22c55e'], 
+                            [0.85, '#eab308'], 
+                            [1, '#ef4444']
+                        ] 
+                    } 
+                },
                 axisTick: { show: false },
-                splitLine: { length: 10, lineStyle: { width: 1, color: '#999' } },
-                axisLabel: { distance: 15, color: '#999', fontSize: 10 },
-                pointer: { icon: 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z', length: '12%', width: 10, offsetCenter: [0, '-60%'], itemStyle: { color: '#1e3a8a' } },
-                anchor: { show: true, showAbove: true, size: 10, itemStyle: { borderWidth: 2 } },
+                splitLine: { show: false }, // Hides inner ticks for a clean arc
+                axisLabel: { 
+                    distance: 12, // Pushes text outside the gauge
+                    color: '#6b7280', 
+                    fontSize: 10,
+                    formatter: function(value) {
+                        // Only display the min and max labels
+                        if (value === min || value === max) {
+                            return value;
+                        }
+                        return '';
+                    }
+                },
+                pointer: { 
+                    icon: 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z', 
+                    length: '15%', 
+                    width: 8, 
+                    offsetCenter: [0, '-60%'], 
+                    itemStyle: { color: '#374151' } 
+                },
+                anchor: { show: true, showAbove: true, size: 8, itemStyle: { borderWidth: 2 } },
                 title: { show: false },
-                detail: { valueAnimation: true, fontSize: 18, offsetCenter: [0, '50%'], formatter: '{value} ' + unit },
+                detail: { 
+                    valueAnimation: true, 
+                    fontSize: 15, 
+                    fontWeight: 'bold',
+                    color: '#1f2937',
+                    offsetCenter: [0, '70%'], // Placed nicely under the needle
+                    formatter: '{value} ' + unit 
+                },
                 data: [{ value: 0 }]
             }]
         };
@@ -257,10 +292,13 @@
     // --- 2. Indicator Update Helper ---
     function updateIndicator(domId, status) {
         const el = $('#' + domId);
+        // Clean out both color states before applying the new one
+        el.removeClass('bg-gray-300 ring-gray-300/30 bg-green-500 ring-green-500/30');
+        
         if(status === true || status === 1 || status === "1" || status === "true") {
-            el.removeClass('bg-gray-300').addClass('bg-green-500');
+            el.addClass('bg-green-500 ring-green-500/30');
         } else {
-            el.removeClass('bg-green-500').addClass('bg-gray-300');
+            el.addClass('bg-gray-300 ring-gray-300/30');
         }
     }
 
@@ -372,13 +410,13 @@
         }
     }
 
-
     // --- 5. Initialize & Loop ---
     $(document).ready(function() {
-        // Initialize Gauges (Adjust Max values as needed based on your pump specs)
-        initGauge('gauge_rpm', 0, 3000, '');
-        initGauge('gauge_engine_speed', 0, 3000, '');
-        initGauge('gauge_flow', 0, 1000, 'L/s');
+        
+        // Initialize Gauges with updated Max limits
+        initGauge('gauge_rpm', 0, 4000, '');
+        initGauge('gauge_engine_speed', 0, 4000, '');
+        initGauge('gauge_flow', 0, 150, 'L/s');
         initGauge('gauge_engine_temp', 0, 150, '°C');
         initGauge('gauge_coolant_temp', 0, 150, '°C');
         initGauge('gauge_fuel_level', 0, 100, '%');
