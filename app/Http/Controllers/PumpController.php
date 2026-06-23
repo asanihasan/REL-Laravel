@@ -101,10 +101,27 @@ class PumpController extends Controller
 
     public function data($id)
     {
-        $pump = Pump::findOrFail($id);
-        // Ensure the 'status' accessor is included in the JSON
-        $pump->append('status'); 
-        return response()->json($pump);
+        // 1. Fetch the single pump, explicitly asking for the coordinates via Left Join
+        $pump = Pump::leftJoin('pump_locations', 'pumps.id', '=', 'pump_locations.pump_id')
+            ->select('pumps.*', 'pump_locations.latitude', 'pump_locations.longitude')
+            ->findOrFail($id);
+
+        // (Optional) If your 'status' relies on an accessor, ensure it's appended
+        $pump->append('status');
+
+        // 2. Build your response array
+        $responseData = [
+            'status' => $pump->status,
+            'rpm' => $pump->rpm,
+            // ... (include all your other existing fields here) ...
+            
+            // 3. Because we used a leftJoin, if the location table has no record, 
+            // Laravel automatically sets these to exactly `null`!
+            'latitude'  => $pump->latitude, 
+            'longitude' => $pump->longitude,
+        ];
+
+        return response()->json($responseData);
     }
 
     public function history(Request $request, $id)
