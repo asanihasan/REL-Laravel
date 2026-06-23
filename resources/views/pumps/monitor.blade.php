@@ -455,6 +455,14 @@
             defaultDate: [new Date(Date.now() - 24 * 60 * 60 * 1000), new Date()]
         });
         
+        const pumpData = {{ Js::from($pump) }};
+        
+        // Force the dynamic join properties into the JS object
+        pumpData.latitude = {{ Js::from($pump->latitude) }};
+        pumpData.longitude = {{ Js::from($pump->longitude) }};
+        
+        console.log(pumpData);
+
         loadHistory();
 
         // Real-time Dashboard Update (1000ms)
@@ -492,6 +500,8 @@
                     updateGauge('gauge_engine_temp', data.engine_temp_mech);
                     updateGauge('gauge_coolant_temp', data.coolant_temp);
                     updateGauge('gauge_fuel_level', data.fuel_level);
+
+                    console.log(data)
                 }
             });
         }, 1000);
