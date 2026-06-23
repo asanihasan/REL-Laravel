@@ -32,7 +32,7 @@ class PumpController extends Controller
 
     public function monitor($id)
     {
-        $pump = Pump::findOrFail($id);
+        $pump = Pump::withLocation()->findOrFail($id);
         
         $history = DB::table('historical_pumps')
                     ->where('pump_id', $id)
