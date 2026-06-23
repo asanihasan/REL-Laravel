@@ -470,6 +470,7 @@
                     updateGauge('gauge_engine_temp', data.engine_temp_mech);
                     updateGauge('gauge_coolant_temp', data.coolant_temp);
                     updateGauge('gauge_fuel_level', data.fuel_level);
+                    console.log(data)
                 }
             });
         }, 1000);
