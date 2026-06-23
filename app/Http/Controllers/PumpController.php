@@ -18,7 +18,9 @@ class PumpController extends Controller
 
     public function show($id)
     {
-        $pump = Pump::findOrFail($id);
+        $pump = Pump::leftJoin('pump_locations', 'pumps.id', '=', 'pump_locations.pump_id')
+            ->select('pumps.*', 'pump_locations.latitude', 'pump_locations.longitude')
+            ->findOrFail($id);
         
         // Fetch history
         $history = DB::table('historical_pumps')
@@ -109,19 +111,7 @@ class PumpController extends Controller
         // (Optional) If your 'status' relies on an accessor, ensure it's appended
         $pump->append('status');
 
-        // 2. Build your response array
-        $responseData = [
-            'status' => $pump->status,
-            'rpm' => $pump->rpm,
-            // ... (include all your other existing fields here) ...
-            
-            // 3. Because we used a leftJoin, if the location table has no record, 
-            // Laravel automatically sets these to exactly `null`!
-            'latitude'  => $pump->latitude, 
-            'longitude' => $pump->longitude,
-        ];
-
-        return response()->json($responseData);
+        return response()->json($pump);
     }
 
     public function history(Request $request, $id)
