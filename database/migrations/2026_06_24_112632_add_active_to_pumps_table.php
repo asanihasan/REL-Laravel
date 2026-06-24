@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('pumps', function (Blueprint $table) {
-            // In Laravel, columns are NOT NULL by default unless you explicitly chain ->nullable()
             $table->boolean('active')->default(true)->after('id'); 
+            $table->integer('fault_code')->nullable()->after('active'); 
         });
     }
 
@@ -23,7 +23,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('pumps', function (Blueprint $table) {
-            $table->dropColumn('active');
+            // Drop both columns at the same time if we rollback
+            $table->dropColumn(['active', 'fault_code']);
         });
     }
 };
