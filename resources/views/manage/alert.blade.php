@@ -27,21 +27,30 @@
         .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
             color: #1e40af !important; 
             
-            /* Lock the X to the far left side, perfectly vertically centered */
+            /* Pin to the left and take up the exact height of the pill */
             position: absolute !important;
-            top: 50% !important;
-            left: 4px !important;
-            transform: translateY(-50%) !important;
+            top: 0 !important;
+            left: 0 !important;
+            height: 100% !important;
+            
+            /* Use flex to perfectly center the text vertically and horizontally */
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
             
             border: none !important;
             margin: 0 !important;
-            padding: 0 6px !important; /* Makes the click area a bit wider */
+            padding: 0 8px !important; /* Defines the clickable area width */
             font-weight: bold !important;
+            
+            /* Override Tailwind's default line-height */
+            line-height: 1 !important;
+            transform: none !important;
         }
         
         .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
             background-color: transparent !important;
-            color: #ef4444 !important; /* Turns red when you hover over the X */
+            color: #ef4444 !important; 
         }
     </style>
 @endsection
