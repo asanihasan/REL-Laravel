@@ -14,16 +14,16 @@ return new class extends Migration
         Schema::create('historical_alerts', function (Blueprint $table) {
             $table->id();
             
-            // Sets the default value to the database's current timestamp (NOW())
             $table->timestamp('ts')->useCurrent(); 
             
-            // Foreign key linking to your existing 'pumps' table
-            $table->foreignId('pump_id')->constrained('pumps')->onDelete('cascade'); 
+            // 1. Create the column as a string to match your pumps table
+            $table->string('pump_id'); 
+            
+            // 2. Explicitly define the foreign key relationship
+            $table->foreign('pump_id')->references('id')->on('pumps')->onDelete('cascade');
             
             $table->string('alert_type');
             $table->string('description', 256);
-            
-            // Defaulting to false is a good practice for booleans unless specified otherwise
             $table->boolean('email')->default(false); 
         });
     }
