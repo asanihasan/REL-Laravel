@@ -469,7 +469,7 @@
                     $('#statusText').text(isOnline ? 'Online' : 'Offline');
                     $('#lastUpdateText').text('Updated: ' + getLocalTime(data.last_update));
                     $('#dot_network').removeClass('bg-green-500 bg-red-500').addClass((data.connection || '').toLowerCase() === 'online' ? 'bg-green-500' : 'bg-red-500');
-                    $('#dot_modbus').removeClass('bg-green-500 bg-red-500').addClass(data.modbus_status ? 'bg-green-500' : 'bg-red-500');
+                    $('#dot_modbus').removeClass('bg-green-500 bg-red-500').addClass(isOnline ? 'bg-green-500' : 'bg-red-500');
                     
                     // Update Row 1
                     $('#val_oil_pressure').text(data.oil_pressure ?? '0');

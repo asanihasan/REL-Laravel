@@ -415,7 +415,7 @@
                     $('#disp_fuel_level_text').text(data.fuel_level);
                     $('#disp_fuel_level_bar').css('width', Math.min(data.fuel_level, 100) + '%');
                     $('#dot_network').removeClass('bg-green-500 bg-red-500').addClass((data.connection || '').toLowerCase() === 'online' ? 'bg-green-500' : 'bg-red-500');
-                    $('#dot_modbus').removeClass('bg-green-500 bg-red-500').addClass(data.modbus_status ? 'bg-green-500' : 'bg-red-500');
+                    $('#dot_modbus').removeClass('bg-green-500 bg-red-500').addClass(isOnline ? 'bg-green-500' : 'bg-red-500');
                     
                     renderDigitalInputs(data.digital_inputs);
                     renderControllerMode(data.auto_manual_status);

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PumpController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\AlertController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -42,8 +43,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/user-groups/{id}', [UserManagementController::class, 'updateGroup']);
     Route::delete('/user-groups/{id}', [UserManagementController::class, 'destroyGroup']);
 
-    // Alerts Placeholder
-    Route::view('/manage/alerts', 'manage.alert')->name('manage.alert');
+    // Alert Pages
+    Route::get('/manage/alerts', [AlertController::class, 'index'])->name('manage.alert');
+    Route::get('/manage/alerts/data', [AlertController::class, 'data'])->name('manage.alert.data');
 
     Route::post('/users/{id}/telegram-link', [UserManagementController::class, 'generateUserTelegramLink']);
 });
