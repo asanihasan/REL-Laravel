@@ -50,12 +50,14 @@ class AlertController extends Controller
             $query->whereIn('historical_alerts.alert_type', $request->alert_types);
         }
 
-        // NEW: Date Range Filtering
+        // NEW: Date & Time Range Filtering
         if ($request->has('start_date') && !empty($request->start_date)) {
-            $query->whereDate('historical_alerts.ts', '>=', $request->start_date);
+            // Changed from whereDate to where to respect exact hours/minutes
+            $query->where('historical_alerts.ts', '>=', $request->start_date); 
         }
+        
         if ($request->has('end_date') && !empty($request->end_date)) {
-            $query->whereDate('historical_alerts.ts', '<=', $request->end_date);
+            $query->where('historical_alerts.ts', '<=', $request->end_date);
         }
 
         // --- SEARCHING ---

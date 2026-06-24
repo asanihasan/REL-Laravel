@@ -6,6 +6,7 @@
 @section('styles')
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.tailwindcss.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         /* The Selected Items (Pills) */
         .select2-container--default .select2-selection--multiple .select2-selection__choice {
@@ -82,15 +83,9 @@
                     @endforeach
                 </select>
             </div>
-
-            <div class="md:col-span-1">
-                <label class="block text-sm font-bold text-gray-700 mb-2">Start Date</label>
-                <input type="date" id="startDate" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2 border">
-            </div>
-
-            <div class="md:col-span-1">
-                <label class="block text-sm font-bold text-gray-700 mb-2">End Date</label>
-                <input type="date" id="endDate" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2 border">
+            <div class="md:col-span-2">
+                <label class="block text-sm font-bold text-gray-700 mb-2">Filter by Time Range</label>
+                <input type="text" id="dateRangePicker" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2 border bg-white" placeholder="Select date range...">
             </div>
             
         </div>
@@ -120,6 +115,7 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.tailwindcss.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     <script>
         // Wait for the entire window to load, bypassing any Laravel Vite 'defer' race conditions
@@ -131,6 +127,24 @@
             });
 
             // 2. Initialize DataTables
+            // 1. Initialize Flatpickr
+            let flatpickrInstance = flatpickr("#dateRangePicker", {
+                mode: "range", 
+                enableTime: true, 
+                dateFormat: "Y-m-d H:i",
+                time_24hr: true, // Optional: formats time as 24-hour (e.g. 14:30)
+                defaultDate: [new Date(Date.now() - 24 * 60 * 60 * 1000), new Date()],
+                onChange: function(selectedDates, dateStr, instance) {
+                    // Only trigger the table reload if TWO dates are selected (start and end)
+                    if (selectedDates.length === 2) {
+                        table.draw();
+                    }
+                }
+            });
+
+            // ... (Your Select2 Initialization) ...
+
+            // 2. Initialize DataTables
             let table = $('#alertsTable').DataTable({
                 processing: true,
                 serverSide: true,
@@ -140,67 +154,25 @@
                     url: '{{ route('manage.alert.data') }}',
                     type: 'GET',
                     data: function(d) {
-                        // Pass current filter values
                         d.pumps = $('#pumpFilter').val();
                         d.alert_types = $('#typeFilter').val();
-                        // NEW: Pass date filters
-                        d.start_date = $('#startDate').val();
-                        d.end_date = $('#endDate').val();
+                        
+                        // Extract Start and End dates safely from the Flatpickr instance array
+                        if (flatpickrInstance.selectedDates.length > 0) {
+                            // Format strictly for MySQL/Postgres: "YYYY-MM-DD HH:mm:00"
+                            d.start_date = flatpickrInstance.formatDate(flatpickrInstance.selectedDates[0], "Y-m-d H:i:00");
+                            
+                            if (flatpickrInstance.selectedDates.length === 2) {
+                                d.end_date = flatpickrInstance.formatDate(flatpickrInstance.selectedDates[1], "Y-m-d H:i:59");
+                            }
+                        }
                     }
                 },
-                columns: [
-                    { 
-                        data: 'ts', 
-                        name: 'ts',
-                        render: function(data) {
-                            return `<span class="font-mono text-gray-800">${data}</span>`;
-                        }
-                    },
-                    { 
-                        data: 'pump_name', 
-                        name: 'pump_name',
-                        // Add 'row' as the 3rd parameter to access the whole object
-                        render: function(data, type, row) { 
-                            
-                            // If 'data' (the pump name) is null or empty string, use the custom ID string
-                            let displayName = data ? data : `PUMP_${row.pump_id}`;
-                            
-                            return `<span class="font-bold text-gray-900">${displayName}</span>`;
-                        }
-                    },
-                    { 
-                        data: 'alert_type', 
-                        name: 'alert_type',
-                        render: function(data) {
-                            let formatted = data.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                            
-                            let badgeClass = 'bg-gray-100 text-gray-800 border-gray-200';
-                            if(data.includes('stopped') || data.includes('lost') || data.includes('low')) badgeClass = 'bg-red-50 text-red-700 border-red-200';
-                            if(data.includes('running')) badgeClass = 'bg-green-50 text-green-700 border-green-200';
-                            
-                            return `<span class="px-2.5 py-1 text-xs font-semibold rounded-md border ${badgeClass}">${formatted}</span>`;
-                        }
-                    },
-                    { 
-                        data: 'description', 
-                        name: 'description',
-                        className: 'whitespace-normal min-w-[300px]' // Ensures long descriptions wrap nicely
-                    },
-                    { 
-                        data: 'email', 
-                        name: 'email',
-                        className: 'text-center',
-                        render: function(data) {
-                            return data == 1 
-                                ? `<span class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-green-100 bg-green-600 rounded-full">SENT</span>` 
-                                : `<span class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-gray-500 bg-gray-100 rounded-full">NO</span>`;
-                        }
-                    }
-                ]
+                // ... (Your columns configuration) ...
             });
 
-            // 3. Trigger Table Reload when ANY filter changes
-            $('#pumpFilter, #typeFilter, #startDate, #endDate').on('change', function() {
+            // 3. Trigger Table Reload for Select2 (Removed date inputs from this trigger!)
+            $('#pumpFilter, #typeFilter').on('change', function() {
                 table.draw();
             });
         });
