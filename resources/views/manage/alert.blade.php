@@ -4,7 +4,6 @@
 
 {{-- Inject DataTables & Select2 CSS specifically for this page --}}
 @section('styles')
-    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.tailwindcss.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
@@ -14,37 +13,26 @@
             border: 1px solid #bfdbfe !important; 
             color: #1e3a8a !important; 
             border-radius: 0.25rem !important;
-            
-            /* Add thick padding to the left (28px) so the text is pushed away from the X */
             padding: 4px 8px 4px 28px !important; 
             margin-top: 5px !important;
             font-size: 0.875rem !important; 
-            
-            /* Required for absolute positioning of the X */
             position: relative !important; 
         }
 
         /* The "x" remove button on pills */
         .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
             color: #1e40af !important; 
-            
-            /* Pin to the left and take up the exact height of the pill */
             position: absolute !important;
             top: 0 !important;
             left: 0 !important;
             height: 100% !important;
-            
-            /* Use flex to perfectly center the text vertically and horizontally */
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            
             border: none !important;
             margin: 0 !important;
-            padding: 0 8px !important; /* Defines the clickable area width */
+            padding: 0 8px !important; 
             font-weight: bold !important;
-            
-            /* Override Tailwind's default line-height */
             line-height: 1 !important;
             transform: none !important;
         }
@@ -52,6 +40,19 @@
         .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
             background-color: transparent !important;
             color: #ef4444 !important; 
+        }
+
+        /* Force Select2 to look like Tailwind */
+        .select2-container .select2-selection--multiple {
+            min-height: 38px !important;
+            border-color: #d1d5db !important; 
+            border-radius: 0.375rem !important; 
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important; 
+        }
+        .select2-container--default.select2-container--focus .select2-selection--multiple {
+            border-color: #3b82f6 !important; 
+            outline: 0 !important;
+            box-shadow: 0 0 0 1px #3b82f6 !important; 
         }
     </style>
 @endsection
@@ -94,7 +95,7 @@
     <div class="bg-white p-6 rounded-lg shadow-md mb-6">
         <div class="overflow-x-auto">
             <table id="alertsTable" class="display w-full text-sm text-left">
-                <thead class="bg-gray-50 text-gray-600 uppercase">
+                <thead class="bg-gray-50 text-gray-600 uppercase border-b">
                     <tr>
                         <th class="p-3">Timestamp</th>
                         <th class="p-3">Pump Name</th>
@@ -111,41 +112,32 @@
 @endsection
 
 @section('scripts')
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.tailwindcss.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     <script>
-        // Wait for the entire window to load, bypassing any Laravel Vite 'defer' race conditions
         window.addEventListener('load', function() {
             
-            // 1. Initialize Select2
-            $('.select2').select2({
-                width: 'resolve' // Tells Select2 to inherit the 100% width from the style attribute
-            });
-
-            // 2. Initialize DataTables
             // 1. Initialize Flatpickr
             let flatpickrInstance = flatpickr("#dateRangePicker", {
                 mode: "range", 
                 enableTime: true, 
                 dateFormat: "Y-m-d H:i",
-                time_24hr: true, // Optional: formats time as 24-hour (e.g. 14:30)
+                time_24hr: true,
                 defaultDate: [new Date(Date.now() - 24 * 60 * 60 * 1000), new Date()],
                 onChange: function(selectedDates, dateStr, instance) {
-                    // Only trigger the table reload if TWO dates are selected (start and end)
                     if (selectedDates.length === 2) {
                         table.draw();
                     }
                 }
             });
 
-            // ... (Your Select2 Initialization) ...
+            // 2. Initialize Select2
+            $('.select2').select2({
+                width: 'resolve' 
+            });
 
-            // 2. Initialize DataTables
-            // 2. Initialize DataTables
+            // 3. Initialize DataTables
             let table = $('#alertsTable').DataTable({
                 processing: true,
                 serverSide: true,
@@ -166,7 +158,7 @@
                         }
                     }
                 },
-                // NEW: Inject the hover classes into the <tr> tags generated by AJAX
+                // Add the exact same hover effect as the Pump List rows
                 createdRow: function(row, data, dataIndex) {
                     $(row).addClass('hover:bg-gray-50 transition');
                 },
@@ -174,7 +166,7 @@
                     { 
                         data: 'ts', 
                         name: 'ts',
-                        className: 'p-3', // Added padding to match template
+                        className: 'p-3', // Match exact padding from Pump List
                         render: function(data) {
                             return `<span class="font-mono text-gray-800">${data}</span>`;
                         }
@@ -182,7 +174,7 @@
                     { 
                         data: 'pump_name', 
                         name: 'pump_name',
-                        className: 'p-3 font-medium text-gray-900',
+                        className: 'p-3 font-medium text-gray-900', // Match exact styling
                         render: function(data, type, row) {
                             return data ? data : `PUMP_${row.pump_id}`;
                         }
@@ -198,7 +190,7 @@
                             if(data.includes('stopped') || data.includes('lost') || data.includes('low')) badgeClass = 'bg-red-50 text-red-700 border-red-200';
                             if(data.includes('running')) badgeClass = 'bg-green-50 text-green-700 border-green-200';
                             
-                            return `<span class="px-2.5 py-1 text-xs font-medium rounded-md border ${badgeClass}">${formatted}</span>`;
+                            return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${badgeClass}">${formatted}</span>`;
                         }
                     },
                     { 
@@ -212,14 +204,14 @@
                         className: 'p-3 text-center',
                         render: function(data) {
                             return data == 1 
-                                ? `<span class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-green-100 bg-green-600 rounded-full">SENT</span>` 
-                                : `<span class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-gray-500 bg-gray-100 rounded-full">NO</span>`;
+                                ? `<span class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-green-800 bg-green-100 border border-green-200 rounded-full">Sent</span>` 
+                                : `<span class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-gray-600 bg-gray-100 border border-gray-200 rounded-full">No</span>`;
                         }
                     }
                 ]
             });
 
-            // 3. Trigger Table Reload for Select2 (Removed date inputs from this trigger!)
+            // 4. Trigger Table Reload for Select2
             $('#pumpFilter, #typeFilter').on('change', function() {
                 table.draw();
             });
