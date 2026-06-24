@@ -7,25 +7,35 @@
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.tailwindcss.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
-        /* Make Select2 blend with Tailwind */
-        .select2-container .select2-selection--multiple {
-            min-height: 42px;
-            border-color: #e5e7eb;
-            border-radius: 0.5rem;
-            padding: 2px 4px;
-        }
-        .select2-container--default.select2-container--focus .select2-selection--multiple {
-            border-color: #3b82f6;
-            outline: 0;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
-        }
+        /* The Selected Items (Pills) */
         .select2-container--default .select2-selection--multiple .select2-selection__choice {
-            background-color: #eff6ff;
-            border: 1px solid #bfdbfe;
-            color: #1e3a8a;
-            border-radius: 0.375rem;
-            padding: 2px 8px;
-            margin-top: 6px;
+            background-color: #eff6ff !important; 
+            border: 1px solid #bfdbfe !important; 
+            color: #1e3a8a !important; 
+            border-radius: 0.25rem !important;
+            
+            /* NEW: Flexbox fixes the overlap perfectly */
+            display: flex !important;
+            align-items: center !important;
+            padding: 4px 8px !important; 
+            margin-top: 5px !important;
+            font-size: 0.875rem !important; 
+        }
+
+        /* The "x" remove button on pills */
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            color: #1e40af !important; 
+            
+            /* NEW: Push the text away from the 'x' */
+            margin-right: 8px !important; 
+            margin-left: 2px !important;
+            border-right: none !important;
+            font-weight: bold !important;
+        }
+        
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+            background-color: transparent !important;
+            color: #1e3a8a !important;
         }
     </style>
 @endsection
@@ -42,7 +52,7 @@
                 <label class="block text-sm font-bold text-gray-700 mb-2">Filter by Pump</label>
                 <select id="pumpFilter" class="select2" multiple="multiple" style="width: 100%;" data-placeholder="Select Pumps...">
                     @foreach($pumps as $pump)
-                        <option value="{{ $pump->id }}">{{ $pump->name }} ({{ $pump->id }})</option>
+                        <option value="{{ $pump->id }}">{{ $pump->name }}</option>
                     @endforeach
                 </select>
             </div>
