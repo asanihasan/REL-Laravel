@@ -34,6 +34,9 @@
         /* Prevents Alpine flickering before load */
         [x-cloak] { display: none !important; }
     </style>
+
+    @yield('styles')
+    
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col font-sans" x-data="{ sidebarOpen: false, showTelegramBanner: true }">
 
@@ -238,7 +241,7 @@
                 </button>
             </div>
         @endif
-        
+
     </div>
 
 
