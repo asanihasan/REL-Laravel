@@ -14,28 +14,34 @@
             color: #1e3a8a !important; 
             border-radius: 0.25rem !important;
             
-            /* NEW: Flexbox fixes the overlap perfectly */
-            display: flex !important;
-            align-items: center !important;
-            padding: 4px 8px !important; 
+            /* Add thick padding to the left (28px) so the text is pushed away from the X */
+            padding: 4px 8px 4px 28px !important; 
             margin-top: 5px !important;
             font-size: 0.875rem !important; 
+            
+            /* Required for absolute positioning of the X */
+            position: relative !important; 
         }
 
         /* The "x" remove button on pills */
         .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
             color: #1e40af !important; 
             
-            /* NEW: Push the text away from the 'x' */
-            margin-right: 15px !important; 
-            margin-left: 2px !important;
-            border-right: none !important;
+            /* Lock the X to the far left side, perfectly vertically centered */
+            position: absolute !important;
+            top: 50% !important;
+            left: 4px !important;
+            transform: translateY(-50%) !important;
+            
+            border: none !important;
+            margin: 0 !important;
+            padding: 0 6px !important; /* Makes the click area a bit wider */
             font-weight: bold !important;
         }
         
         .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
             background-color: transparent !important;
-            color: #1e3a8a !important;
+            color: #ef4444 !important; /* Turns red when you hover over the X */
         }
     </style>
 @endsection
