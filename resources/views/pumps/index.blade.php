@@ -187,7 +187,7 @@
         $('#pumpTable').DataTable({
             "order": [],
             "pageLength": 10,
-            "scrollX": true 
+            "autoWidth": false, 
         });
     });
 
