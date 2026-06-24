@@ -29,17 +29,16 @@ class AlertController extends Controller
     // 2. Handle Server-Side DataTables Processing
     public function data(Request $request)
     {
-        // Start the base query joining the pumps table
         $query = HistoricalAlert::select([
             'historical_alerts.id', 
             'historical_alerts.ts', 
+            'historical_alerts.pump_id',     // <--- ADD THIS LINE
             'historical_alerts.alert_type', 
             'historical_alerts.description', 
             'historical_alerts.email',
             'pumps.name as pump_name'
         ])->leftJoin('pumps', 'historical_alerts.pump_id', '=', 'pumps.id');
 
-        // Total records before any filtering
         $recordsTotal = HistoricalAlert::count();
 
         // --- FILTERING ---
@@ -49,6 +48,14 @@ class AlertController extends Controller
         
         if ($request->has('alert_types') && !empty($request->alert_types)) {
             $query->whereIn('historical_alerts.alert_type', $request->alert_types);
+        }
+
+        // NEW: Date Range Filtering
+        if ($request->has('start_date') && !empty($request->start_date)) {
+            $query->whereDate('historical_alerts.ts', '>=', $request->start_date);
+        }
+        if ($request->has('end_date') && !empty($request->end_date)) {
+            $query->whereDate('historical_alerts.ts', '<=', $request->end_date);
         }
 
         // --- SEARCHING ---
@@ -61,14 +68,12 @@ class AlertController extends Controller
             });
         }
 
-        // Total records after filtering
         $recordsFiltered = $query->count();
 
         // --- SORTING ---
-        // Map frontend column indexes to actual database columns
         $columns = ['historical_alerts.ts', 'pumps.name', 'historical_alerts.alert_type', 'historical_alerts.description', 'historical_alerts.email'];
         $orderColumnIndex = $request->input('order.0.column', 0);
-        $orderDirection = $request->input('order.0.dir', 'desc'); // Default to newest first
+        $orderDirection = $request->input('order.0.dir', 'desc'); 
         
         if (isset($columns[$orderColumnIndex])) {
             $query->orderBy($columns[$orderColumnIndex], $orderDirection);
@@ -78,10 +83,8 @@ class AlertController extends Controller
         $start = $request->input('start', 0);
         $length = $request->input('length', 10);
         
-        // Fetch the finalized chunk of data
         $data = $query->offset($start)->limit($length)->get();
 
-        // Format the data exactly as DataTables expects
         return response()->json([
             'draw' => intval($request->input('draw')),
             'recordsTotal' => $recordsTotal,

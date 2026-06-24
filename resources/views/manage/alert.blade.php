@@ -27,7 +27,7 @@
             color: #1e40af !important; 
             
             /* NEW: Push the text away from the 'x' */
-            margin-right: 8px !important; 
+            margin-right: 15px !important; 
             margin-left: 2px !important;
             border-right: none !important;
             font-weight: bold !important;
@@ -52,7 +52,9 @@
                 <label class="block text-sm font-bold text-gray-700 mb-2">Filter by Pump</label>
                 <select id="pumpFilter" class="select2" multiple="multiple" style="width: 100%;" data-placeholder="Select Pumps...">
                     @foreach($pumps as $pump)
-                        <option value="{{ $pump->id }}">{{ $pump->name }}</option>
+                        <option value="{{ $pump->id }}">
+                            {{ $pump->name ?: 'PUMP_' . $pump->id }}
+                        </option>
                     @endforeach
                 </select>
             </div>
@@ -142,8 +144,13 @@
                     { 
                         data: 'pump_name', 
                         name: 'pump_name',
-                        render: function(data) {
-                            return `<span class="font-bold text-gray-900">${data || 'Unknown Pump'}</span>`;
+                        // Add 'row' as the 3rd parameter to access the whole object
+                        render: function(data, type, row) { 
+                            
+                            // If 'data' (the pump name) is null or empty string, use the custom ID string
+                            let displayName = data ? data : `PUMP_${row.pump_id}`;
+                            
+                            return `<span class="font-bold text-gray-900">${displayName}</span>`;
                         }
                     },
                     { 
