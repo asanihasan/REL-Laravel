@@ -9,54 +9,74 @@
     </div>
     
     <div class="overflow-x-auto">
-        <table id="pumpTable" class="display w-full text-sm text-left whitespace-nowrap">
-            <thead class="bg-gray-50 text-gray-600 uppercase">
+        <table id="pumpTable" class="display w-full text-sm text-left">
+            <thead class="bg-gray-50 text-gray-600 uppercase border-b">
                 <tr>
-                    <th class="p-3">ID</th>
-                    <th class="p-3">Name</th>
-                    <th class="p-3">Location</th>
-                    <th class="p-3">Eng. Hours</th>
-                    <th class="p-3">RPM</th>
-                    <th class="p-3">Oil Press.</th>
-                    <th class="p-3">Eng. Temp</th>
-                    <th class="p-3">Load</th>
-                    <th class="p-3">Fuel Rate</th>
-                    <th class="p-3">Flow</th>
-                    <th class="p-3">Fuel Lvl</th>
-                    <th class="p-3">Battery</th>
-                    <th class="p-3">Status</th>
-                    <th class="p-3">Action</th>
+                    <th class="p-3 w-20">ID</th>
+                    <th class="p-3 w-40">Name</th>
+                    <th class="p-3 w-40">Location</th>
+                    <th class="p-3 min-w-[250px]">Pump Data</th>
+                    <th class="p-3 w-32">Status</th>
+                    <th class="p-3 w-24 text-center">Action</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
                 @foreach($pumps as $pump)
                 <tr class="hover:bg-gray-50 transition">
-                    <td class="p-3">
+                    <td class="p-3 align-top">
                         <div class="font-mono font-bold text-red-700">{{ $pump->id }}</div>
                         <div class="text-[10px] text-gray-400 font-mono mt-0.5" title="Serial Number">{{ $pump->serial_number ?? 'N/A' }}</div>
                     </td>
                     
-                    <td class="p-3 font-medium">{{ $pump->name }}</td>
-                    <td class="p-3 text-gray-500">{{ $pump->location }}</td>
+                    <td class="p-3 font-medium align-top">{{ $pump->name }}</td>
+                    <td class="p-3 text-gray-500 align-top">{{ $pump->location }}</td>
                     
-                    <td class="p-3 text-gray-600">{{ $pump->engine_hours ?? '-' }}</td>
-                    <td class="p-3 text-gray-600">{{ $pump->rpm ?? '-' }}</td>
-                    <td class="p-3 text-gray-600">{{ $pump->oil_pressure ?? '-' }}</td>
-                    <td class="p-3 text-gray-600">{{ $pump->engine_temp_mech ?? '-' }}</td>
-                    <td class="p-3 text-gray-600">{{ $pump->percent_load ?? '-' }}%</td>
-                    <td class="p-3 text-gray-600">{{ $pump->fuel_rate ?? '-' }}</td>
-                    
-                    <td class="p-3 text-gray-600">
+                    <td class="p-3">
                         @php 
                             $flowData = is_string($pump->pressure_or_flow) ? json_decode($pump->pressure_or_flow, true) : $pump->pressure_or_flow; 
                         @endphp
-                        {{ $flowData['flow'] ?? '-' }}
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-xs">
+                            <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
+                                <span class="text-gray-500">Eng. Hours:</span>
+                                <span class="font-medium text-gray-900">{{ $pump->engine_hours ?? '-' }}</span>
+                            </div>
+                            <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
+                                <span class="text-gray-500">RPM:</span>
+                                <span class="font-medium text-gray-900">{{ $pump->rpm ?? '-' }}</span>
+                            </div>
+                            <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
+                                <span class="text-gray-500">Oil Press:</span>
+                                <span class="font-medium text-gray-900">{{ $pump->oil_pressure ?? '-' }}</span>
+                            </div>
+                            <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
+                                <span class="text-gray-500">Eng. Temp:</span>
+                                <span class="font-medium text-gray-900">{{ $pump->engine_temp_mech ?? '-' }}</span>
+                            </div>
+                            <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
+                                <span class="text-gray-500">Load:</span>
+                                <span class="font-medium text-gray-900">{{ $pump->percent_load ?? '-' }}%</span>
+                            </div>
+                            <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
+                                <span class="text-gray-500">Fuel Rate:</span>
+                                <span class="font-medium text-gray-900">{{ $pump->fuel_rate ?? '-' }}</span>
+                            </div>
+                            <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
+                                <span class="text-gray-500">Flow:</span>
+                                <span class="font-medium text-gray-900">{{ $flowData['flow'] ?? '-' }}</span>
+                            </div>
+                            <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
+                                <span class="text-gray-500">Fuel Lvl:</span>
+                                <span class="font-medium text-gray-900">{{ $pump->fuel_level ?? '-' }}%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-500">Battery:</span>
+                                <span class="font-medium text-gray-900">{{ $pump->battery_potential ?? '-' }}V</span>
+                            </div>
+                        </div>
                     </td>
                     
-                    <td class="p-3 text-gray-600">{{ $pump->fuel_level ?? '-' }}%</td>
-                    <td class="p-3 text-gray-600">{{ $pump->battery_potential ?? '-' }}V</td>
-                    
-                    <td class="p-3">
+                    <td class="p-3 align-top">
                         <div class="flex flex-col space-y-1.5">
                             <div class="flex items-center justify-between text-xs min-w-[100px]">
                                 <span class="text-gray-500 font-medium">Net:</span>
@@ -87,8 +107,8 @@
                         </div>
                     </td>
                     
-                    <td class="p-3">
-                        <div class="flex items-center space-x-2">
+                    <td class="p-3 align-top">
+                        <div class="flex items-center justify-center space-x-2">
                             <a href="{{ route('pumps.show', $pump->id) }}" class="p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded transition" title="Detail">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
                                     <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" />
@@ -146,13 +166,10 @@
 <script>
     $(document).ready(function() {
         $('.last-update-time').each(function() {
-            // 1. Grab the ISO string from the data attribute
             const isoTime = $(this).data('time');
             
             if (isoTime) {
                 const date = new Date(isoTime);
-    
-                // 2. Format the date to "8 Feb 2026, 20:05:04"
                 const formattedDate = date.toLocaleString('en-GB', {
                     day: 'numeric',
                     month: 'short',
@@ -161,9 +178,8 @@
                     minute: '2-digit',
                     second: '2-digit',
                     hour12: false
-                }).replace(/\//g, ' '); // Clean up separators if necessary
-    
-                // 3. Inject the formatted string into the div
+                }).replace(/\//g, ' '); 
+                
                 $(this).text(formattedDate);
             }
         });
@@ -171,7 +187,7 @@
         $('#pumpTable').DataTable({
             "order": [],
             "pageLength": 10,
-            "scrollX": true // Ensures DataTables handles the horizontal overflow well
+            "scrollX": true 
         });
     });
 
