@@ -9,12 +9,21 @@
     </div>
     
     <div class="overflow-x-auto">
-        <table id="pumpTable" class="display w-full text-sm text-left">
+        <table id="pumpTable" class="display w-full text-sm text-left whitespace-nowrap">
             <thead class="bg-gray-50 text-gray-600 uppercase">
                 <tr>
                     <th class="p-3">ID</th>
                     <th class="p-3">Name</th>
                     <th class="p-3">Location</th>
+                    <th class="p-3">Eng. Hours</th>
+                    <th class="p-3">RPM</th>
+                    <th class="p-3">Oil Press.</th>
+                    <th class="p-3">Eng. Temp</th>
+                    <th class="p-3">Load</th>
+                    <th class="p-3">Fuel Rate</th>
+                    <th class="p-3">Flow</th>
+                    <th class="p-3">Fuel Lvl</th>
+                    <th class="p-3">Battery</th>
                     <th class="p-3">Status</th>
                     <th class="p-3">Action</th>
                 </tr>
@@ -22,28 +31,64 @@
             <tbody class="divide-y divide-gray-100">
                 @foreach($pumps as $pump)
                 <tr class="hover:bg-gray-50 transition">
-                    <td class="p-3 font-mono font-bold text-red-700">{{ $pump->id }}</td>
+                    <td class="p-3">
+                        <div class="font-mono font-bold text-red-700">{{ $pump->id }}</div>
+                        <div class="text-[10px] text-gray-400 font-mono mt-0.5" title="Serial Number">{{ $pump->serial_number ?? 'N/A' }}</div>
+                    </td>
+                    
                     <td class="p-3 font-medium">{{ $pump->name }}</td>
                     <td class="p-3 text-gray-500">{{ $pump->location }}</td>
-                    <td class="p-3">
-                        @if($pump->status == 'online')
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
-                                <span class="w-1.5 h-1.5 mr-1.5 bg-green-500 rounded-full"></span> Online
-                            </span>
-                            <div class="text-[10px] text-gray-400 mt-1 pl-1 last-update-time" data-time="{{ $pump->last_update->toIso8601String() }}"></div>
-                        @else
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
-                                <span class="w-1.5 h-1.5 mr-1.5 bg-gray-500 rounded-full"></span> Offline
-                            </span>
-                            <div class="text-[10px] text-gray-400 mt-1 pl-1 last-update-time" data-time="{{ $pump->last_update->toIso8601String() }}"></div>
-                            <!-- <div class="text-[10px] text-gray-400 mt-1 pl-1 last-update-time">
-                                {{ $pump->last_update->diffForHumans(null, true, true) }} ago
-                            </div> -->
-                        @endif
+                    
+                    <td class="p-3 text-gray-600">{{ $pump->engine_hours ?? '-' }}</td>
+                    <td class="p-3 text-gray-600">{{ $pump->rpm ?? '-' }}</td>
+                    <td class="p-3 text-gray-600">{{ $pump->oil_pressure ?? '-' }}</td>
+                    <td class="p-3 text-gray-600">{{ $pump->engine_temp_mech ?? '-' }}</td>
+                    <td class="p-3 text-gray-600">{{ $pump->percent_load ?? '-' }}%</td>
+                    <td class="p-3 text-gray-600">{{ $pump->fuel_rate ?? '-' }}</td>
+                    
+                    <td class="p-3 text-gray-600">
+                        @php 
+                            $flowData = is_string($pump->pressure_or_flow) ? json_decode($pump->pressure_or_flow, true) : $pump->pressure_or_flow; 
+                        @endphp
+                        {{ $flowData['flow'] ?? '-' }}
                     </td>
+                    
+                    <td class="p-3 text-gray-600">{{ $pump->fuel_level ?? '-' }}%</td>
+                    <td class="p-3 text-gray-600">{{ $pump->battery_potential ?? '-' }}V</td>
+                    
+                    <td class="p-3">
+                        <div class="flex flex-col space-y-1.5">
+                            <div class="flex items-center justify-between text-xs min-w-[100px]">
+                                <span class="text-gray-500 font-medium">Net:</span>
+                                @if(strtolower($pump->connection ?? '') == 'online')
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-800 border border-green-200">
+                                        <span class="w-1 h-1 mr-1 bg-green-500 rounded-full"></span> Online
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-700 border border-red-200">
+                                        <span class="w-1 h-1 mr-1 bg-red-500 rounded-full"></span> Offline
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="flex items-center justify-between text-xs min-w-[100px]">
+                                <span class="text-gray-500 font-medium">Mod:</span>
+                                @if(strtolower($pump->status ?? '') == 'online')
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-800 border border-green-200">
+                                        <span class="w-1 h-1 mr-1 bg-green-500 rounded-full"></span> Online
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-700 border border-red-200">
+                                        <span class="w-1 h-1 mr-1 bg-red-500 rounded-full"></span> Offline
+                                    </span>
+                                @endif
+                            </div>
+                            
+                            <div class="text-[10px] text-gray-400 mt-1 last-update-time" data-time="{{ optional($pump->last_update)->toIso8601String() }}"></div>
+                        </div>
+                    </td>
+                    
                     <td class="p-3">
                         <div class="flex items-center space-x-2">
-                            <!-- Detail Button -->
                             <a href="{{ route('pumps.show', $pump->id) }}" class="p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded transition" title="Detail">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
                                     <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" />
@@ -51,7 +96,6 @@
                                 </svg>
                             </a>
                             
-                            <!-- Update Button -->
                             <button onclick="openModal('{{ $pump->id }}', '{{ $pump->name }}', '{{ $pump->location }}')" class="p-2 bg-yellow-50 text-yellow-600 hover:bg-yellow-100 rounded transition" title="Update">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
                                     <path d="M5.433 13.917l1.262-3.155A4 4 0 017.58 9.42l6.92-6.918a2.121 2.121 0 013 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 01-.65-.65z" />
@@ -59,7 +103,6 @@
                                 </svg>
                             </button>
                             
-                            <!-- Delete Button -->
                             <form action="{{ route('pumps.destroy', $pump->id) }}" method="POST" onsubmit="return confirm('Delete this pump?')">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="p-2 bg-red-50 text-red-600 hover:bg-red-100 rounded transition" title="Delete">
@@ -77,7 +120,6 @@
     </div>
 </div>
 
-<!-- Update Modal (Same as before) -->
 <div id="updateModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white p-6 rounded-lg w-96 shadow-xl transform transition-all">
         <h2 class="text-lg font-bold mb-4 border-b pb-2">Update Pump</h2>
@@ -125,9 +167,11 @@
                 $(this).text(formattedDate);
             }
         });
+        
         $('#pumpTable').DataTable({
             "order": [],
-            "pageLength": 10
+            "pageLength": 10,
+            "scrollX": true // Ensures DataTables handles the horizontal overflow well
         });
     });
 
