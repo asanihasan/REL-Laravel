@@ -36,71 +36,89 @@
     </div>
 
     <div class="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-100">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Pump</label>
-                <select id="pumpFilter" class="w-full select2" multiple="multiple" data-placeholder="Select Pumps...">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            
+            <div class="md:col-span-1">
+                <label class="block text-sm font-bold text-gray-700 mb-2">Filter by Pump</label>
+                <select id="pumpFilter" class="select2" multiple="multiple" style="width: 100%;" data-placeholder="Select Pumps...">
                     @foreach($pumps as $pump)
                         <option value="{{ $pump->id }}">{{ $pump->name }} ({{ $pump->id }})</option>
                     @endforeach
                 </select>
             </div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Alert Type</label>
-                <select id="typeFilter" class="w-full select2" multiple="multiple" data-placeholder="Select Alert Types...">
+            <div class="md:col-span-1">
+                <label class="block text-sm font-bold text-gray-700 mb-2">Filter by Alert Type</label>
+                <select id="typeFilter" class="select2" multiple="multiple" style="width: 100%;" data-placeholder="Select Alert Types...">
                     @foreach($alertTypes as $key => $label)
                         <option value="{{ $key }}">{{ $label }}</option>
                     @endforeach
                 </select>
             </div>
+
+            <div class="md:col-span-1">
+                <label class="block text-sm font-bold text-gray-700 mb-2">Start Date</label>
+                <input type="date" id="startDate" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2 border">
+            </div>
+
+            <div class="md:col-span-1">
+                <label class="block text-sm font-bold text-gray-700 mb-2">End Date</label>
+                <input type="date" id="endDate" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2 border">
+            </div>
+            
         </div>
     </div>
 
-    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 overflow-hidden">
-        <table id="alertsTable" class="w-full text-sm text-left text-gray-500 stripe hover" style="width:100%">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b">
-                <tr>
-                    <th class="px-4 py-3">Timestamp</th>
-                    <th class="px-4 py-3">Pump Name</th>
-                    <th class="px-4 py-3">Alert Type</th>
-                    <th class="px-4 py-3">Description</th>
-                    <th class="px-4 py-3 text-center">Emailed</th>
-                </tr>
-            </thead>
-            <tbody>
-                </tbody>
-        </table>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table id="alertsTable" class="w-full text-sm text-left whitespace-nowrap stripe hover">
+                <thead class="text-xs text-white uppercase bg-gray-800">
+                    <tr>
+                        <th class="px-6 py-4 font-semibold tracking-wider">Timestamp</th>
+                        <th class="px-6 py-4 font-semibold tracking-wider">Pump Name</th>
+                        <th class="px-6 py-4 font-semibold tracking-wider">Alert Type</th>
+                        <th class="px-6 py-4 font-semibold tracking-wider w-full">Description</th>
+                        <th class="px-6 py-4 font-semibold tracking-wider text-center">Emailed</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-600 divide-y divide-gray-200">
+                    </tbody>
+            </table>
+        </div>
     </div>
 @endsection
 
 @section('scripts')
-    {{-- Inject jQuery, DataTables, and Select2 --}}
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.tailwindcss.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
-        $(document).ready(function() {
+        // Wait for the entire window to load, bypassing any Laravel Vite 'defer' race conditions
+        window.addEventListener('load', function() {
+            
             // 1. Initialize Select2
             $('.select2').select2({
-                width: '100%'
+                width: 'resolve' // Tells Select2 to inherit the 100% width from the style attribute
             });
 
-            // 2. Initialize DataTables with Server-Side Processing
+            // 2. Initialize DataTables
             let table = $('#alertsTable').DataTable({
                 processing: true,
                 serverSide: true,
-                order: [[0, 'desc']], // Default sort: Timestamp, newest first
-                pageLength: 25,       // Default rows per page
+                order: [[0, 'desc']], 
+                pageLength: 25,
                 ajax: {
                     url: '{{ route('manage.alert.data') }}',
                     type: 'GET',
                     data: function(d) {
-                        // Pass current filter values to the backend request
+                        // Pass current filter values
                         d.pumps = $('#pumpFilter').val();
                         d.alert_types = $('#typeFilter').val();
+                        // NEW: Pass date filters
+                        d.start_date = $('#startDate').val();
+                        d.end_date = $('#endDate').val();
                     }
                 },
                 columns: [
@@ -108,35 +126,33 @@
                         data: 'ts', 
                         name: 'ts',
                         render: function(data) {
-                            // Basic formatting, you can use moment.js here if you want
-                            return `<span class="font-mono text-gray-600">${data}</span>`;
+                            return `<span class="font-mono text-gray-800">${data}</span>`;
                         }
                     },
                     { 
                         data: 'pump_name', 
                         name: 'pump_name',
                         render: function(data) {
-                            return `<span class="font-medium text-gray-900">${data || 'Unknown Pump'}</span>`;
+                            return `<span class="font-bold text-gray-900">${data || 'Unknown Pump'}</span>`;
                         }
                     },
                     { 
                         data: 'alert_type', 
                         name: 'alert_type',
                         render: function(data) {
-                            // Beautify the alert type (e.g., 'engine_running' -> 'Engine Running')
                             let formatted = data.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                             
-                            // Optional: Color coding based on type
-                            let badgeClass = 'bg-gray-100 text-gray-800';
-                            if(data.includes('stopped') || data.includes('lost') || data.includes('low')) badgeClass = 'bg-red-100 text-red-800';
-                            if(data.includes('running')) badgeClass = 'bg-green-100 text-green-800';
+                            let badgeClass = 'bg-gray-100 text-gray-800 border-gray-200';
+                            if(data.includes('stopped') || data.includes('lost') || data.includes('low')) badgeClass = 'bg-red-50 text-red-700 border-red-200';
+                            if(data.includes('running')) badgeClass = 'bg-green-50 text-green-700 border-green-200';
                             
-                            return `<span class="px-2 py-1 text-xs font-medium rounded-md ${badgeClass}">${formatted}</span>`;
+                            return `<span class="px-2.5 py-1 text-xs font-semibold rounded-md border ${badgeClass}">${formatted}</span>`;
                         }
                     },
                     { 
                         data: 'description', 
-                        name: 'description' 
+                        name: 'description',
+                        className: 'whitespace-normal min-w-[300px]' // Ensures long descriptions wrap nicely
                     },
                     { 
                         data: 'email', 
@@ -144,15 +160,15 @@
                         className: 'text-center',
                         render: function(data) {
                             return data == 1 
-                                ? `<span class="inline-block w-2 h-2 rounded-full bg-green-500" title="Sent"></span>` 
-                                : `<span class="inline-block w-2 h-2 rounded-full bg-gray-300" title="Not Sent"></span>`;
+                                ? `<span class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-green-100 bg-green-600 rounded-full">SENT</span>` 
+                                : `<span class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-gray-500 bg-gray-100 rounded-full">NO</span>`;
                         }
                     }
                 ]
             });
 
-            // 3. Trigger Table Reload when Filters Change
-            $('#pumpFilter, #typeFilter').on('change', function() {
+            // 3. Trigger Table Reload when ANY filter changes
+            $('#pumpFilter, #typeFilter, #startDate, #endDate').on('change', function() {
                 table.draw();
             });
         });
