@@ -180,14 +180,29 @@
         <div id="controlMessage" class="hidden mt-3 p-2 rounded text-sm font-bold border-l-4"></div>
     </div>
 
+    <div class="bg-white p-5 rounded-lg shadow-md border-t-4 border-blue-500 mt-2">
+        <label class="block text-sm font-bold text-gray-700 mb-2">Time Filter</label>
+        <div class="flex flex-wrap items-center gap-2">
+            <input type="text" id="dateRangePicker" class="border rounded px-3 py-1 text-sm w-56 focus:ring-2 focus:ring-blue-500" placeholder="Select Range">
+            <button onclick="loadHistory()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded text-sm font-bold shadow-sm transition">Filter</button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+        <div class="bg-white p-4 rounded-lg shadow-md border border-gray-100">
+            <h3 class="text-sm font-bold text-gray-700 mb-2 text-center">Historical Engine Speed (RPM)</h3>
+            <div id="lineChart_rpm" class="w-full h-64"></div>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-md border border-gray-100">
+            <h3 class="text-sm font-bold text-gray-700 mb-2 text-center">Historical Flow (L/s)</h3>
+            <div id="lineChart_flow" class="w-full h-64"></div>
+        </div>
+    </div>
+
     <div class="bg-white p-5 rounded-lg shadow-md border-t-4 border-gray-800 mt-2">
         <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-3">
             <h3 class="text-xl font-bold text-gray-800">Historical Logs</h3>
-            <div class="flex flex-wrap items-center gap-2">
-                <input type="text" id="dateRangePicker" class="border rounded px-3 py-1 text-sm w-56 focus:ring-2 focus:ring-blue-500" placeholder="Select Range">
-                <button onclick="loadHistory()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm font-bold">Filter</button>
-                <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-bold">Export XLS</button>
-            </div>
+            <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded text-sm font-bold shadow-sm transition">Export XLS</button>
         </div>
 
         <div class="overflow-x-auto">
@@ -355,12 +370,12 @@
         $.ajax({
             url: url,
             method: 'GET',
-                        success: function(data) {
+            success: function(data) {
                 currentHistoryData = data; 
                 const tbody = $('#historyTable tbody').empty();
                 
+                // 1. Build Table
                 data.forEach(row => {
-                    // Logic to parse auto/manual mode
                     let autoMode = "-";
                     if (row.auto_manual_status) {
                         const status = typeof row.auto_manual_status === 'string' ? JSON.parse(row.auto_manual_status) : row.auto_manual_status;
@@ -368,7 +383,6 @@
                         else if (status.manual) autoMode = "Manual";
                     }
 
-                    // Handle nested pressure/flow object
                     const pf = typeof row.pressure_or_flow === 'string' ? JSON.parse(row.pressure_or_flow) : row.pressure_or_flow;
 
                     tbody.append(`
@@ -393,8 +407,27 @@
                 historyDataTable = $('#historyTable').DataTable({ 
                     order: [[0, 'desc']], 
                     pageLength: 10,
-                    scrollX: true // Since we added many columns, this is now necessary
+                    scrollX: true 
                 });
+
+                // 2. Build Charts (Reverse data so it draws left-to-right from oldest to newest)
+                const chartData = [...data].reverse();
+                
+                const timeAxis = chartData.map(row => {
+                    // Shorten the timestamp for a cleaner X-axis (e.g. "Jun 27, 10:40")
+                    let d = new Date(row.ts.includes('Z') || row.ts.includes('+') ? row.ts : row.ts + ' UTC');
+                    return d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                });
+                
+                const rpmData = chartData.map(row => row.rpm ?? 0);
+                const flowData = chartData.map(row => {
+                    const pf = typeof row.pressure_or_flow === 'string' ? JSON.parse(row.pressure_or_flow) : row.pressure_or_flow;
+                    return pf?.flow ?? 0;
+                });
+
+                // 3. Render the Charts
+                updateLineChart('lineChart_rpm', timeAxis, rpmData, '#3b82f6', 'RPM'); // Tailwind blue-500
+                updateLineChart('lineChart_flow', timeAxis, flowData, '#14b8a6', 'Flow'); // Tailwind teal-500
             },
             error: function() {
                 $('#historyTable tbody').html('<tr><td colspan="9" class="text-center py-10 text-red-600">Failed to load historical data.</td></tr>');
@@ -434,6 +467,51 @@
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Pump History");
         XLSX.writeFile(wb, `Pump_{{ $pump->id }}_Log_${new Date().getTime()}.xlsx`);
+    }
+
+    // --- Helper to draw/update Line Charts ---
+    function updateLineChart(domId, xData, yData, colorHex, seriesName) {
+        if (!charts[domId]) {
+            const chartDom = document.getElementById(domId);
+            charts[domId] = echarts.init(chartDom);
+        }
+        
+        const option = {
+            tooltip: { 
+                trigger: 'axis',
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                textStyle: { color: '#1f2937' },
+                borderWidth: 1,
+                borderColor: '#e5e7eb'
+            },
+            grid: { left: '2%', right: '4%', bottom: '2%', top: '10%', containLabel: true },
+            xAxis: { 
+                type: 'category', 
+                boundaryGap: false, 
+                data: xData,
+                axisLabel: { color: '#6b7280', fontSize: 10 }
+            },
+            yAxis: { 
+                type: 'value',
+                splitLine: { lineStyle: { color: '#f3f4f6', type: 'dashed' } },
+                axisLabel: { color: '#6b7280', fontSize: 10 }
+            },
+            series: [{
+                name: seriesName,
+                type: 'line',
+                smooth: true,
+                symbol: 'none',
+                itemStyle: { color: colorHex },
+                areaStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                        { offset: 0, color: colorHex },
+                        { offset: 1, color: 'rgba(255, 255, 255, 0.1)' }
+                    ])
+                },
+                data: yData
+            }]
+        };
+        charts[domId].setOption(option);
     }
 
     // --- 4. Control Logic ---
