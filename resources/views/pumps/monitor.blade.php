@@ -194,15 +194,19 @@
             <table id="historyTable" class="w-full text-left text-sm whitespace-nowrap">
                 <thead class="bg-gray-50 border-b">
                     <tr>
-                        <th>Timestamp (Local)</th>
-                        <th>RPM</th>
-                        <th>Load%</th>
-                        <th>Fuel L/h</th>
+                        <th>Timestamp</th>
+                        <th>Eng Hours Mode</th>
                         <th>Coolant°C</th>
-                        <th>Oil°C</th>
-                        <th>Oil PSI</th>
-                        <th>Discharge PSI</th>
-                        <th>BatteryV</th>
+                        <th>Load%</th>
+                        <th>Fuel Rate</th>
+                        <th>Fuel Level%</th>
+                        <th>Pressure</th>
+                        <th>Flow</th>
+                        <th>Discharge</th>
+                        <th>Suction</th>
+                        <th>Dam Level</th>
+                        <th>Fault Code</th>
+                        <th>Voltage</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y"></tbody>
@@ -351,22 +355,37 @@
         $.ajax({
             url: url,
             method: 'GET',
-            success: function(data) {
+                        success: function(data) {
                 currentHistoryData = data; 
                 const tbody = $('#historyTable tbody').empty();
                 
                 data.forEach(row => {
+                    // Logic to parse auto/manual mode
+                    let autoMode = "-";
+                    if (row.auto_manual_status) {
+                        const status = typeof row.auto_manual_status === 'string' ? JSON.parse(row.auto_manual_status) : row.auto_manual_status;
+                        if (status.auto) autoMode = "Auto";
+                        else if (status.manual) autoMode = "Manual";
+                    }
+
+                    // Handle nested pressure/flow object
+                    const pf = typeof row.pressure_or_flow === 'string' ? JSON.parse(row.pressure_or_flow) : row.pressure_or_flow;
+
                     tbody.append(`
                         <tr>
-                            <td class="px-4 py-2 font-mono whitespace-nowrap" data-order="${row.ts}">${getLocalTime(row.ts)}</td>
-                            <td class="px-4 py-2">${row.rpm}</td>
-                            <td class="px-4 py-2">${row.percent_load}</td>
-                            <td class="px-4 py-2">${row.fuel_rate}</td>
-                            <td class="px-4 py-2">${row.coolant_temp}</td>
-                            <td class="px-4 py-2">${row.oil_temp}</td>
-                            <td class="px-4 py-2">${row.oil_pressure}</td>
-                            <td class="px-4 py-2 font-bold text-blue-700">${row.pump_press2}</td>
-                            <td class="px-4 py-2">${row.battery_potential}</td>
+                            <td class="px-4 py-2 font-mono whitespace-nowrap">${getLocalTime(row.ts)}</td>
+                            <td class="px-4 py-2">${autoMode}</td>
+                            <td class="px-4 py-2">${row.coolant_temp ?? '-'}</td>
+                            <td class="px-4 py-2">${row.percent_load ?? '-'}</td>
+                            <td class="px-4 py-2">${row.fuel_rate ?? '-'}</td>
+                            <td class="px-4 py-2">${row.fuel_level ?? '-'}</td>
+                            <td class="px-4 py-2">${pf?.pressure ?? '-'}</td>
+                            <td class="px-4 py-2">${pf?.flow ?? '-'}</td>
+                            <td class="px-4 py-2">${row.pump_press2 ?? '-'}</td>
+                            <td class="px-4 py-2">${row.suction_pressure ?? '-'}</td>
+                            <td class="px-4 py-2">${row.dam_level ?? '-'}</td>
+                            <td class="px-4 py-2 font-mono text-red-600">${row.fault_code ?? '-'}</td>
+                            <td class="px-4 py-2">${row.battery_potential ?? '-'}</td>
                         </tr>
                     `);
                 });
@@ -374,7 +393,7 @@
                 historyDataTable = $('#historyTable').DataTable({ 
                     order: [[0, 'desc']], 
                     pageLength: 10,
-                    responsive: true
+                    scrollX: true // Since we added many columns, this is now necessary
                 });
             },
             error: function() {
@@ -389,17 +408,27 @@
             return;
         }
 
-        const exportRows = currentHistoryData.map(row => ({
-            'Timestamp (Local)': getLocalTime(row.ts),
-            'RPM': row.rpm,
-            'Load (%)': row.percent_load,
-            'Fuel Rate (L/h)': row.fuel_rate,
-            'Coolant Temp (°C)': row.coolant_temp,
-            'Oil Temp (°C)': row.oil_temp,
-            'Oil Pressure (PSI)': row.oil_pressure,
-            'Discharge Pressure (PSI)': row.pump_press2,
-            'Battery (V)': row.battery_potential
-        }));
+        const exportRows = currentHistoryData.map(row => {
+            const status = typeof row.auto_manual_status === 'string' ? JSON.parse(row.auto_manual_status) : row.auto_manual_status;
+            const pf = typeof row.pressure_or_flow === 'string' ? JSON.parse(row.pressure_or_flow) : row.pressure_or_flow;
+            
+            return {
+                'Timestamp': getLocalTime(row.ts),
+                'Eng Hours Mode': status.auto ? 'Auto' : (status.manual ? 'Manual' : '-'),
+                'Coolant°C': row.coolant_temp,
+                'Load (%)': row.percent_load,
+                'Fuel Rate': row.fuel_rate,
+                'Fuel Level (%)': row.fuel_level,
+                'Pressure': pf?.pressure,
+                'Flow': pf?.flow,
+                'Discharge': row.pump_press2,
+                'Suction': row.suction_pressure,
+                'Dam Level': row.dam_level,
+                'Fault Code': row.fault_code,
+                'Voltage': row.battery_potential
+            };
+        });
+
 
         const ws = XLSX.utils.json_to_sheet(exportRows);
         const wb = XLSX.utils.book_new();
