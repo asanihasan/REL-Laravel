@@ -30,82 +30,62 @@
                     
                     <td class="p-3 font-medium align-top">{{ $pump->name }}</td>
                     <td class="p-3 text-gray-500 align-top">{{ $pump->location }}</td>
-                    
-                    <td class="p-3">
-                        @php 
-                            $flowData = is_string($pump->pressure_or_flow) ? json_decode($pump->pressure_or_flow, true) : $pump->pressure_or_flow; 
+                
+                    <td class="p-3 align-top">
+                        @php
+                            // Safely decode the JSON status if it's stored as a string
+                            $autoStatus = is_string($pump->auto_manual_status) ? json_decode($pump->auto_manual_status, true) : $pump->auto_manual_status;
+                            $isEngineRunning = isset($autoStatus['engine_running']) && $autoStatus['engine_running'];
                         @endphp
                         
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-xs">
-                            <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
-                                <span class="text-gray-500">Eng. Hours:</span>
-                                <span class="font-medium text-gray-900">{{ $pump->engine_hours ?? '-' }}</span>
-                            </div>
-                            <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
-                                <span class="text-gray-500">RPM:</span>
-                                <span class="font-medium text-gray-900">{{ $pump->rpm ?? '-' }}</span>
-                            </div>
-                            <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
-                                <span class="text-gray-500">Oil Press:</span>
-                                <span class="font-medium text-gray-900">{{ $pump->oil_pressure ?? '-' }}</span>
-                            </div>
-                            <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
-                                <span class="text-gray-500">Eng. Temp:</span>
-                                <span class="font-medium text-gray-900">{{ $pump->engine_temp_mech ?? '-' }}</span>
-                            </div>
-                            <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
-                                <span class="text-gray-500">Load:</span>
-                                <span class="font-medium text-gray-900">{{ $pump->percent_load ?? '-' }}%</span>
-                            </div>
-                            <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
-                                <span class="text-gray-500">Fuel Rate:</span>
-                                <span class="font-medium text-gray-900">{{ $pump->fuel_rate ?? '-' }}</span>
-                            </div>
-                            <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
-                                <span class="text-gray-500">Flow:</span>
-                                <span class="font-medium text-gray-900">{{ $flowData['flow'] ?? '-' }}</span>
-                            </div>
-                            <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
-                                <span class="text-gray-500">Fuel Lvl:</span>
-                                <span class="font-medium text-gray-900">{{ $pump->fuel_level ?? '-' }}%</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-500">Battery:</span>
-                                <span class="font-medium text-gray-900">{{ $pump->battery_potential ?? '-' }}V</span>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="p-3">
-                        @php 
-                            $flowData = is_string($pump->pressure_or_flow) ? json_decode($pump->pressure_or_flow, true) : $pump->pressure_or_flow; 
-                        @endphp
-                        
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-xs">
+                        <div class="flex flex-col space-y-2">
                             
-                            <div class="space-y-1">
-                                <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
-                                    <span class="text-gray-500">Eng Speed:</span>
-                                    <span class="font-medium text-gray-900">{{ $pump->rpm ?? '-' }}</span>
-                                </div>
-                                <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
-                                    <span class="text-gray-500">Eng Load:</span>
-                                    <span class="font-medium text-gray-900">{{ $pump->percent_load ?? '-' }}%</span>
-                                </div>
-                                <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
-                                    <span class="text-gray-500">Coolant Temp:</span>
-                                    <span class="font-medium text-gray-900">{{ $pump->engine_temp_mech ?? '-' }}</span>
-                                </div>
+                            <div class="flex items-center justify-between text-xs min-w-[140px]">
+                                <span class="text-gray-500 font-medium mr-2">Mod:</span>
+                                @if(strtolower($pump->status ?? '') == 'online')
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-800 border border-green-200">
+                                        <span class="w-1 h-1 mr-1 bg-green-500 rounded-full flex-shrink-0"></span>
+                                        <span class="last-update-time" data-time="{{ optional($pump->last_update)->toIso8601String() }}">Online</span>
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-700 border border-red-200">
+                                        <span class="w-1 h-1 mr-1 bg-red-500 rounded-full flex-shrink-0"></span>
+                                        <span class="last-update-time" data-time="{{ optional($pump->last_update)->toIso8601String() }}">Offline</span>
+                                    </span>
+                                @endif
                             </div>
 
-                            <div class="space-y-1">
-                                <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
-                                    <span class="text-gray-500">Flow:</span>
-                                    <span class="font-medium text-gray-900">{{ $flowData['flow'] ?? '-' }}</span>
-                                </div>
-                                <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
-                                    <span class="text-gray-500">Fuel Rate:</span>
-                                    <span class="font-medium text-gray-900">{{ $pump->fuel_rate ?? '-' }}</span>
-                                </div>
+                            <div class="flex items-center justify-between text-xs min-w-[140px]">
+                                <span class="text-gray-500 font-medium mr-2">Eng:</span>
+                                @if($isEngineRunning)
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-800 border border-green-200">
+                                        <span class="w-1 h-1 mr-1 bg-green-500 rounded-full flex-shrink-0"></span> Running
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-600 border border-gray-200">
+                                        <span class="w-1 h-1 mr-1 bg-gray-500 rounded-full flex-shrink-0"></span> Stopped
+                                    </span>
+                                @endif
+                            </div>
+
+                            <div class="flex items-center justify-between text-xs min-w-[140px]">
+                                <span class="text-gray-500 font-medium mr-2">Net:</span>
+                                @if(strtolower($pump->connection ?? '') == 'online')
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-800 border border-green-200">
+                                        <span class="w-1 h-1 mr-1 bg-green-500 rounded-full flex-shrink-0"></span>
+                                        <span class="last-update-time" data-time="{{ optional($pump->updated_at)->toIso8601String() }}">Online</span>
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-700 border border-red-200">
+                                        <span class="w-1 h-1 mr-1 bg-red-500 rounded-full flex-shrink-0"></span>
+                                        <span class="last-update-time" data-time="{{ optional($pump->updated_at)->toIso8601String() }}">Offline</span>
+                                    </span>
+                                @endif
+                            </div>
+
+                            <div class="flex items-center justify-between text-xs min-w-[140px] pt-1 border-t border-gray-100 mt-1">
+                                <span class="text-gray-500 font-medium mr-2">SN:</span>
+                                <span class="text-gray-900 font-mono text-[10px]">{{ $pump->serial_number ?? 'N/A' }}</span>
                             </div>
                             
                         </div>
@@ -113,12 +93,29 @@
                     
                     <td class="p-3 align-top">
                         <div class="flex items-center justify-center space-x-2">
-                            <a href="{{ route('pumps.show', $pump->id) }}" class="p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded transition" title="Detail">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
-                                    <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" />
-                                    <path fill-rule="evenodd" d="M.664 10.59a1.651 1.651 0 010-1.186A10.004 10.004 0 0110 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0110 17c-4.257 0-7.893-2.66-9.336-6.41zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
-                                </svg>
-                            </a>
+                            
+                            <div x-data="{ open: false }" class="relative inline-block text-left">
+                                <button @click="open = !open" type="button" class="p-2 flex items-center bg-blue-50 text-blue-600 hover:bg-blue-100 rounded transition" title="View Options">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                                        <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" />
+                                        <path fill-rule="evenodd" d="M.664 10.59a1.651 1.651 0 010-1.186A10.004 10.004 0 0110 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0110 17c-4.257 0-7.893-2.66-9.336-6.41zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                                    </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                
+                                <div x-show="open" @click.outside="open = false" x-transition x-cloak class="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg border border-gray-100 z-50 origin-top-right">
+                                    <div class="py-1">
+                                        <a href="{{ route('pumps.show', $pump->id) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition font-medium">
+                                            Grid View
+                                        </a>
+                                        <a href="{{ route('pumps.show', $pump->id) }}/monitor" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition font-medium">
+                                            Graph View
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
                             
                             <button onclick="openModal('{{ $pump->id }}', '{{ $pump->name }}', '{{ $pump->location }}')" class="p-2 bg-yellow-50 text-yellow-600 hover:bg-yellow-100 rounded transition" title="Update">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
