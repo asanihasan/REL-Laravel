@@ -99,7 +99,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="space-y-6">
             <div class="bg-white p-6 rounded-lg shadow-md">
-                <h3 class="text-lg font-bold border-b pb-3 mb-4 text-gray-700">Engine Performance</h3>
+                <h3 class="text-lg font-bold border-b pb-3 mb-4 text-gray-700">Engine</h3>
                 <div class="grid grid-cols-2 gap-1">
                     <div class="bg-blue-50 p-4 rounded text-center">
                         <span class="block text-xs text-blue-600 font-bold uppercase tracking-wider">RPM</span>
@@ -114,6 +114,10 @@
                         <span class="font-medium font-mono"><span id="disp_engine_hours">{{ $pump->engine_hours }}</span> h</span>
                     </div>
                     <div class="col-span-2 flex justify-between border-b pb-0">
+                        <span class="text-sm text-gray-500">Engine Coolant Temp</span>
+                        <span class="font-medium font-mono"><span id="disp_engine_hours">{{ $pump->coolant_temp }}</span> °C</span>
+                    </div>
+                    <div class="col-span-2 flex justify-between border-b pb-0">
                         <span class="text-sm text-gray-500">Fuel Rate</span>
                         <span class="font-medium font-mono"><span id="disp_fuel_rate">{{ $pump->fuel_rate }}</span> L/h</span>
                     </div>
@@ -121,13 +125,14 @@
                         <span class="text-sm text-gray-500">Fuel Level</span>
                         <span class="font-medium font-mono"><span id="disp_fuel_rate">{{ $pump->fuel_level }}</span> %</span>
                     </div>
-                </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <h3 class="text-lg font-bold border-b pb-3 mb-4 text-gray-700">Digital Inputs</h3>
-                <div id="digitalInputsContainer" class="grid grid-cols-2 gap-2 text-sm">
-                    <!-- JS handles updates -->
+                    <div class="col-span-2 flex justify-between border-b pb-0">
+                        <span class="text-sm text-gray-500">Oil Pressure</span>
+                        <span class="font-medium font-mono"><span id="disp_fuel_rate">{{ $pump->oil_pressure }}</span> PSI</span>
+                    </div>
+                    <div class="col-span-2 flex justify-between border-b pb-0">
+                        <span class="text-sm text-gray-500">Battery Voltage</span>
+                        <span class="font-medium font-mono"><span id="disp_fuel_rate">{{ $pump->battery_potential }}</span> V</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -135,17 +140,17 @@
         <div class="bg-white p-6 rounded-lg shadow-md h-fit">
             <h3 class="text-lg font-bold border-b pb-3 mb-4 text-gray-700">Sensors</h3>
             <div class="space-y-6">
-                <div>
-                    <h4 class="text-xs font-bold text-gray-400 uppercase mb-3">Temperatures (°C)</h4>
-                    <div class="space-y-2">
+                <!-- <div> -->
+                    <!-- <h4 class="text-xs font-bold text-gray-400 uppercase mb-3">Temperatures (°C)</h4> -->
+                    <!-- <div class="space-y-2"> -->
                         <div class="flex justify-between border-b border-gray-100"><span>Coolant</span> <span class="font-bold" id="disp_coolant_temp">{{ $pump->coolant_temp }}</span></div>
                         <!-- <div class="flex justify-between border-b border-gray-100"><span>Oil</span> <span class="font-bold" id="disp_oil_temp">{{ $pump->oil_temp }}</span></div>
                         <div class="flex justify-between border-b border-gray-100"><span>Pump</span> <span class="font-bold" id="disp_pump_temp">{{ $pump->pump_temp }}</span></div> -->
                         <div class="flex justify-between border-b border-gray-100"><span>Oil</span> <span class="font-bold" id=""> - </span></div>
                         <div class="flex justify-between border-b border-gray-100"><span>Pump</span> <span class="font-bold" id=""> - </span></div>
-                    </div>
-                </div>
-                <div>
+                    <!-- </div> -->
+                <!-- </div> -->
+                <!-- <div>
                     <h4 class="text-xs font-bold text-gray-400 uppercase mb-3">Pressures (PSI)</h4>
                     <div class="space-y-2">
                         <div class="flex justify-between border-b border-gray-100"><span>Oil</span> <span class="font-bold" id="disp_oil_pressure">{{ $pump->oil_pressure }}</span></div>
@@ -161,7 +166,7 @@
                             <span class="text-green-700" id="disp_flow">{{ $pump->pressure_or_flow['flow'] ?? 0 }}</span>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
 
