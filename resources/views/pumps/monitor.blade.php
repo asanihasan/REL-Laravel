@@ -370,15 +370,14 @@
             let startDate = new Date(range[0]);
             let endDate = range[1] ? new Date(range[1]) : new Date(range[0]);
 
-            if (startDate.toDateString() === endDate.toDateString()) {
-                startDate.setHours(0, 0, 0, 0);
-                endDate.setHours(23, 59, 59, 999);
-            }
+            // 🔥 I DELETED THE IF-STATEMENT THAT WAS OVERRIDING YOUR TIMES HERE!
+            // It will now strictly use the exact hours/minutes from Flatpickr.
+
             url += `?start=${encodeURIComponent(formatToUTC(startDate))}&end=${encodeURIComponent(formatToUTC(endDate))}`;
         }
 
         if (historyDataTable) historyDataTable.destroy();
-        $('#historyTable tbody').html('<tr><td colspan="9" class="text-center py-10">Loading history logs...</td></tr>');
+        $('#historyTable tbody').html('<tr><td colspan="13" class="text-center py-10 w-full">Loading history logs...</td></tr>');
 
         $.ajax({
             url: url,
