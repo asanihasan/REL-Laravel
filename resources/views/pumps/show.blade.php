@@ -137,7 +137,7 @@
             </div>
         </div>
 
-        <div class="bg-white p-6 rounded-lg shadow-md h-fit">
+        <div class="bg-white p-4 rounded-lg shadow-md h-fit">
             <h3 class="text-lg font-bold border-b pb-3 mb-4 text-gray-700">Sensors</h3>
             <div class="space-y-6">
                 <div class="bg-green-50 p-4 rounded items-center flex justify-between">
@@ -145,25 +145,12 @@
                     <span class="text-xl font-bold text-gray-800"><span id="disp_flow">{{ $pump->pressure_or_flow['flow'] ?? 0 }}</span> L/s</span>
                 </div>
                 <div class="flex justify-between border-b border-gray-100"><span>Suction Pressure</span> <span class="font-bold" id="disp_coolant_temp">{{ $pump->suction_pressure }}</span></div>
-                <div class="flex justify-between border-b border-gray-100"><span>Discharge Pressure</span> <span class="font-bold" id="disp_pump_temp">{{ $pump->pump_press2 }}</span></div> -->
+                <div class="flex justify-between border-b border-gray-100"><span>Discharge Pressure</span> <span class="font-bold" id="disp_pump_temp">{{ $pump->pump_press2 }}</span></div>
                 <div class="flex justify-between border-b border-gray-100"><span>Pump Temp</span> <span class="font-bold" id="">{{ $pump->pump_press2 }}</span></div>
             </div>
         </div>
 
         <div class="space-y-6">
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <h3 class="text-lg font-bold border-b pb-3 mb-4 text-gray-700">System</h3>
-                <div class="grid grid-cols-2 gap-4 text-center">
-                    <div class="bg-gray-50 p-3 rounded border">
-                        <span class="block text-xs text-gray-500 uppercase">Battery</span>
-                        <span class="text-lg font-mono font-bold text-gray-800"><span id="disp_battery">{{ $pump->battery_potential }}</span> V</span>
-                    </div>
-                    <div class="bg-gray-50 p-3 rounded border">
-                        <span class="block text-xs text-gray-500 uppercase">System</span>
-                        <span class="text-lg font-mono font-bold text-gray-800"><span id="disp_system">{{ $pump->electrical_potential }}</span> V</span>
-                    </div>
-                </div>
-            </div>
             <div id="controllerModeContainer" class="bg-white p-6 rounded-lg shadow-md">
                 <h3 class="text-lg font-bold border-b pb-3 mb-4 text-gray-700">Controller Mode</h3>
                 <!-- Content handled by JS -->
