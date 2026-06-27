@@ -56,22 +56,34 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
+    @php 
+        $flowData = is_string($pump->pressure_or_flow) ? json_decode($pump->pressure_or_flow, true) : $pump->pressure_or_flow; 
+    @endphp
+    
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+        <div class="bg-white p-3 rounded-lg shadow-sm border text-center flex flex-col justify-center">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Engine Speed</span>
+            <div class="text-2xl font-bold text-gray-800"><span id="val_rpm">{{ $pump->rpm ?? 0 }}</span> <span class="text-xs text-gray-500 font-normal">RPM</span></div>
+        </div>
+        <div class="bg-white p-3 rounded-lg shadow-sm border text-center flex flex-col justify-center">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Flow</span>
+            <div class="text-2xl font-bold text-gray-800"><span id="val_flow">{{ $flowData['flow'] ?? 0 }}</span> <span class="text-xs text-gray-500 font-normal">L/s</span></div>
+        </div>
+        <div class="bg-white p-3 rounded-lg shadow-sm border text-center flex flex-col justify-center">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Engine Temp</span>
+            <div class="text-2xl font-bold text-gray-800"><span id="val_coolant_temp">{{ $pump->coolant_temp ?? 0 }}</span> <span class="text-xs text-gray-500 font-normal">°C</span></div>
+        </div>
         <div class="bg-white p-3 rounded-lg shadow-sm border text-center flex flex-col justify-center">
             <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Oil Pressure</span>
             <div class="text-2xl font-bold text-gray-800"><span id="val_oil_pressure">{{ $pump->oil_pressure ?? 0 }}</span> <span class="text-xs text-gray-500 font-normal">PSI</span></div>
-        </div>
-        <div class="bg-white p-3 rounded-lg shadow-sm border text-center flex flex-col justify-center">
-            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Battery</span>
-            <div class="text-2xl font-bold text-gray-800"><span id="val_battery">{{ $pump->battery_potential ?? 0 }}</span> <span class="text-xs text-gray-500 font-normal">V</span></div>
         </div>
         <div class="bg-white p-3 rounded-lg shadow-sm border text-center flex flex-col justify-center">
             <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Engine Hour</span>
             <div class="text-2xl font-bold text-gray-800"><span id="val_engine_hours">{{ $pump->engine_hours ?? 0 }}</span> <span class="text-xs text-gray-500 font-normal">h</span></div>
         </div>
         <div class="bg-white p-3 rounded-lg shadow-sm border text-center flex flex-col justify-center">
-            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Fuel Rate</span>
-            <div class="text-2xl font-bold text-gray-800"><span id="val_fuel_rate">{{ $pump->fuel_rate ?? 0 }}</span> <span class="text-xs text-gray-500 font-normal">L/h</span></div>
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Battery</span>
+            <div class="text-2xl font-bold text-gray-800"><span id="val_battery">{{ $pump->battery_potential ?? 0 }}</span> <span class="text-xs text-gray-500 font-normal">V</span></div>
         </div>
     </div>
 
@@ -102,30 +114,26 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-2">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
         <div class="bg-white rounded-lg shadow-sm border overflow-hidden flex flex-col">
-            <div class="text-center pt-2 text-xs font-bold text-gray-500">RPM</div>
+            <div class="text-center pt-2 text-xs font-bold text-gray-500">Engine Speed</div>
             <div id="gauge_rpm" class="w-full h-40"></div>
         </div>
         <div class="bg-white rounded-lg shadow-sm border overflow-hidden flex flex-col">
-            <div class="text-center pt-2 text-xs font-bold text-gray-500">Engine Speed</div>
-            <div id="gauge_engine_speed" class="w-full h-40"></div>
+            <div class="text-center pt-2 text-xs font-bold text-gray-500">Engine Load</div>
+            <div id="gauge_load" class="w-full h-40"></div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border overflow-hidden flex flex-col">
+            <div class="text-center pt-2 text-xs font-bold text-gray-500">Engine Temp</div>
+            <div id="gauge_coolant_temp" class="w-full h-40"></div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border overflow-hidden flex flex-col">
+            <div class="text-center pt-2 text-xs font-bold text-gray-500">Oil Pressure</div>
+            <div id="gauge_oil_pressure" class="w-full h-40"></div>
         </div>
         <div class="bg-white rounded-lg shadow-sm border overflow-hidden flex flex-col">
             <div class="text-center pt-2 text-xs font-bold text-gray-500">Flow</div>
             <div id="gauge_flow" class="w-full h-40"></div>
-        </div>
-        <div class="bg-white rounded-lg shadow-sm border overflow-hidden flex flex-col">
-            <div class="text-center pt-2 text-xs font-bold text-gray-500">Engine Temp</div>
-            <div id="gauge_engine_temp" class="w-full h-40"></div>
-        </div>
-        <div class="bg-white rounded-lg shadow-sm border overflow-hidden flex flex-col">
-            <div class="text-center pt-2 text-xs font-bold text-gray-500">Coolant Temp</div>
-            <div id="gauge_coolant_temp" class="w-full h-40"></div>
-        </div>
-        <div class="bg-white rounded-lg shadow-sm border overflow-hidden flex flex-col">
-            <div class="text-center pt-2 text-xs font-bold text-gray-500">Fuel Level</div>
-            <div id="gauge_fuel_level" class="w-full h-40"></div>
         </div>
     </div>
 
@@ -242,15 +250,14 @@
     }
 
     // --- 1. Gauge Initialization Helper ---
-    // --- 1. Gauge Initialization Helper ---
     function initGauge(domId, min, max, unit) {
         var chartDom = document.getElementById(domId);
         var myChart = echarts.init(chartDom);
         var option = {
             series: [{
                 type: 'gauge',
-                radius: '90%',          // <-- ADDED: Makes the gauge significantly larger
-                center: ['50%', '55%'], // <-- ADDED: Centers it perfectly under your title text
+                radius: '90%',          
+                center: ['50%', '55%'], 
                 min: min,
                 max: max,
                 splitNumber: 2, 
@@ -258,7 +265,6 @@
                 axisLine: { 
                     lineStyle: { 
                         width: 10,
-                        // <-- UPDATED: Light Blue (50%), Medium Blue (85%), Dark Blue (100%)
                         color: [
                             [0.5, '#93fdaa'], 
                             [0.85, '#f1ff72'], 
@@ -314,7 +320,6 @@
     // --- 2. Indicator Update Helper ---
     function updateIndicator(domId, status) {
         const el = $('#' + domId);
-        // Clean out both color states before applying the new one
         el.removeClass('bg-gray-300 ring-gray-300/30 bg-green-500 ring-green-500/30');
         
         if(status === true || status === 1 || status === "1" || status === "true") {
@@ -435,13 +440,12 @@
     // --- 5. Initialize & Loop ---
     $(document).ready(function() {
         
-        // Initialize Gauges with updated Max limits
+        // Initialize Gauges
         initGauge('gauge_rpm', 0, 4000, '');
-        initGauge('gauge_engine_speed', 0, 4000, '');
-        initGauge('gauge_flow', 0, 150, 'L/s');
-        initGauge('gauge_engine_temp', 0, 150, '°C');
+        initGauge('gauge_load', 0, 100, '%');
         initGauge('gauge_coolant_temp', 0, 150, '°C');
-        initGauge('gauge_fuel_level', 0, 100, '%');
+        initGauge('gauge_oil_pressure', 0, 150, 'PSI');
+        initGauge('gauge_flow', 0, 150, 'L/s');
 
         // Handle window resize for charts
         window.addEventListener('resize', function() {
@@ -472,10 +476,12 @@
                     $('#dot_modbus').removeClass('bg-green-500 bg-red-500').addClass(isOnline ? 'bg-green-500' : 'bg-red-500');
                     
                     // Update Row 1
+                    $('#val_rpm').text(data.rpm ?? '0');
+                    $('#val_flow').text(data.pressure_or_flow?.flow ?? '0');
+                    $('#val_coolant_temp').text(data.coolant_temp ?? '0');
                     $('#val_oil_pressure').text(data.oil_pressure ?? '0');
-                    $('#val_battery').text(data.battery_potential ?? '0');
                     $('#val_engine_hours').text(data.engine_hours ?? '0');
-                    $('#val_fuel_rate').text(data.fuel_rate ?? '0');
+                    $('#val_battery').text(data.battery_potential ?? '0');
 
                     // Update Row 2 (Indicators)
                     updateIndicator('ind_engine_running', data.auto_manual_status?.engine_running);
@@ -487,11 +493,10 @@
 
                     // Update Row 3 (Gauges)
                     updateGauge('gauge_rpm', data.rpm);
-                    updateGauge('gauge_engine_speed', data.engine_speed_mech);
-                    updateGauge('gauge_flow', data.pressure_or_flow?.flow);
-                    updateGauge('gauge_engine_temp', data.engine_temp_mech);
+                    updateGauge('gauge_load', data.percent_load);
                     updateGauge('gauge_coolant_temp', data.coolant_temp);
-                    updateGauge('gauge_fuel_level', data.fuel_level);
+                    updateGauge('gauge_oil_pressure', data.oil_pressure);
+                    updateGauge('gauge_flow', data.pressure_or_flow?.flow);
                 }
             });
         }, 1000);
@@ -503,17 +508,14 @@
         const mapContainer = document.getElementById('pumpMap');
 
         if (pumpLat !== null && pumpLon !== null) {
-            // 1. Initialize map centered on the pump
             const map = L.map('pumpMap').setView([pumpLat, pumpLon], 13);
 
-            // 2. Add Light Theme Tiles
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
                 attribution: '&copy; OpenStreetMap &copy; CARTO',
                 subdomains: 'abcd',
                 maxZoom: 20
             }).addTo(map);
 
-            // 3. Create Custom Colored Pin
             const pinColor = (pumpStatus === 'online') ? '#22c55e' : '#ef4444';
             const svgIcon = L.divIcon({
                 html: `
@@ -528,13 +530,11 @@
                 iconAnchor: [16, 32] 
             });
 
-            // 4. Add Marker to Map
             L.marker([pumpLat, pumpLon], { icon: svgIcon })
                 .addTo(map)
                 .bindPopup(`<b>{{ $pump->name }}</b><br>Lat: ${pumpLat}<br>Lon: ${pumpLon}`);
                 
         } else {
-            // Graceful fallback if no coordinates exist
             mapContainer.innerHTML = `
                 <div class="flex flex-col items-center justify-center w-full h-full bg-gray-50 text-gray-400">
                     <svg class="w-12 h-12 mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
