@@ -181,21 +181,31 @@
     </div>
 
     <div class="bg-white p-5 rounded-lg shadow-md border-t-4 border-blue-500 mt-2">
-        <label class="block text-sm font-bold text-gray-700 mb-2">Time Filter</label>
-        <div class="flex flex-wrap items-center gap-2">
-            <input type="text" id="dateRangePicker" class="border rounded px-3 py-1 text-sm w-56 focus:ring-2 focus:ring-blue-500" placeholder="Select Range">
-            <button onclick="loadHistory()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded text-sm font-bold shadow-sm transition">Filter</button>
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-3">
+            <label class="block text-sm font-bold text-gray-700">Time Filter</label>
+            <div class="flex flex-wrap items-center gap-2">
+                <input type="text" id="dateRangePicker" class="border rounded px-3 py-1 text-sm w-56 focus:ring-2 focus:ring-blue-500" placeholder="Select Range">
+                <button onclick="loadHistory()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded text-sm font-bold shadow-sm transition">Filter</button>
+            </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-        <div class="bg-white p-4 rounded-lg shadow-md border border-gray-100">
-            <h3 class="text-sm font-bold text-gray-700 mb-2 text-center">Historical Engine Speed (RPM)</h3>
-            <div id="lineChart_rpm" class="w-full h-64"></div>
+    <div id="chartsContainer" class="mt-2 bg-white p-4 rounded-lg shadow-md border-t-4 border-teal-500 relative transition-all duration-300">
+        <div class="absolute top-4 right-4 z-10">
+            <button onclick="toggleFullscreen('chartsContainer')" class="p-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded transition border border-gray-200 shadow-sm" title="Toggle Fullscreen">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+            </button>
         </div>
-        <div class="bg-white p-4 rounded-lg shadow-md border border-gray-100">
-            <h3 class="text-sm font-bold text-gray-700 mb-2 text-center">Historical Flow (L/s)</h3>
-            <div id="lineChart_flow" class="w-full h-64"></div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6 h-full">
+            <div class="bg-white p-2 rounded-lg border border-gray-100 flex flex-col h-full w-full">
+                <h3 class="text-sm font-bold text-gray-700 mb-2 text-center">Historical Engine Speed (RPM)</h3>
+                <div id="lineChart_rpm" class="w-full h-[300px] flex-grow"></div>
+            </div>
+            <div class="bg-white p-2 rounded-lg border border-gray-100 flex flex-col h-full w-full">
+                <h3 class="text-sm font-bold text-gray-700 mb-2 text-center">Historical Flow (L/s)</h3>
+                <div id="lineChart_flow" class="w-full h-[300px] flex-grow"></div>
+            </div>
         </div>
     </div>
 
@@ -428,6 +438,8 @@
                 // 3. Render the Charts
                 updateLineChart('lineChart_rpm', timeAxis, rpmData, '#3b82f6', 'RPM'); // Tailwind blue-500
                 updateLineChart('lineChart_flow', timeAxis, flowData, '#14b8a6', 'Flow'); // Tailwind teal-500
+
+                echarts.connect('syncCharts')
             },
             error: function() {
                 $('#historyTable tbody').html('<tr><td colspan="9" class="text-center py-10 text-red-600">Failed to load historical data.</td></tr>');
@@ -474,6 +486,7 @@
         if (!charts[domId]) {
             const chartDom = document.getElementById(domId);
             charts[domId] = echarts.init(chartDom);
+            charts[domId].group = 'syncCharts'; // Tag them so they can sync together
         }
         
         const option = {
@@ -484,7 +497,25 @@
                 borderWidth: 1,
                 borderColor: '#e5e7eb'
             },
-            grid: { left: '2%', right: '4%', bottom: '2%', top: '10%', containLabel: true },
+            grid: { left: '2%', right: '4%', bottom: '15%', top: '10%', containLabel: true }, // Added bottom padding for the slider
+            dataZoom: [
+                {
+                    type: 'slider', // The visual slider at the bottom
+                    show: true,
+                    xAxisIndex: [0],
+                    bottom: 5,
+                    height: 20,
+                    borderColor: 'transparent',
+                    backgroundColor: '#f9fafb',
+                    fillerColor: 'rgba(59, 130, 246, 0.2)', // Light blue highlight
+                    handleSize: '100%',
+                    handleStyle: { color: '#9ca3af', shadowBlur: 3, shadowColor: 'rgba(0, 0, 0, 0.3)' }
+                },
+                {
+                    type: 'inside', // Allow zooming with mouse wheel natively
+                    xAxisIndex: [0]
+                }
+            ],
             xAxis: { 
                 type: 'category', 
                 boundaryGap: false, 
