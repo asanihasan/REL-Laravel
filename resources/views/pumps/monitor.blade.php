@@ -190,22 +190,25 @@
         </div>
     </div>
 
-    <div id="chartsContainer" class="mt-2 bg-white p-4 rounded-lg shadow-md border-t-4 border-teal-500 relative transition-all duration-300">
-        <div class="absolute top-4 right-4 z-10">
-            <button onclick="toggleFullscreen('chartsContainer')" class="p-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded transition border border-gray-200 shadow-sm" title="Toggle Fullscreen">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
-            </button>
-        </div>
-        
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6 h-full">
-            <div class="bg-white p-2 rounded-lg border border-gray-100 flex flex-col h-full w-full">
+    <div id="chartsContainer" class="mt-2 bg-white p-4 rounded-lg shadow-md border-t-4 border-teal-500 transition-all duration-300">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full">
+            
+            <div id="wrapper_rpm" class="bg-white p-3 rounded-lg border border-gray-100 flex flex-col h-full w-full relative group">
+                <button onclick="toggleFullscreen('wrapper_rpm')" class="absolute top-2 right-2 p-1.5 bg-gray-50 hover:bg-gray-200 text-gray-500 rounded transition border border-gray-200 shadow-sm opacity-50 group-hover:opacity-100 z-10" title="Fullscreen RPM">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                </button>
                 <h3 class="text-sm font-bold text-gray-700 mb-2 text-center">Historical Engine Speed (RPM)</h3>
                 <div id="lineChart_rpm" class="w-full h-[300px] flex-grow"></div>
             </div>
-            <div class="bg-white p-2 rounded-lg border border-gray-100 flex flex-col h-full w-full">
+
+            <div id="wrapper_flow" class="bg-white p-3 rounded-lg border border-gray-100 flex flex-col h-full w-full relative group">
+                <button onclick="toggleFullscreen('wrapper_flow')" class="absolute top-2 right-2 p-1.5 bg-gray-50 hover:bg-gray-200 text-gray-500 rounded transition border border-gray-200 shadow-sm opacity-50 group-hover:opacity-100 z-10" title="Fullscreen Flow">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                </button>
                 <h3 class="text-sm font-bold text-gray-700 mb-2 text-center">Historical Flow (L/s)</h3>
                 <div id="lineChart_flow" class="w-full h-[300px] flex-grow"></div>
             </div>
+
         </div>
     </div>
 
@@ -544,6 +547,38 @@
         };
         charts[domId].setOption(option);
     }
+
+    // --- Fullscreen Toggle Logic ---
+    function toggleFullscreen(elemId) {
+        const elem = document.getElementById(elemId);
+        
+        if (!document.fullscreenElement) {
+            // Add extra padding when in fullscreen so it doesn't touch monitor edges
+            elem.classList.add('p-8'); 
+            elem.requestFullscreen().catch(err => {
+                console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+            });
+        } else {
+            document.exitFullscreen();
+        }
+    }
+
+    // Force Echarts to resize immediately when entering or exiting fullscreen
+    document.addEventListener('fullscreenchange', () => {
+        
+        // Clean up the padding when exiting fullscreen
+        if (!document.fullscreenElement) {
+            document.getElementById('wrapper_rpm').classList.remove('p-8');
+            document.getElementById('wrapper_flow').classList.remove('p-8');
+        }
+        
+        // Wait 100ms for the browser to finish animating, then resize the charts
+        setTimeout(() => {
+            Object.values(charts).forEach(chart => {
+                if(chart) chart.resize();
+            });
+        }, 100);
+    });
 
     // --- 4. Control Logic ---
     function sendControl(action, value = null) {
