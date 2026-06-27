@@ -184,11 +184,11 @@
             @csrf @method('PUT')
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                <input type="text" name="name" id="modalName" class="w-full border border-gray-300 p-2 rounded focus:ring-red-500 focus:border-red-500" required>
+                <input type="text" name="name" id="modalName" class="w-full border border-gray-300 p-2 rounded focus:ring-red-500 focus:border-red-500">
             </div>
             <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                <input type="text" name="location" id="modalLocation" class="w-full border border-gray-300 p-2 rounded focus:ring-red-500 focus:border-red-500" required>
+                <input type="text" name="location" id="modalLocation" class="w-full border border-gray-300 p-2 rounded focus:ring-red-500 focus:border-red-500">
             </div>
             <div class="flex justify-end space-x-2">
                 <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Cancel</button>
