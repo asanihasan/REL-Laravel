@@ -265,7 +265,7 @@
         }
 
         if (historyDataTable) historyDataTable.destroy();
-        $('#historyTable tbody').html('<tr><td colspan="9" class="text-center py-10">Loading history logs...</td></tr>');
+        $('#historyTable tbody').html('<tr><td colspan="13" class="text-center py-10 w-full">Loading history logs...</td></tr>');
 
         $.ajax({
             url: url,
