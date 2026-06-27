@@ -16,7 +16,9 @@
                     <th class="p-3 w-40">Name</th>
                     <th class="p-3 w-40">Location</th>
                     <th class="p-3 min-w-[250px]">Pump Data</th>
-                    <th class="p-3 w-32">Status</th>
+                    
+                    <th class="p-3 min-w-[240px] whitespace-nowrap">Status</th>
+                    
                     <th class="p-3 w-24 text-center">Action</th>
                 </tr>
             </thead>
