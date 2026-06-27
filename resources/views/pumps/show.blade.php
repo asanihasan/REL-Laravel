@@ -142,7 +142,7 @@
             <div class="space-y-6">
                 <div class="bg-blue-50 p-4 rounded text-center">
                     <span class="block text-xs text-blue-600 font-bold uppercase tracking-wider">FLOW</span>
-                    <span id="disp_rpm" class="text-2xl font-bold text-gray-800">{{ $pump->flow }}</span>
+                    <span class="text-2xl font-bold text-gray-800"><span id="disp_load">{{ $pump->pressure_or_flow['flow'] ?? 0 }}</span> L/s</span>
                 </div>
                 <!-- <div> -->
                     <!-- <h4 class="text-xs font-bold text-gray-400 uppercase mb-3">Temperatures (°C)</h4> -->
