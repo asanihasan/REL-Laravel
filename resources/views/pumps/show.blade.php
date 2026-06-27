@@ -115,7 +115,7 @@
                     </div>
                     <div class="col-span-2 flex justify-between border-b pb-0">
                         <span class="text-sm text-gray-500">Engine Coolant Temp</span>
-                        <span class="font-medium font-mono"><span id="disp_engine_hours">{{ $pump->coolant_temp }}</span> °C</span>
+                        <span class="font-medium font-mono"><span id="disp_coolant_temp">{{ $pump->coolant_temp }}</span> °C</span>
                     </div>
                     <div class="col-span-2 flex justify-between border-b pb-0">
                         <span class="text-sm text-gray-500">Fuel Rate</span>
@@ -123,15 +123,15 @@
                     </div>
                     <div class="col-span-2 flex justify-between border-b pb-0">
                         <span class="text-sm text-gray-500">Fuel Level</span>
-                        <span class="font-medium font-mono"><span id="disp_fuel_rate">{{ $pump->fuel_level }}</span> %</span>
+                        <span class="font-medium font-mono"><span id="disp_fuel_level">{{ $pump->fuel_level }}</span> %</span>
                     </div>
                     <div class="col-span-2 flex justify-between border-b pb-0">
                         <span class="text-sm text-gray-500">Oil Pressure</span>
-                        <span class="font-medium font-mono"><span id="disp_fuel_rate">{{ $pump->oil_pressure }}</span> PSI</span>
+                        <span class="font-medium font-mono"><span id="disp_oil_pressure">{{ $pump->oil_pressure }}</span> PSI</span>
                     </div>
                     <div class="col-span-2 flex justify-between border-b pb-0">
                         <span class="text-sm text-gray-500">Battery Voltage</span>
-                        <span class="font-medium font-mono"><span id="disp_fuel_rate">{{ $pump->battery_potential }}</span> V</span>
+                        <span class="font-medium font-mono"><span id="disp_battery_potential">{{ $pump->battery_potential }}</span> V</span>
                     </div>
                 </div>
             </div>
@@ -144,9 +144,25 @@
                     <span class="block text-xs text-green-600 font-bold uppercase tracking-wider">FLOW</span>
                     <span class="text-xl font-bold text-gray-800"><span id="disp_flow">{{ $pump->pressure_or_flow['flow'] ?? 0 }}</span> L/s</span>
                 </div>
-                <div class="flex justify-between border-b border-gray-100"><span>Suction Pressure</span></span> <span><span class="font-bold" id="disp_coolant_temp">{{ $pump->suction_pressure }}</span> PSI</span></div>
-                <div class="flex justify-between border-b border-gray-100"><span>Discharge Pressure</span> <span><span class="font-bold" id="disp_pump_temp">{{ $pump->pump_press2 }}</span> PSI</span></div>
-                <div class="flex justify-between border-b border-gray-100"><span>Pump Temp</span> <span><span class="font-bold" id="">{{ $pump->pump_press2 }}</span> °C</span></div>
+                <div class="flex justify-between border-b border-gray-100">
+                    <span>Suction Pressure</span> 
+                    <span>
+                        <span class="font-bold" id="disp_suction_pressure">
+                            {{ $pump->suction_pressure == -256 ? '-' : $pump->suction_pressure }}
+                        </span> PSI
+                    </span>
+                </div>
+
+                <div class="flex justify-between border-b border-gray-100">
+                    <span>Discharge Pressure</span> 
+                    <span>
+                        <span class="font-bold" id="disp_pump_press2">
+                            {{ $pump->pump_press2 == -256 ? '-' : $pump->pump_press2 }}
+                        </span> PSI
+                    </span>
+                </div>
+                <div class="flex justify-between border-b border-gray-100"><span>Pump Temp</span> <span><span class="font-bold" id="">-</span> °C</span></div>
+                <!-- <div class="flex justify-between border-b border-gray-100"><span>Pump Temp</span> <span><span class="font-bold" id="">{{ $pump->pump_press2 }}</span> °C</span></div> -->
             </div>
         </div>
 
@@ -387,26 +403,32 @@
                 method: 'GET',
                 success: function(data) {
                     const isOnline = data.status === 'online';
+                    
+                    // Helper to format values: if -256 return '-', otherwise return value
+                    const formatVal = (val) => (val == -256 || val === null || val === undefined) ? '-' : val;
+
                     $('#headerStatusContainer').toggleClass('border-green-500', isOnline).toggleClass('border-red-500', !isOnline);
                     $('#statusBadge').toggleClass('bg-green-600', isOnline).toggleClass('bg-red-600', !isOnline);
                     $('#statusText').text(isOnline ? 'Online' : 'Offline');
                     $('#lastUpdateText').text('Updated: ' + getLocalTime(data.last_update));
                     
-                    $('#disp_rpm').text(data.rpm);
-                    $('#disp_load').text(data.percent_load);
-                    $('#disp_coolant_temp').text(data.coolant_temp);
-                    $('#disp_oil_temp').text(data.oil_temp);
-                    $('#disp_pump_temp').text(data.pump_temp);
-                    $('#disp_oil_pressure').text(data.oil_pressure);
-                    $('#disp_suction_pressure').text(data.suction_pressure);
-                    $('#disp_discharge_pressure').text(data.pump_press2);
-                    $('#disp_flow').text(data.pressure_or_flow?.flow ?? '0');
-                    $('#disp_battery').text(data.battery_potential);
-                    $('#disp_system').text(data.electrical_potential);
-                    $('#disp_engine_hours').text(data.engine_hours);
-                    $('#disp_fuel_rate').text(data.fuel_rate);
-                    $('#disp_fuel_level_text').text(data.fuel_level);
-                    $('#disp_fuel_level_bar').css('width', Math.min(data.fuel_level, 100) + '%');
+                    // --- Engine Section ---
+                    $('#disp_rpm').text(formatVal(data.rpm));
+                    $('#disp_load').text(formatVal(data.percent_load));
+                    $('#disp_engine_hours').text(formatVal(data.engine_hours));
+                    $('#disp_coolant_temp').text(formatVal(data.coolant_temp));
+                    $('#disp_fuel_rate').text(formatVal(data.fuel_rate));
+                    $('#disp_fuel_level').text(formatVal(data.fuel_level));
+                    $('#disp_oil_pressure').text(formatVal(data.oil_pressure));
+                    $('#disp_battery_potential').text(formatVal(data.battery_potential));
+
+                    // --- Sensors Section ---
+                    $('#disp_flow').text(formatVal(data.pressure_or_flow?.flow ?? 0));
+                    $('#disp_suction_pressure').text(formatVal(data.suction_pressure));
+                    $('#disp_pump_press2').text(formatVal(data.pump_press2));
+                    // Note: Pump Temp isn't in your data structure provided, leaving as '-'
+                    
+                    // --- Indicators & Connectivity ---
                     $('#dot_network').removeClass('bg-green-500 bg-red-500').addClass((data.connection || '').toLowerCase() === 'online' ? 'bg-green-500' : 'bg-red-500');
                     $('#dot_modbus').removeClass('bg-green-500 bg-red-500').addClass(isOnline ? 'bg-green-500' : 'bg-red-500');
                     
