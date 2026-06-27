@@ -100,7 +100,7 @@
         <div class="space-y-6">
             <div class="bg-white p-6 rounded-lg shadow-md">
                 <h3 class="text-lg font-bold border-b pb-3 mb-4 text-gray-700">Engine Performance</h3>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-1">
                     <div class="bg-blue-50 p-4 rounded text-center">
                         <span class="block text-xs text-blue-600 font-bold uppercase tracking-wider">RPM</span>
                         <span id="disp_rpm" class="text-2xl font-bold text-gray-800">{{ $pump->rpm }}</span>
@@ -109,25 +109,18 @@
                         <span class="block text-xs text-blue-600 font-bold uppercase tracking-wider">Load</span>
                         <span class="text-2xl font-bold text-gray-800"><span id="disp_load">{{ $pump->percent_load }}</span>%</span>
                     </div>
-                    <div class="col-span-2 flex justify-between border-b pb-2">
+                    <div class="col-span-2 flex justify-between border-b pb-0">
                         <span class="text-sm text-gray-500">Engine Hours</span>
                         <span class="font-medium font-mono"><span id="disp_engine_hours">{{ $pump->engine_hours }}</span> h</span>
                     </div>
-                    <div class="col-span-2 flex justify-between border-b pb-2">
+                    <div class="col-span-2 flex justify-between border-b pb-0">
                         <span class="text-sm text-gray-500">Fuel Rate</span>
                         <span class="font-medium font-mono"><span id="disp_fuel_rate">{{ $pump->fuel_rate }}</span> L/h</span>
                     </div>
-                    <div class="col-span-2 mt-2">
-                        <div class="flex justify-between text-xs mb-1">
-                            <span class="text-gray-500">Fuel Level</span>
-                            <span class="font-bold"><span id="disp_fuel_level_text">{{ $pump->fuel_level }}</span>%</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-3">
-                            <div id="disp_fuel_level_bar" class="bg-yellow-500 h-3 rounded-full transition-all duration-1000" style="width: {{ min($pump->fuel_level, 100) }}%"></div>
-                        </div>
+                    <div class="col-span-2 flex justify-between border-b pb-0">
+                        <span class="text-sm text-gray-500">Fuel Level</span>
+                        <span class="font-medium font-mono"><span id="disp_fuel_rate">{{ $pump->fuel_level }}</span> %</span>
                     </div>
-                    <div class="flex justify-between border-b border-gray-100"><span>Coolant</span> <span class="font-bold" id="disp_coolant_temp">{{ $pump->coolant_temp }}</span></div>
-                    <div class="flex justify-between border-b border-gray-100"><span>Coolant</span> <span class="font-bold" id="disp_coolant_temp">{{ $pump->coolant_temp }}</span></div>
                 </div>
             </div>
 
