@@ -628,7 +628,7 @@
             mode: "range", 
             enableTime: true, 
             dateFormat: "Y-m-d H:i",
-            defaultDate: [new Date(Date.now() - 24 * 60 * 60 * 1000), new Date()]
+            defaultDate: [new Date(Date.now() - 6 * 60 * 60 * 1000), new Date()]
         });
         
         loadHistory();
