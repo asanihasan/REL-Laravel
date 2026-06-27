@@ -17,7 +17,7 @@ class Pump extends Model
     protected $appends = ['status', 'connection'];
     
     protected $fillable = [
-        'id', 'name', 'location', 'last_update',
+        'id', 'name', 'location', 'last_update', 'updated_at',
         'pressure_or_flow', 'auto_manual_status', 'digital_inputs',
         'percent_load', 'rpm', 'engine_hours', 'fuel_rate', 'fuel_level',
         'coolant_level', 'coolant_level_probe', 'coolant_temp', 'oil_temp',
@@ -37,6 +37,7 @@ class Pump extends Model
         'coolant_level_probe' => 'boolean',
         'modbus_status' => 'boolean', // Added so strict boolean checks work
         'last_update' => 'datetime',
+        'updated_at' => 'datetime'
     ];
 
     // 1. New Status: Offline if Modbus is false, otherwise checks freshness
