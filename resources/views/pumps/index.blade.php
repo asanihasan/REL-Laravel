@@ -25,12 +25,46 @@
                 <tr class="hover:bg-gray-50 transition">
                     <td class="p-3 align-top">
                         <div class="font-mono font-bold text-red-700">{{ $pump->id }}</div>
-                        <div class="text-[10px] text-gray-400 font-mono mt-0.5" title="Serial Number">{{ $pump->serial_number ?? 'N/A' }}</div>
                     </td>
                     
                     <td class="p-3 font-medium align-top">{{ $pump->name }}</td>
+                    
                     <td class="p-3 text-gray-500 align-top">{{ $pump->location }}</td>
                 
+                    <td class="p-3 align-top">
+                        @php 
+                            $flowData = is_string($pump->pressure_or_flow) ? json_decode($pump->pressure_or_flow, true) : $pump->pressure_or_flow; 
+                        @endphp
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-xs">
+                            <div class="space-y-1">
+                                <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
+                                    <span class="text-gray-500">Eng Speed:</span>
+                                    <span class="font-medium text-gray-900">{{ $pump->rpm ?? '-' }}</span>
+                                </div>
+                                <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
+                                    <span class="text-gray-500">Eng Load:</span>
+                                    <span class="font-medium text-gray-900">{{ $pump->percent_load ?? '-' }}%</span>
+                                </div>
+                                <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
+                                    <span class="text-gray-500">Coolant Temp:</span>
+                                    <span class="font-medium text-gray-900">{{ $pump->engine_temp_mech ?? '-' }}</span>
+                                </div>
+                            </div>
+
+                            <div class="space-y-1">
+                                <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
+                                    <span class="text-gray-500">Flow:</span>
+                                    <span class="font-medium text-gray-900">{{ $flowData['flow'] ?? '-' }}</span>
+                                </div>
+                                <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
+                                    <span class="text-gray-500">Fuel Rate:</span>
+                                    <span class="font-medium text-gray-900">{{ $pump->fuel_rate ?? '-' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+
                     <td class="p-3 align-top">
                         @php
                             // Safely decode the JSON status if it's stored as a string
