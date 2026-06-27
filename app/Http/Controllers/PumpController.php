@@ -47,10 +47,6 @@ class PumpController extends Controller
     public function update(Request $request, $id)
     {
         $pump = Pump::findOrFail($id);
-        $request->validate([
-            'name' => 'required|string',
-            'location' => 'required|string',
-        ]);
 
         $pump->update($request->only(['name', 'location']));
         
