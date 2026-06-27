@@ -140,37 +140,13 @@
         <div class="bg-white p-6 rounded-lg shadow-md h-fit">
             <h3 class="text-lg font-bold border-b pb-3 mb-4 text-gray-700">Sensors</h3>
             <div class="space-y-6">
-                <div class="bg-blue-50 p-4 rounded text-center">
-                    <span class="block text-xs text-blue-600 font-bold uppercase tracking-wider">FLOW</span>
-                    <span class="text-2xl font-bold text-gray-800"><span id="disp_load">{{ $pump->pressure_or_flow['flow'] ?? 0 }}</span> L/s</span>
+                <div class="bg-green-50 p-4 rounded items-center flex justify-between">
+                    <span class="block text-xs text-green-600 font-bold uppercase tracking-wider">FLOW</span>
+                    <span class="text-xl font-bold text-gray-800"><span id="disp_flow">{{ $pump->pressure_or_flow['flow'] ?? 0 }}</span> L/s</span>
                 </div>
-                <!-- <div> -->
-                    <!-- <h4 class="text-xs font-bold text-gray-400 uppercase mb-3">Temperatures (°C)</h4> -->
-                    <!-- <div class="space-y-2"> -->
-                        <div class="flex justify-between border-b border-gray-100"><span>Coolant</span> <span class="font-bold" id="disp_coolant_temp">{{ $pump->coolant_temp }}</span></div>
-                        <!-- <div class="flex justify-between border-b border-gray-100"><span>Oil</span> <span class="font-bold" id="disp_oil_temp">{{ $pump->oil_temp }}</span></div>
-                        <div class="flex justify-between border-b border-gray-100"><span>Pump</span> <span class="font-bold" id="disp_pump_temp">{{ $pump->pump_temp }}</span></div> -->
-                        <div class="flex justify-between border-b border-gray-100"><span>Oil</span> <span class="font-bold" id=""> - </span></div>
-                        <div class="flex justify-between border-b border-gray-100"><span>Pump</span> <span class="font-bold" id=""> - </span></div>
-                    <!-- </div> -->
-                <!-- </div> -->
-                <!-- <div>
-                    <h4 class="text-xs font-bold text-gray-400 uppercase mb-3">Pressures (PSI)</h4>
-                    <div class="space-y-2">
-                        <div class="flex justify-between border-b border-gray-100"><span>Oil</span> <span class="font-bold" id="disp_oil_pressure">{{ $pump->oil_pressure }}</span></div>
-                        <div class="flex justify-between border-b border-gray-100"><span>Suction</span> <span class="font-bold" id="disp_suction_pressure">{{ $pump->suction_pressure }}</span></div>
-                        <div class="flex justify-between border-b border-gray-100 bg-blue-50 px-2 rounded font-bold"><span>Discharge</span> <span class="text-blue-700" id="disp_discharge_pressure">{{ $pump->pump_press2 }}</span></div>
-                    </div>
-                </div>
-                <div>
-                    <h4 class="text-xs font-bold text-gray-400 uppercase mb-3">Flow Rate (L/s)</h4>
-                    <div class="space-y-2">
-                        <div class="flex justify-between border-b border-gray-100 bg-green-50 px-2 rounded font-bold">
-                            <span>Flow</span> 
-                            <span class="text-green-700" id="disp_flow">{{ $pump->pressure_or_flow['flow'] ?? 0 }}</span>
-                        </div>
-                    </div>
-                </div> -->
+                <div class="flex justify-between border-b border-gray-100"><span>Suction Pressure</span> <span class="font-bold" id="disp_coolant_temp">{{ $pump->suction_pressure }}</span></div>
+                <div class="flex justify-between border-b border-gray-100"><span>Discharge Pressure</span> <span class="font-bold" id="disp_pump_temp">{{ $pump->pump_press2 }}</span></div> -->
+                <div class="flex justify-between border-b border-gray-100"><span>Pump Temp</span> <span class="font-bold" id="">{{ $pump->pump_press2 }}</span></div>
             </div>
         </div>
 
