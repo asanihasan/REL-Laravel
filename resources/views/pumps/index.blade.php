@@ -75,35 +75,39 @@
                             </div>
                         </div>
                     </td>
-                    
-                    <td class="p-3 align-top">
-                        <div class="flex flex-col space-y-1.5">
-                            <div class="flex items-center justify-between text-xs min-w-[100px]">
-                                <span class="text-gray-500 font-medium">Net:</span>
-                                @if(strtolower($pump->connection ?? '') == 'online')
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-800 border border-green-200">
-                                        <span class="w-1 h-1 mr-1 bg-green-500 rounded-full"></span> Online
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-700 border border-red-200">
-                                        <span class="w-1 h-1 mr-1 bg-red-500 rounded-full"></span> Offline
-                                    </span>
-                                @endif
+                    <td class="p-3">
+                        @php 
+                            $flowData = is_string($pump->pressure_or_flow) ? json_decode($pump->pressure_or_flow, true) : $pump->pressure_or_flow; 
+                        @endphp
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-xs">
+                            
+                            <div class="space-y-1">
+                                <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
+                                    <span class="text-gray-500">Eng Speed:</span>
+                                    <span class="font-medium text-gray-900">{{ $pump->rpm ?? '-' }}</span>
+                                </div>
+                                <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
+                                    <span class="text-gray-500">Eng Load:</span>
+                                    <span class="font-medium text-gray-900">{{ $pump->percent_load ?? '-' }}%</span>
+                                </div>
+                                <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
+                                    <span class="text-gray-500">Coolant Temp:</span>
+                                    <span class="font-medium text-gray-900">{{ $pump->engine_temp_mech ?? '-' }}</span>
+                                </div>
                             </div>
-                            <div class="flex items-center justify-between text-xs min-w-[100px]">
-                                <span class="text-gray-500 font-medium">Mod:</span>
-                                @if(strtolower($pump->status ?? '') == 'online')
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-800 border border-green-200">
-                                        <span class="w-1 h-1 mr-1 bg-green-500 rounded-full"></span> Online
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-700 border border-red-200">
-                                        <span class="w-1 h-1 mr-1 bg-red-500 rounded-full"></span> Offline
-                                    </span>
-                                @endif
+
+                            <div class="space-y-1">
+                                <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
+                                    <span class="text-gray-500">Flow:</span>
+                                    <span class="font-medium text-gray-900">{{ $flowData['flow'] ?? '-' }}</span>
+                                </div>
+                                <div class="flex justify-between border-b border-gray-100 sm:border-none pb-1 sm:pb-0">
+                                    <span class="text-gray-500">Fuel Rate:</span>
+                                    <span class="font-medium text-gray-900">{{ $pump->fuel_rate ?? '-' }}</span>
+                                </div>
                             </div>
                             
-                            <div class="text-[10px] text-gray-400 mt-1 last-update-time" data-time="{{ optional($pump->last_update)->toIso8601String() }}"></div>
                         </div>
                     </td>
                     
