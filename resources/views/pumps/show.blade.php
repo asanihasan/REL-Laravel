@@ -100,7 +100,7 @@
         <div class="space-y-6">
             <div class="bg-white p-6 rounded-lg shadow-md">
                 <h3 class="text-lg font-bold border-b pb-3 mb-4 text-gray-700">Engine</h3>
-                <div class="grid grid-cols-2 gap-1">
+                <div class="grid grid-cols-2 gap-4">
                     <div class="bg-blue-50 p-4 rounded text-center">
                         <span class="block text-xs text-blue-600 font-bold uppercase tracking-wider">RPM</span>
                         <span id="disp_rpm" class="text-2xl font-bold text-gray-800">{{ $pump->rpm }}</span>
@@ -140,6 +140,10 @@
         <div class="bg-white p-6 rounded-lg shadow-md h-fit">
             <h3 class="text-lg font-bold border-b pb-3 mb-4 text-gray-700">Sensors</h3>
             <div class="space-y-6">
+                <div class="bg-blue-50 p-4 rounded text-center">
+                    <span class="block text-xs text-blue-600 font-bold uppercase tracking-wider">FLOW</span>
+                    <span id="disp_rpm" class="text-2xl font-bold text-gray-800">{{ $pump->flow }}</span>
+                </div>
                 <!-- <div> -->
                     <!-- <h4 class="text-xs font-bold text-gray-400 uppercase mb-3">Temperatures (°C)</h4> -->
                     <!-- <div class="space-y-2"> -->
