@@ -126,6 +126,8 @@
                             <div id="disp_fuel_level_bar" class="bg-yellow-500 h-3 rounded-full transition-all duration-1000" style="width: {{ min($pump->fuel_level, 100) }}%"></div>
                         </div>
                     </div>
+                    <div class="flex justify-between border-b border-gray-100"><span>Coolant</span> <span class="font-bold" id="disp_coolant_temp">{{ $pump->coolant_temp }}</span></div>
+                    <div class="flex justify-between border-b border-gray-100"><span>Coolant</span> <span class="font-bold" id="disp_coolant_temp">{{ $pump->coolant_temp }}</span></div>
                 </div>
             </div>
 
