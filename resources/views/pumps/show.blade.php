@@ -144,9 +144,9 @@
                     <span class="block text-xs text-green-600 font-bold uppercase tracking-wider">FLOW</span>
                     <span class="text-xl font-bold text-gray-800"><span id="disp_flow">{{ $pump->pressure_or_flow['flow'] ?? 0 }}</span> L/s</span>
                 </div>
-                <div class="flex justify-between border-b border-gray-100"><span>Suction Pressure</span> <span class="font-bold" id="disp_coolant_temp">{{ $pump->suction_pressure }}</span> PSI</div>
-                <div class="flex justify-between border-b border-gray-100"><span>Discharge Pressure</span> <span class="font-bold" id="disp_pump_temp">{{ $pump->pump_press2 }}</span> PSI</div>
-                <div class="flex justify-between border-b border-gray-100"><span>Pump Temp</span> <span class="font-bold" id="">{{ $pump->pump_press2 }}</span> °C</div>
+                <div class="flex justify-between border-b border-gray-100"><span>Suction Pressure</span> <span></span><span class="font-bold" id="disp_coolant_temp">{{ $pump->suction_pressure }}</span> PSI</span></div>
+                <div class="flex justify-between border-b border-gray-100"><span>Discharge Pressure</span> <span><span class="font-bold" id="disp_pump_temp">{{ $pump->pump_press2 }}</span> PSI</span></div>
+                <div class="flex justify-between border-b border-gray-100"><span>Pump Temp</span> <span><span class="font-bold" id="">{{ $pump->pump_press2 }}</span> °C</span></div>
             </div>
         </div>
 
