@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Your existing CSRF configuration
         $middleware->validateCsrfTokens(except: [
             'telegram/webhook',
+            'internal/telegram/send'
         ]);
 
         // Add your custom permission alias here
