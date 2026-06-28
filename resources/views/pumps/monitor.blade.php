@@ -223,18 +223,21 @@
                 <thead class="bg-gray-50 border-b">
                     <tr>
                         <th>Timestamp</th>
-                        <th>Eng Hours Mode</th>
+                        <th>Eng Hrs</th>
+                        <th>Mode</th>
+                        <th>RPM</th>
+                        <th>Oil PSI</th>
                         <th>Coolant°C</th>
                         <th>Load%</th>
                         <th>Fuel Rate</th>
-                        <th>Fuel Level%</th>
-                        <th>Pressure</th>
-                        <th>Flow</th>
-                        <th>Discharge</th>
+                        <th>Fuel Lvl%</th>
+                        <th>Press(KPA)</th>
+                        <th>Flow(L/s)</th>
+                        <th>Disch PSI</th>
                         <th>Suction</th>
-                        <th>Dam Level</th>
-                        <th>Fault Code</th>
-                        <th>Voltage</th>
+                        <th>Dam Lvl</th>
+                        <th>Fault</th>
+                        <th>Volt</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y"></tbody>
@@ -388,6 +391,7 @@
                 
                 // 1. Build Table
                 data.forEach(row => {
+                    // 1. Determine Mode
                     let autoMode = "-";
                     if (row.auto_manual_status) {
                         const status = typeof row.auto_manual_status === 'string' ? JSON.parse(row.auto_manual_status) : row.auto_manual_status;
@@ -395,12 +399,17 @@
                         else if (status.manual) autoMode = "Manual";
                     }
 
+                    // 2. Parse nested object
                     const pf = typeof row.pressure_or_flow === 'string' ? JSON.parse(row.pressure_or_flow) : row.pressure_or_flow;
 
+                    // 3. Append row (Ensure 16 total <td> elements to match 16 <th> elements)
                     tbody.append(`
                         <tr>
                             <td class="px-4 py-2 font-mono whitespace-nowrap">${getLocalTime(row.ts)}</td>
+                            <td class="px-4 py-2">${row.engine_hours ?? '-'}</td>
                             <td class="px-4 py-2">${autoMode}</td>
+                            <td class="px-4 py-2">${row.rpm ?? '-'}</td>
+                            <td class="px-4 py-2">${row.oil_pressure ?? '-'}</td>
                             <td class="px-4 py-2">${row.coolant_temp ?? '-'}</td>
                             <td class="px-4 py-2">${row.percent_load ?? '-'}</td>
                             <td class="px-4 py-2">${row.fuel_rate ?? '-'}</td>
@@ -628,7 +637,7 @@
             mode: "range", 
             enableTime: true, 
             dateFormat: "Y-m-d H:i",
-            defaultDate: [new Date(Date.now() - 6 * 60 * 60 * 1000), new Date()]
+            defaultDate: [new Date(Date.now() - 24 * 60 * 60 * 1000), new Date()]
         });
         
         loadHistory();
