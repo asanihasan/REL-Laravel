@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Add your custom permission alias here
         $middleware->alias([
             'permission' => \App\Http\Middleware\CheckGroupPermission::class,
+            'internal.only' => \App\Http\Middleware\RestrictToInternalNetwork::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -59,4 +59,24 @@ class TelegramController extends Controller
             Log::error('Failed to send Telegram message: ' . $response->body());
         }
     }
+
+    public function sendInternalMessage(Request $request)
+    {
+        // Validate incoming request
+        $request->validate([
+            'receiver_id' => 'required|string',
+            'message' => 'required|string',
+        ]);
+
+        $receiverId = $request->input('receiver_id');
+        $message = $request->input('message');
+
+        // Reuse your existing helper method
+        $this->sendMessage($receiverId, $message);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Telegram message dispatched.'
+        ]);
+    }
 }
