@@ -15,6 +15,7 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware('auth')->group(function () {
+    Route::resource('pumps', PumpController::class)->except(['index', 'show', 'update', 'destroy']);
     Route::put('/pumps/{pump}', [PumpController::class, 'update'])->middleware('permission:data_manager');
     Route::delete('/pumps/{pump}', [PumpController::class, 'destroy'])->middleware('permission:data_manager');
     
