@@ -54,5 +54,5 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::post('/telegram/webhook', [App\Http\Controllers\TelegramController::class, 'handleWebhook']);
-Route::post('/internal/telegram/send', [TelegramController::class, 'sendInternalMessage'])
+Route::post('/internal/telegram/send', [App\Http\Controllers\TelegramController::class, 'sendInternalMessage'])
     ->middleware('internal.only');
