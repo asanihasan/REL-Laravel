@@ -19,7 +19,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/pumps/{pump}', [PumpController::class, 'update'])->middleware('permission:data_manager');
     Route::delete('/pumps/{pump}', [PumpController::class, 'destroy'])->middleware('permission:data_manager');
     
-    Route::get('/pumps', [PumpController::class, 'index']);
+    Route::get('/pumps', [PumpController::class, 'index'])->name('pumps.index');
     Route::get('/pumps/{pump}', [PumpController::class, 'show'])->middleware('permission:view');
     Route::get('/pumps/{id}/data', [PumpController::class, 'data'])->middleware('permission:view')->name('pumps.data');
     Route::post('/pumps/{id}/control', [PumpController::class, 'control'])->middleware('permission:control')->name('pumps.control');
