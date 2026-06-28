@@ -28,7 +28,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/pumps/{id}/data', [PumpController::class, 'data'])->middleware('permission:view')->name('pumps.data');
     Route::post('/pumps/{id}/control', [PumpController::class, 'control'])->middleware('permission:control')->name('pumps.control');
     Route::get('/pumps/{id}/monitor', [PumpController::class, 'monitor'])->middleware('permission:view')->name('pumps.monitor');
-    Route::get('/pumps/{id}/history', [PumpController::class, 'history'])->middleware('permission:view')->name('pumps.history');
+    Route::get('/pumps/{id}/history', [PumpController::class, 'history'])->middleware('permission:historical')->name('pumps.history');
     Route::get('/maps', [PumpController::class, 'maps'])->name('pumps.maps');
 
     // User Management

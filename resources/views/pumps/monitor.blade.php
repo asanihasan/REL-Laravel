@@ -181,7 +181,8 @@
         <div id="controlMessage" class="hidden mt-3 p-2 rounded text-sm font-bold border-l-4"></div>
     </div>
     @endif
-
+    
+    @if(auth()->user()->hasPermission('historical'))
     <div class="bg-white p-5 rounded-lg shadow-md border-t-4 border-blue-500 mt-2">
         <div class="flex flex-col sm:flex-row justify-between items-center gap-3">
             <label class="block text-sm font-bold text-gray-700">Time Filter</label>
@@ -246,6 +247,7 @@
             </table>
         </div>
     </div>
+    @endif
 
     <div class="bg-white p-5 rounded-lg shadow-md border-t-4 border-blue-600 mt-2">
         <h3 class="text-xl font-bold text-gray-800 mb-4">Location Map</h3>
@@ -366,6 +368,7 @@
         }
     }
 
+    @if(auth()->user()->hasPermission('historical'))
     // --- 3. Historical Logic ---
     function loadHistory() {
         const range = flatpickrInstance.selectedDates;
@@ -493,6 +496,7 @@
         XLSX.utils.book_append_sheet(wb, ws, "Pump History");
         XLSX.writeFile(wb, `Pump_{{ $pump->id }}_Log_${new Date().getTime()}.xlsx`);
     }
+    @endif
 
     // --- Helper to draw/update Line Charts ---
     function updateLineChart(domId, xData, yData, colorHex, seriesName) {

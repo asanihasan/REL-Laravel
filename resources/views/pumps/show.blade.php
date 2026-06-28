@@ -176,7 +176,8 @@
             </div>
         </div>
     </div>
-
+    
+    @if(auth()->user()->hasPermission('historical'))
     <!-- Historical Logs Section -->
     <div class="bg-white p-5 rounded-lg shadow-md border-t-4 border-gray-800 mt-2">
         <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-3">
@@ -214,6 +215,7 @@
             </table>
         </div>
     </div>
+    @endif
 </div>
 @endsection
 
@@ -254,6 +256,7 @@
         return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())} ${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}:${pad(date.getUTCSeconds())}`;
     }
 
+    @if(auth()->user()->hasPermission('historical'))
     // --- 1. Historical Logic ---
     function loadHistory() {
         const range = flatpickrInstance.selectedDates;
@@ -326,7 +329,7 @@
             }
         });
     }
-
+    
     function exportToExcel() {
         if (!currentHistoryData || currentHistoryData.length === 0) {
             alert("No data available to export. Please filter some results first.");
@@ -353,13 +356,14 @@
                 'Voltage': row.battery_potential
             };
         });
-
-
+        
+        
         const ws = XLSX.utils.json_to_sheet(exportRows);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Pump History");
         XLSX.writeFile(wb, `Pump_{{ $pump->id }}_Log_${new Date().getTime()}.xlsx`);
     }
+    @endif
 
     @if(auth()->user()->hasPermission('control'))
     // --- 2. Control Logic ---
