@@ -32,10 +32,10 @@
                         <div id="dot_network" class="w-2.5 h-2.5 rounded-full {{ strtolower($pump->connection ?? '') == 'online' ? 'bg-green-500' : 'bg-red-500' }} transition-colors duration-300"></div>
                         <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Network</span>
                     </div>
-                    <div class="flex items-center gap-1.5" title="Modbus Connection">
+                    <!-- <div class="flex items-center gap-1.5" title="Modbus Connection">
                         <div id="dot_modbus" class="w-2.5 h-2.5 rounded-full {{ $pump->modbus_status ? 'bg-green-500' : 'bg-red-500' }} transition-colors duration-300"></div>
                         <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Modbus</span>
-                    </div>
+                    </div> -->
                 </div>
             </div>
 
@@ -437,7 +437,7 @@
                     
                     // --- Indicators & Connectivity ---
                     $('#dot_network').removeClass('bg-green-500 bg-red-500').addClass((data.connection || '').toLowerCase() === 'online' ? 'bg-green-500' : 'bg-red-500');
-                    $('#dot_modbus').removeClass('bg-green-500 bg-red-500').addClass(isOnline ? 'bg-green-500' : 'bg-red-500');
+                    // $('#dot_modbus').removeClass('bg-green-500 bg-red-500').addClass(isOnline ? 'bg-green-500' : 'bg-red-500');
                     
                     renderDigitalInputs(data.digital_inputs);
                     renderControllerMode(data.auto_manual_status);

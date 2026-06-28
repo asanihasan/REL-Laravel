@@ -58,4 +58,15 @@ class User extends Authenticatable
         return $this->belongsTo(UserGroup::class, 'user_group_id');
     }
 
+    // Add this helper right below your relationship
+    public function hasPermission($permissionColumn)
+    {
+        // Use your exact relationship name here
+        if (!$this->userGroup) {
+            return false;
+        }
+
+        return $this->userGroup->{$permissionColumn} == true;
+    }
+
 }
