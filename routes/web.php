@@ -15,20 +15,20 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware('auth')->group(function () {
+    // 1. MANUAL ROUTES (Protected & Named)
+    Route::get('/pumps', [PumpController::class, 'index'])->middleware('permission:view')->name('pumps.index');
+    Route::get('/pumps/{pump}', [PumpController::class, 'show'])->middleware('permission:view')->name('pumps.show');
+    Route::put('/pumps/{pump}', [PumpController::class, 'update'])->middleware('permission:data_manager')->name('pumps.update');
+    Route::delete('/pumps/{pump}', [PumpController::class, 'destroy'])->middleware('permission:data_manager')->name('pumps.destroy');
+
+    // 2. RESOURCE ROUTES (Exclude the ones we defined manually)
     Route::resource('pumps', PumpController::class)->except(['index', 'show', 'update', 'destroy']);
-    Route::put('/pumps/{pump}', [PumpController::class, 'update'])->middleware('permission:data_manager');
-    Route::delete('/pumps/{pump}', [PumpController::class, 'destroy'])->middleware('permission:data_manager');
-    
-    Route::get('/pumps', [PumpController::class, 'index'])->name('pumps.index');
-    Route::get('/pumps/{pump}', [PumpController::class, 'show'])->middleware('permission:view');
+
+    // 3. REMAINING ROUTES
     Route::get('/pumps/{id}/data', [PumpController::class, 'data'])->middleware('permission:view')->name('pumps.data');
     Route::post('/pumps/{id}/control', [PumpController::class, 'control'])->middleware('permission:control')->name('pumps.control');
     Route::get('/pumps/{id}/monitor', [PumpController::class, 'monitor'])->middleware('permission:view')->name('pumps.monitor');
-    
-    // Historical Data Endpoint
-    Route::get('/pumps/{id}/history', [PumpController::class, 'history'])->name('pumps.history')->middleware('permission:view');
-
-    // Maps Placeholder
+    Route::get('/pumps/{id}/history', [PumpController::class, 'history'])->middleware('permission:view')->name('pumps.history');
     Route::get('/maps', [PumpController::class, 'maps'])->name('pumps.maps');
 
     // User Management
