@@ -16,7 +16,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware('auth')->group(function () {
     // 1. MANUAL ROUTES (Protected & Named)
-    Route::get('/pumps', [PumpController::class, 'index'])->middleware('permission:view')->name('pumps.index');
+    Route::get('/pumps', [PumpController::class, 'index'])->name('pumps.index');
     Route::get('/pumps/{pump}', [PumpController::class, 'show'])->middleware('permission:view')->name('pumps.show');
     Route::put('/pumps/{pump}', [PumpController::class, 'update'])->middleware('permission:data_manager')->name('pumps.update');
     Route::delete('/pumps/{pump}', [PumpController::class, 'destroy'])->middleware('permission:data_manager')->name('pumps.destroy');
