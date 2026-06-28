@@ -30,9 +30,7 @@ Route::middleware('auth')->group(function () {
     // Maps Placeholder
     Route::get('/maps', [PumpController::class, 'maps'])->name('pumps.maps');
 
-    // ==========================================
     // User Management
-    // ==========================================
     Route::get('/manage/users', [UserManagementController::class, 'index'])->middleware('permission:administrator')->name('manage.user');
     
     // User CRUD
