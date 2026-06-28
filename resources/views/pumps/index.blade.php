@@ -18,8 +18,9 @@
                     <th class="p-3 min-w-[250px]">Pump Data</th>
                     
                     <th class="p-3 min-w-[240px] whitespace-nowrap">Status</th>
-                    
+                    @if(auth()->user()->hasPermission('view') || auth()->user()->hasPermission('data_manager'))
                     <th class="p-3 w-24 text-center">Action</th>
+                    @endif
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
@@ -74,8 +75,7 @@
                             $isEngineRunning = isset($autoStatus['engine_running']) && $autoStatus['engine_running'];
                         @endphp
                         
-                        <div class="flex flex-col space-y-2">
-                            
+                        <div class="flex flex-col space-y-1">
                             <div class="flex items-center justify-between text-xs min-w-[140px]">
                                 <span class="text-gray-500 font-medium mr-2">Mod:</span>
                                 @if(strtolower($pump->status ?? '') == 'online')
@@ -103,7 +103,7 @@
                                     </span>
                                 @endif
                             </div>
-
+                            @if(auth()->user()->hasPermission('administrator'))
                             <div class="flex items-center justify-between text-xs min-w-[140px]">
                                 <span class="text-gray-500 font-medium mr-2">Net:</span>
                                 @if(strtolower($pump->connection ?? '') == 'online')
@@ -118,18 +118,20 @@
                                     </span>
                                 @endif
                             </div>
-
+                            
                             <div class="flex items-center justify-between text-xs min-w-[140px] pt-1 border-t border-gray-100 mt-1">
                                 <span class="text-gray-500 font-medium mr-2">SN:</span>
                                 <span class="text-gray-900 font-mono text-[10px]">{{ $pump->serial_number ?? 'N/A' }}</span>
                             </div>
+                            @endif
                             
                         </div>
                     </td>
-                    
+
+                    @if(auth()->user()->hasPermission('view') || auth()->user()->hasPermission('data_manager'))
                     <td class="p-3 align-top">
                         <div class="flex items-center justify-center space-x-2">
-                            
+                            @if(auth()->user()->hasPermission('view'))
                             <div x-data="{ open: false }" class="relative inline-block text-left">
                                 <button @click="open = !open" type="button" class="p-2 flex items-center bg-blue-50 text-blue-600 hover:bg-blue-100 rounded transition" title="View Options">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
@@ -152,7 +154,9 @@
                                     </div>
                                 </div>
                             </div>
-                            
+                            @endif
+
+                            @if(auth()->user()->hasPermission('data_manager'))
                             <button onclick="openModal('{{ $pump->id }}', '{{ $pump->name }}', '{{ $pump->location }}')" class="p-2 bg-yellow-50 text-yellow-600 hover:bg-yellow-100 rounded transition" title="Update">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
                                     <path d="M5.433 13.917l1.262-3.155A4 4 0 017.58 9.42l6.92-6.918a2.121 2.121 0 013 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 01-.65-.65z" />
@@ -160,23 +164,25 @@
                                 </svg>
                             </button>
                             
-                            <form action="{{ route('pumps.destroy', $pump->id) }}" method="POST" onsubmit="return confirm('Delete this pump?')">
+                            <!-- <form action="{{ route('pumps.destroy', $pump->id) }}" method="POST" onsubmit="return confirm('Delete this pump?')">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="p-2 bg-red-50 text-red-600 hover:bg-red-100 rounded transition" title="Delete">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
                                         <path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clip-rule="evenodd" />
                                     </svg>
                                 </button>
-                            </form>
+                            </form> -->
+                            @endif
                         </div>
                     </td>
+                    @endif
                 </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
 </div>
-
+@if(auth()->user()->hasPermission('data_manager'))
 <div id="updateModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white p-6 rounded-lg w-96 shadow-xl transform transition-all">
         <h2 class="text-lg font-bold mb-4 border-b pb-2">Update Pump</h2>
@@ -197,6 +203,7 @@
         </form>
     </div>
 </div>
+@endif
 @endsection
 
 @section('scripts')
@@ -208,14 +215,13 @@
             if (isoTime) {
                 const date = new Date(isoTime);
                 const formattedDate = date.toLocaleString('en-GB', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric',
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: '2-digit',
                     hour: '2-digit',
                     minute: '2-digit',
-                    second: '2-digit',
                     hour12: false
-                }).replace(/\//g, ' '); 
+                }).replace(',', ''); // This removes the comma if you want "28/06/26 14:06"
                 
                 $(this).text(formattedDate);
             }

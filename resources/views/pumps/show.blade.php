@@ -26,17 +26,18 @@
                     <svg class="w-4 h-4 mr-1 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     {{ $pump->location }}
                 </p>
-                
+                @if(auth()->user()->hasPermission('administrator'))
                 <div class="flex items-center gap-4 mt-3">
                     <div class="flex items-center gap-1.5" title="Network Connection">
                         <div id="dot_network" class="w-2.5 h-2.5 rounded-full {{ strtolower($pump->connection ?? '') == 'online' ? 'bg-green-500' : 'bg-red-500' }} transition-colors duration-300"></div>
                         <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Network</span>
                     </div>
                     <!-- <div class="flex items-center gap-1.5" title="Modbus Connection">
-                        <div id="dot_modbus" class="w-2.5 h-2.5 rounded-full {{ $pump->modbus_status ? 'bg-green-500' : 'bg-red-500' }} transition-colors duration-300"></div>
+                        <div id="dot_modbus" class="w-2.5 h-2.5 rounded-full {{ strtolower($pump->status ?? '') == 'online' ? 'bg-green-500' : 'bg-red-500' }} transition-colors duration-300"></div>
                         <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Modbus</span>
                     </div> -->
                 </div>
+                @endif
             </div>
 
             <div class="flex flex-row gap-3 md:flex-col items-center md:items-end justify-between md:justify-start bg-gray-50 md:bg-transparent p-3 md:p-0 rounded-lg">
@@ -51,6 +52,7 @@
         </div>
     </div>
 
+    @if(auth()->user()->hasPermission('control'))
     <!-- Remote Control Panel -->
     <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-600 relative overflow-hidden">
         <div id="controlLoader" class="hidden absolute inset-0 bg-white/80 z-20 flex items-center justify-center backdrop-blur-sm transition-all duration-300">
@@ -94,6 +96,7 @@
         </div>
         <div id="controlMessage" class="hidden mt-4 p-3 rounded text-sm font-bold border-l-4"></div>
     </div>
+    @endif
 
     <!-- Real-time Data Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -358,6 +361,7 @@
         XLSX.writeFile(wb, `Pump_{{ $pump->id }}_Log_${new Date().getTime()}.xlsx`);
     }
 
+    @if(auth()->user()->hasPermission('control'))
     // --- 2. Control Logic ---
     function sendControl(action, value = null) {
         if (!confirm('Send command: ' + action + '?')) return;
@@ -390,6 +394,7 @@
             alert("Warning: RPM must be between 800 and 2000.");
         }
     }
+    @endif
 
 
     // --- 3. Initialize ---

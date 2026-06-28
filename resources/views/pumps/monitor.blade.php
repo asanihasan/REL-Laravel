@@ -31,7 +31,7 @@
                     <svg class="w-4 h-4 mr-1 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     {{ $pump->location }}
                 </p>
-                
+                @if(auth()->user()->hasPermission('administrator'))
                 <div class="flex items-center gap-4 mt-3">
                     <div class="flex items-center gap-1.5" title="Network Connection">
                         <div id="dot_network" class="w-2.5 h-2.5 rounded-full {{ strtolower($pump->connection ?? '') == 'online' ? 'bg-green-500' : 'bg-red-500' }} transition-colors duration-300"></div>
@@ -42,6 +42,7 @@
                         <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Modbus</span>
                     </div> -->
                 </div>
+                @endif
             </div>
 
             <div class="flex flex-row gap-3 md:flex-col items-center md:items-end justify-between md:justify-start bg-gray-50 md:bg-transparent p-3 md:p-0 rounded-lg">
@@ -136,7 +137,7 @@
             <div id="gauge_flow" class="w-full h-40"></div>
         </div>
     </div>
-
+    @if(auth()->user()->hasPermission('control'))
     <div class="bg-white p-5 rounded-lg shadow-md border-l-4 border-blue-600 relative overflow-hidden mt-2">
         <div id="controlLoader" class="hidden absolute inset-0 bg-white/80 z-20 flex items-center justify-center backdrop-blur-sm transition-all duration-300">
             <div class="flex flex-col items-center">
@@ -179,6 +180,7 @@
         </div>
         <div id="controlMessage" class="hidden mt-3 p-2 rounded text-sm font-bold border-l-4"></div>
     </div>
+    @endif
 
     <div class="bg-white p-5 rounded-lg shadow-md border-t-4 border-blue-500 mt-2">
         <div class="flex flex-col sm:flex-row justify-between items-center gap-3">
@@ -588,6 +590,7 @@
         }, 100);
     });
 
+    @if(auth()->user()->hasPermission('control'))
     // --- 4. Control Logic ---
     function sendControl(action, value = null) {
         if (!confirm('Send command: ' + action + '?')) return;
@@ -617,6 +620,7 @@
             alert("Warning: RPM must be between 800 and 2000.");
         }
     }
+    @endif
 
     // --- 5. Initialize & Loop ---
     $(document).ready(function() {

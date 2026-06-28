@@ -183,7 +183,7 @@
                                         <span class="text-gray-200 font-medium">${displayLocation}</span>
                                     </p>
                                 </div>
-
+                                @if(auth()->user()->hasPermission('view'))
                                 <div class="mt-4 flex gap-2 w-full">
                                     <a href="/pumps/${pump.id}" class="w-1/2 text-center bg-gray-800 hover:bg-gray-700 text-white px-2 py-2 rounded-md text-xs font-medium transition duration-150">
                                         Grid View
@@ -192,6 +192,7 @@
                                         Graph View
                                     </a>
                                 </div>
+                                @endif
                             </div>
                         `;
                     };
