@@ -16,7 +16,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware('auth')->group(function () {
     Route::put('/pumps/{pump}', [PumpController::class, 'update'])->middleware('permission:data_manager');
-    Route::delete('/pumps/{pump}', [PumpController::class, 'destroy'])->middleware('permission:data_manager')
+    Route::delete('/pumps/{pump}', [PumpController::class, 'destroy'])->middleware('permission:data_manager');
     
     Route::get('/pumps', [PumpController::class, 'index']);
     Route::get('/pumps/{pump}', [PumpController::class, 'show'])->middleware('permission:view');
