@@ -62,21 +62,28 @@ class TelegramController extends Controller
 
     public function sendInternalMessage(Request $request)
     {
-        // Validate incoming request
+        // 1. Remove the strict 'string' validation on receiver_id
         $request->validate([
-            'receiver_id' => 'required|string',
+            'receiver_id' => 'required', 
             'message' => 'required|string',
         ]);
 
-        $receiverId = $request->input('receiver_id');
+        $receivers = $request->input('receiver_id');
         $message = $request->input('message');
 
-        // Reuse your existing helper method
-        $this->sendMessage($receiverId, $message);
+        // 2. If a single ID is passed as a string, wrap it in an array
+        if (!is_array($receivers)) {
+            $receivers = [$receivers];
+        }
+
+        // 3. Loop through the array and send the message to everyone
+        foreach ($receivers as $id) {
+            $this->sendMessage($id, $message);
+        }
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Telegram message dispatched.'
+            'message' => 'Telegram message dispatched to ' . count($receivers) . ' recipient(s).'
         ]);
     }
 }
