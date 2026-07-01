@@ -25,9 +25,13 @@
             </thead>
             <tbody class="divide-y divide-gray-100">
                 @foreach($pumps as $pump)
-                <tr class="hover:bg-gray-50 transition">
+                {{-- Dim the row slightly if the pump is inactive --}}
+                <tr class="hover:bg-gray-50 transition {{ !$pump->active ? 'opacity-50 bg-gray-50' : '' }}">
                     <td class="p-3 align-top">
                         <div class="font-mono font-bold text-red-700">{{ $pump->id }}</div>
+                        @if(!$pump->active)
+                            <span class="text-[10px] text-gray-500 font-bold uppercase">Inactive</span>
+                        @endif
                     </td>
                     
                     <td class="p-3 font-medium align-top">{{ $pump->name }}</td>
@@ -70,7 +74,6 @@
 
                     <td class="p-3 align-top">
                         @php
-                            // Safely decode the JSON status if it's stored as a string
                             $autoStatus = is_string($pump->auto_manual_status) ? json_decode($pump->auto_manual_status, true) : $pump->auto_manual_status;
                             $isEngineRunning = isset($autoStatus['engine_running']) && $autoStatus['engine_running'];
                         @endphp
@@ -157,21 +160,21 @@
                             @endif
 
                             @if(auth()->user()->hasPermission('data_manager'))
-                            <button onclick="openModal('{{ $pump->id }}', '{{ $pump->name }}', '{{ $pump->location }}')" class="p-2 bg-yellow-50 text-yellow-600 hover:bg-yellow-100 rounded transition" title="Update">
+                            <button onclick="openModal('{{ $pump->id }}', '{{ addslashes($pump->name) }}', '{{ addslashes($pump->location) }}', {{ $pump->active ? 'true' : 'false' }})" class="p-2 bg-yellow-50 text-yellow-600 hover:bg-yellow-100 rounded transition" title="Update">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
                                     <path d="M5.433 13.917l1.262-3.155A4 4 0 017.58 9.42l6.92-6.918a2.121 2.121 0 013 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 01-.65-.65z" />
                                     <path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0010 3H4.75A2.75 2.75 0 002 5.75v9.5A2.75 2.75 0 004.75 18h9.5A2.75 2.75 0 0017 15.25V10a.75.75 0 00-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5z" />
                                 </svg>
                             </button>
                             
-                            <!-- <form action="{{ route('pumps.destroy', $pump->id) }}" method="POST" onsubmit="return confirm('Delete this pump?')">
+                            <form action="{{ route('pumps.destroy', $pump->id) }}" method="POST" onsubmit="return confirmDelete(event, '{{ addslashes($pump->name) }}')">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="p-2 bg-red-50 text-red-600 hover:bg-red-100 rounded transition" title="Delete">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
                                         <path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clip-rule="evenodd" />
                                     </svg>
                                 </button>
-                            </form> -->
+                            </form>
                             @endif
                         </div>
                     </td>
@@ -182,6 +185,7 @@
         </table>
     </div>
 </div>
+
 @if(auth()->user()->hasPermission('data_manager'))
 <div id="updateModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white p-6 rounded-lg w-96 shadow-xl transform transition-all">
@@ -192,10 +196,20 @@
                 <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
                 <input type="text" name="name" id="modalName" class="w-full border border-gray-300 p-2 rounded focus:ring-red-500 focus:border-red-500">
             </div>
-            <div class="mb-6">
+            <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
                 <input type="text" name="location" id="modalLocation" class="w-full border border-gray-300 p-2 rounded focus:ring-red-500 focus:border-red-500">
             </div>
+            
+            {{-- Added Active Toggle Switch --}}
+            <div class="mb-6 flex items-center justify-between">
+                <label class="block text-sm font-medium text-gray-700">Pump Status (Active)</label>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="active" id="modalActive" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                </label>
+            </div>
+
             <div class="flex justify-end space-x-2">
                 <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Cancel</button>
                 <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Save Changes</button>
@@ -221,7 +235,7 @@
                     hour: '2-digit',
                     minute: '2-digit',
                     hour12: false
-                }).replace(',', ''); // This removes the comma if you want "28/06/26 14:06"
+                }).replace(',', ''); 
                 
                 $(this).text(formattedDate);
             }
@@ -234,15 +248,31 @@
         });
     });
 
-    function openModal(id, name, location) {
+    // Updated to accept isActive
+    function openModal(id, name, location, isActive) {
         $('#updateForm').attr('action', '/pumps/' + id);
         $('#modalName').val(name);
         $('#modalLocation').val(location);
+        
+        // Check or uncheck the toggle based on the boolean
+        $('#modalActive').prop('checked', isActive);
+        
         $('#updateModal').removeClass('hidden');
     }
 
     function closeModal() {
         $('#updateModal').addClass('hidden');
+    }
+
+    // New delete confirmation function
+    function confirmDelete(event, pumpName) {
+        event.preventDefault(); // Stop the form from submitting immediately
+        
+        const userInput = prompt(`Are you sure you want to delete this pump?\nType "delete" to confirm removal of: ${pumpName}`);
+        
+        if (userInput !== null && userInput.trim().toLowerCase() === 'delete') {
+            event.target.submit(); // Submit the specific form that triggered the event
+        }
     }
 
     window.onclick = function(event) {

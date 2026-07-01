@@ -177,13 +177,13 @@
                                     @if(auth()->user()->hasPermission('administrator'))
                                     <div><strong class="text-gray-400">ID:</strong> ${pump.id}</div>
                                     @endif
-                                    <p><strong class="text-gray-400">Engine:</strong> ${engineStateHtml}</p>
-                                    <p><strong class="text-gray-400">RPM:</strong> <span class="text-gray-200">${rpm}</span></p>
-                                    <p><strong class="text-gray-400">Flow:</strong> <span class="text-gray-200">${flowRate} L/s</span></p>
+                                    <div><strong class="text-gray-400">Engine:</strong> ${engineStateHtml}</div>
+                                    <div><strong class="text-gray-400">RPM:</strong> <span class="text-gray-200">${rpm}</span></div>
+                                    <div><strong class="text-gray-400">Flow:</strong> <span class="text-gray-200">${flowRate} L/s</span></div>
                                     
-                                    <p class="whitespace-normal break-words"><strong class="text-gray-400">Location:</strong> 
+                                    <div class="whitespace-normal break-words"><strong class="text-gray-400">Location:</strong> 
                                         <span class="text-gray-200 font-medium">${displayLocation}</span>
-                                    </p>
+                                    </div>
                                 </div>
                                 @if(auth()->user()->hasPermission('view'))
                                 <div class="mt-4 flex gap-2 w-full">
