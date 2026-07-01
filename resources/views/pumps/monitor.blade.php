@@ -333,9 +333,9 @@
                 anchor: { 
                     show: true, 
                     showAbove: true, // Ensures the ring sits on top of the needle
-                    size: 16, // Size of the ring
+                    size: 8, // Size of the ring
                     itemStyle: { 
-                        borderWidth: 4, // Thickness of the ring
+                        borderWidth: 2, // Thickness of the ring
                         borderColor: '#8B0000', // Dark Red border
                         color: '#fff' // White center to create the "hole"
                     } 
