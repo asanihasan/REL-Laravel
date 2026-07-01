@@ -325,13 +325,21 @@
                     }
                 },
                 pointer: { 
-                    // Removed the custom 'icon' path to use the default needle
-                    length: '75%', // Elongated the pointer
-                    width: 8, 
-                    offsetCenter: [0, '0%'], // Anchored to the exact center
-                    itemStyle: { color: '#8B0000' } // Colored dark red
+                    length: '75%', 
+                    width: 6, // Slightly thinner to match the sleek look
+                    offsetCenter: [0, '0%'], 
+                    itemStyle: { color: '#8B0000' } // Dark Red
                 },
-                anchor: { show: true, showAbove: true, size: 8, itemStyle: { borderWidth: 2 } },
+                anchor: { 
+                    show: true, 
+                    showAbove: true, // Ensures the ring sits on top of the needle
+                    size: 16, // Size of the ring
+                    itemStyle: { 
+                        borderWidth: 4, // Thickness of the ring
+                        borderColor: '#8B0000', // Dark Red border
+                        color: '#fff' // White center to create the "hole"
+                    } 
+                },
                 title: { show: false },
                 detail: { 
                     valueAnimation: true, 
