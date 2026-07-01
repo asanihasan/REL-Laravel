@@ -5,14 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\Pump;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http; // Import HTTP Client
+use Illuminate\Support\Facades\Http; 
 use Carbon\Carbon;
 
 class PumpController extends Controller
 {
     public function index()
     {
-        $pumps = Pump::all();
+        // Data managers see everything; regular users only see active pumps
+        if (auth()->user()->hasPermission('data_manager')) {
+            $pumps = Pump::all();
+        } else {
+            $pumps = Pump::where('active', true)->get();
+        }
+        
         return view('pumps.index', compact('pumps'));
     }
 
@@ -40,7 +46,6 @@ class PumpController extends Controller
                     ->limit(50)
                     ->get();
 
-        // Notice this points to a new blade file!
         return view('pumps.monitor', compact('pump', 'history')); 
     }
 
@@ -48,7 +53,14 @@ class PumpController extends Controller
     {
         $pump = Pump::findOrFail($id);
 
-        $pump->update($request->only(['name', 'location']));
+        $pump->name = $request->input('name');
+        $pump->location = $request->input('location');
+        
+        // Checkboxes send 'on' if checked, and are entirely missing from the request if unchecked.
+        // has() safely converts this presence/absence into a strict boolean.
+        $pump->active = $request->has('active'); 
+        
+        $pump->save();
         
         return redirect()->back()->with('success', 'Pump updated successfully');
     }
@@ -74,15 +86,12 @@ class PumpController extends Controller
 
         // Construct External URL
         if ($action === 'rpm') {
-            // Format: {{endpoint}}/rpm/{{pump_id}}/{{rpm value}}
             $url = "{$endpoint}/rpm/{$id}/{$value}";
         } else {
-            // Format: {{endpoint}}/start/{{pump_id}}
             $url = "{$endpoint}/{$action}/{$id}";
         }
 
         try {
-            // Explicitly use GET method for the hardware request
             $response = Http::get($url);
             
             if ($response->successful()) {
@@ -97,9 +106,7 @@ class PumpController extends Controller
 
     public function data($id)
     {
-        // 1. Fetch the single pump, explicitly asking for the coordinates via Left Join
         $pump = Pump::withLocation()->findOrFail($id);
-
         $pump->append('status');
 
         return response()->json($pump);
@@ -127,10 +134,15 @@ class PumpController extends Controller
 
     public function maps()
     {
-        // 1. Fetch ALL pumps with their locations attached
-        $pumpsWithLocations = Pump::withLocation()->get();
+        // Apply the same active limit to the maps view
+        if (auth()->user()->hasPermission('data_manager')) {
+            $pumpsWithLocations = Pump::withLocation()->get();
+        } else {
+            // Use 'pumps.active' in case your withLocation scope joins another table with an active column
+            $pumpsWithLocations = Pump::withLocation()->where('pumps.active', true)->get();
+        }
 
-        // 2. Force Laravel to append the custom 'status' attribute to every pump in the collection
+        // Force Laravel to append the custom 'status' attribute
         $pumpsWithLocations->each->append('status');
 
         return view('pumps.maps', compact('pumpsWithLocations'));

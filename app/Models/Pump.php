@@ -27,7 +27,7 @@ class Pump extends Model
         'engine_pressure_mech', 'engine_temp_mech', 'battery_volts_mech',
         'engine_speed_mech', 'engine_hours_mech', 'config_number',
         'asset_tag', 'heartbeat', 'firmware_version', 'modbus_status',
-        'serial_number'
+        'serial_number', 'active'
     ];
 
     protected $casts = [
@@ -37,7 +37,8 @@ class Pump extends Model
         'coolant_level_probe' => 'boolean',
         'modbus_status' => 'boolean', // Added so strict boolean checks work
         'last_update' => 'datetime',
-        'updated_at' => 'datetime'
+        'updated_at' => 'datetime',
+        'active' => 'boolean'
     ];
 
     // 1. New Status: Offline if Modbus is false, otherwise checks freshness
