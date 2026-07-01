@@ -141,10 +141,10 @@
         </div>
 
         <div class="bg-white p-4 rounded-lg shadow-md h-fit">
-            <h3 class="text-lg font-bold border-b pb-3 mb-4 text-gray-700">Sensors</h3>
+            <h3 class="text-lg font-bold border-b pb-3 mb-4 text-gray-700">Pump</h3>
             <div class="space-y-6">
                 <div class="bg-green-50 p-4 rounded items-center flex justify-between">
-                    <span class="block text-xs text-green-600 font-bold uppercase tracking-wider">FLOW</span>
+                    <span class="block text-green-600 font-bold uppercase tracking-wider">FLOW</span>
                     <span class="text-xl font-bold text-gray-800"><span id="disp_flow">{{ $pump->pressure_or_flow['flow'] ?? 0 }}</span> L/s</span>
                 </div>
                 <div class="flex justify-between border-b border-gray-100">
@@ -403,6 +403,7 @@
 
     // --- 3. Initialize ---
     $(document).ready(function() {
+        @if(auth()->user()->hasPermission('historical'))
         flatpickrInstance = flatpickr("#dateRangePicker", {
             mode: "range", 
             enableTime: true, 
@@ -411,6 +412,7 @@
         });
         
         loadHistory();
+        @endif
 
         // Real-time Dashboard Update (1000ms)
         setInterval(function() {

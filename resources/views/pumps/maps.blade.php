@@ -174,7 +174,9 @@
                                 </div>
                                 
                                 <div class="space-y-1 text-sm text-gray-300">
+                                    @if(auth()->user()->hasPermission('administrator'))
                                     <p><strong class="text-gray-400">ID:</strong> ${pump.id}</p>
+                                    @endif
                                     <p><strong class="text-gray-400">Engine:</strong> ${engineStateHtml}</p>
                                     <p><strong class="text-gray-400">RPM:</strong> <span class="text-gray-200">${rpm}</span></p>
                                     <p><strong class="text-gray-400">Flow:</strong> <span class="text-gray-200">${flowRate} L/s</span></p>

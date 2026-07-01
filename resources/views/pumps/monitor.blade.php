@@ -325,11 +325,11 @@
                     }
                 },
                 pointer: { 
-                    icon: 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z', 
-                    length: '15%', 
+                    // Removed the custom 'icon' path to use the default needle
+                    length: '75%', // Elongated the pointer
                     width: 8, 
-                    offsetCenter: [0, '-60%'], 
-                    itemStyle: { color: '#374151' } 
+                    offsetCenter: [0, '0%'], // Anchored to the exact center
+                    itemStyle: { color: '#8B0000' } // Colored dark red
                 },
                 anchor: { show: true, showAbove: true, size: 8, itemStyle: { borderWidth: 2 } },
                 title: { show: false },
@@ -641,6 +641,7 @@
             Object.values(charts).forEach(chart => chart.resize());
         });
 
+        @if(auth()->user()->hasPermission('historical'))
         flatpickrInstance = flatpickr("#dateRangePicker", {
             mode: "range", 
             enableTime: true, 
@@ -649,6 +650,7 @@
         });
         
         loadHistory();
+        @endif
 
         // Real-time Dashboard Update (1000ms)
         setInterval(function() {
