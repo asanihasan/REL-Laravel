@@ -326,16 +326,16 @@
                 },
                 pointer: { 
                     length: '75%', 
-                    width: 6, // Slightly thinner to match the sleek look
+                    width: 3, // Slightly thinner to match the sleek look
                     offsetCenter: [0, '0%'], 
                     itemStyle: { color: '#8B0000' } // Dark Red
                 },
                 anchor: { 
                     show: true, 
                     showAbove: true, // Ensures the ring sits on top of the needle
-                    size: 8, // Size of the ring
+                    size: 10, // Size of the ring
                     itemStyle: { 
-                        borderWidth: 2, // Thickness of the ring
+                        borderWidth: 3, // Thickness of the ring
                         borderColor: '#8B0000', // Dark Red border
                         color: '#fff' // White center to create the "hole"
                     } 
