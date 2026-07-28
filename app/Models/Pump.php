@@ -13,7 +13,7 @@ class Pump extends Model
     protected $keyType = 'string';
     public $incrementing = false;
     
-    // Append custom computed attributes so they appear in JSON responses (like your map API)
+    // Append custom computed attributes so they appear in JSON responses
     protected $appends = ['status', 'connection'];
     
     protected $fillable = [
@@ -35,70 +35,79 @@ class Pump extends Model
         'auto_manual_status' => 'array',
         'digital_inputs' => 'array',
         'coolant_level_probe' => 'boolean',
-        'modbus_status' => 'boolean', // Added so strict boolean checks work
+        'modbus_status' => 'boolean',
         'last_update' => 'datetime',
         'updated_at' => 'datetime',
         'active' => 'boolean'
     ];
 
-    /**
-     * The "booted" method of the model.
-     * Intercepts saving events to manipulate data before it enters the database.
-     */
-    protected static function booted()
+    // ==========================================
+    // DATA RETRIEVAL VALIDATION (ACCESSORS)
+    // ==========================================
+
+    // 1. Array Validation
+    public function getPressureOrFlowAttribute($value)
     {
-        static::saving(function ($pump) {
-            // 1. Target all temperature-related fields
-            $tempFields = [
-                'coolant_temp', 
-                'oil_temp', 
-                'intake_temp', 
-                'pump_temp', 
-                'gearbox_temp', 
-                'engine_temp_mech'
-            ];
+        // Handle both raw JSON strings and pre-cast arrays to avoid conflicts with $casts
+        $data = is_string($value) ? json_decode($value, true) : $value;
 
-            foreach ($tempFields as $field) {
-                // Check for numeric or string representations of -40
-                if ($pump->$field == -40 || $pump->$field === '-40') {
-                    $pump->$field = '-';
-                }
+        if (is_array($data)) {
+            if (isset($data['flow']) && $data['flow'] == -256) {
+                $data['flow'] = '-';
             }
+            if (isset($data['pressure']) && $data['pressure'] == -256) {
+                $data['pressure'] = '-';
+            }
+        }
 
-            // 2. Target the pressure_or_flow JSON array
-            $pressureOrFlow = $pump->pressure_or_flow;
-            
-            if (is_array($pressureOrFlow)) {
-                // Validate Flow
-                if (isset($pressureOrFlow['flow']) && ($pressureOrFlow['flow'] == -256 || $pressureOrFlow['flow'] === '-256')) {
-                    $pressureOrFlow['flow'] = '-';
-                }
-                
-                // Validate Pressure
-                if (isset($pressureOrFlow['pressure']) && ($pressureOrFlow['pressure'] == -256 || $pressureOrFlow['pressure'] === '-256')) {
-                    $pressureOrFlow['pressure'] = '-';
-                }
-                
-                // Re-assign the modified array so Laravel's array cast saves it as JSON
-                $pump->pressure_or_flow = $pressureOrFlow;
-            }
-        });
+        return $data;
     }
 
-    // 1. New Status: Offline if Modbus is false, otherwise checks freshness
+    // 2. Temperature Validation
+    public function getCoolantTempAttribute($value)
+    {
+        return $value == -40 ? '-' : $value;
+    }
+
+    public function getOilTempAttribute($value)
+    {
+        return $value == -40 ? '-' : $value;
+    }
+
+    public function getIntakeTempAttribute($value)
+    {
+        return $value == -40 ? '-' : $value;
+    }
+
+    public function getPumpTempAttribute($value)
+    {
+        return $value == -40 ? '-' : $value;
+    }
+
+    public function getGearboxTempAttribute($value)
+    {
+        return $value == -40 ? '-' : $value;
+    }
+
+    public function getEngineTempMechAttribute($value)
+    {
+        return $value == -40 ? '-' : $value;
+    }
+
+    // ==========================================
+    // EXISTING COMPUTED ATTRIBUTES & SCOPES
+    // ==========================================
+
     public function getStatusAttribute()
     {
-        // If Modbus is completely offline, the pump is offline immediately
         if ($this->modbus_status === false) {
             return 'offline';
         }
 
-        // If Modbus is true, rely on the 10-second data freshness check
         if (!$this->last_update) return 'offline';
         return $this->last_update->diffInSeconds(now()) > 10 ? 'offline' : 'online';
     }
 
-    // 2. New Connection: Only cares about data freshness (your old logic)
     public function getConnectionAttribute()
     {
         if (!$this->updated_at) return 'offline';
