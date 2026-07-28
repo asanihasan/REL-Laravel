@@ -53,10 +53,10 @@ class Pump extends Model
 
         if (is_array($data)) {
             if (isset($data['flow']) && $data['flow'] == -256) {
-                $data['flow'] = '-';
+                $data['flow'] = 0;
             }
             if (isset($data['pressure']) && $data['pressure'] == -256) {
-                $data['pressure'] = '-';
+                $data['pressure'] = 0;
             }
         }
 
@@ -66,32 +66,32 @@ class Pump extends Model
     // 2. Temperature Validation
     public function getCoolantTempAttribute($value)
     {
-        return $value == -40 ? '-' : $value;
+        return $value == -40 ? 0 : $value;
     }
 
     public function getOilTempAttribute($value)
     {
-        return $value == -273 ? '-' : $value;
+        return $value == -273 ? 0 : $value;
     }
 
     public function getIntakeTempAttribute($value)
     {
-        return $value == -40 ? '-' : $value;
+        return $value == -40 ? 0 : $value;
     }
 
     public function getPumpTempAttribute($value)
     {
-        return $value == -40 ? '-' : $value;
+        return $value == -40 ? 0 : $value;
     }
 
     public function getGearboxTempAttribute($value)
     {
-        return $value == -40 ? '-' : $value;
+        return $value == -40 ? 0 : $value;
     }
 
     public function getEngineTempMechAttribute($value)
     {
-        return $value == -40 ? '-' : $value;
+        return $value == -40 ? 0 : $value;
     }
 
     // ==========================================
