@@ -71,7 +71,7 @@ class Pump extends Model
 
     public function getOilTempAttribute($value)
     {
-        return $value == -40 ? '-' : $value;
+        return $value == -273 ? '-' : $value;
     }
 
     public function getIntakeTempAttribute($value)
