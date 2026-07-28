@@ -423,7 +423,7 @@
                     const isOnline = data.status === 'online';
                     
                     // Helper to format values: if -256 return '-', otherwise return value
-                    // const formatVal = (val) => (val == -256 || val === null || val === undefined) ? '-' : val;
+                    const formatVal = (val) => (val == -256 || val === null || val === undefined) ? '-' : val;
 
                     $('#headerStatusContainer').toggleClass('border-green-500', isOnline).toggleClass('border-red-500', !isOnline);
                     $('#statusBadge').toggleClass('bg-green-600', isOnline).toggleClass('bg-red-600', !isOnline);
