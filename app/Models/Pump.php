@@ -41,6 +41,50 @@ class Pump extends Model
         'active' => 'boolean'
     ];
 
+    /**
+     * The "booted" method of the model.
+     * Intercepts saving events to manipulate data before it enters the database.
+     */
+    protected static function booted()
+    {
+        static::saving(function ($pump) {
+            // 1. Target all temperature-related fields
+            $tempFields = [
+                'coolant_temp', 
+                'oil_temp', 
+                'intake_temp', 
+                'pump_temp', 
+                'gearbox_temp', 
+                'engine_temp_mech'
+            ];
+
+            foreach ($tempFields as $field) {
+                // Check for numeric or string representations of -40
+                if ($pump->$field == -40 || $pump->$field === '-40') {
+                    $pump->$field = '-';
+                }
+            }
+
+            // 2. Target the pressure_or_flow JSON array
+            $pressureOrFlow = $pump->pressure_or_flow;
+            
+            if (is_array($pressureOrFlow)) {
+                // Validate Flow
+                if (isset($pressureOrFlow['flow']) && ($pressureOrFlow['flow'] == -256 || $pressureOrFlow['flow'] === '-256')) {
+                    $pressureOrFlow['flow'] = '-';
+                }
+                
+                // Validate Pressure
+                if (isset($pressureOrFlow['pressure']) && ($pressureOrFlow['pressure'] == -256 || $pressureOrFlow['pressure'] === '-256')) {
+                    $pressureOrFlow['pressure'] = '-';
+                }
+                
+                // Re-assign the modified array so Laravel's array cast saves it as JSON
+                $pump->pressure_or_flow = $pressureOrFlow;
+            }
+        });
+    }
+
     // 1. New Status: Offline if Modbus is false, otherwise checks freshness
     public function getStatusAttribute()
     {
