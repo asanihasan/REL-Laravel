@@ -105,7 +105,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
-                    </tbody>
+                </tbody>
             </table>
         </div>
     </div>
@@ -168,7 +168,29 @@
                         name: 'ts',
                         className: 'p-3', // Match exact padding from Pump List
                         render: function(data) {
-                            return `<span class="font-mono text-gray-800">${data}</span>`;
+                            if (!data) return '';
+                            
+                            // Parse standard Laravel UTC timestamp (YYYY-MM-DD HH:mm:ss) into a local Date object
+                            // Appending 'Z' and replacing space with 'T' enforces UTC parsing
+                            let utcDateStr = data.replace(' ', 'T') + 'Z';
+                            let date = new Date(utcDateStr);
+                            
+                            // If invalid date, return raw data safely
+                            if (isNaN(date.getTime())) {
+                                return `<span class="font-mono text-gray-800">${data}</span>`;
+                            }
+                            
+                            // Format back to YYYY-MM-DD HH:mm:ss in local timezone
+                            let year = date.getFullYear();
+                            let month = String(date.getMonth() + 1).padStart(2, '0');
+                            let day = String(date.getDate()).padStart(2, '0');
+                            let hours = String(date.getHours()).padStart(2, '0');
+                            let minutes = String(date.getMinutes()).padStart(2, '0');
+                            let seconds = String(date.getSeconds()).padStart(2, '0');
+                            
+                            let localFormattedTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+                            return `<span class="font-mono text-gray-800">${localFormattedTime}</span>`;
                         }
                     },
                     { 
