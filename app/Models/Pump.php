@@ -57,8 +57,8 @@ class Pump extends Model
     // 2. New Connection: Only cares about data freshness (your old logic)
     public function getConnectionAttribute()
     {
-        if (!$this->last_update) return 'offline';
-        return $this->last_update->diffInSeconds(now()) > 10 ? 'offline' : 'online';
+        if (!$this->updated_at) return 'offline';
+        return $this->updated_at->diffInSeconds(now()) > 10 ? 'offline' : 'online';
     }
 
     public function scopeWithLocation($query)
