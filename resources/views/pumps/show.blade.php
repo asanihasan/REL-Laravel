@@ -367,26 +367,6 @@
                     scrollX: true 
                 });
     
-                // 2. Build Charts (Reverse data so it draws left-to-right from oldest to newest)
-                const chartData = [...data].reverse();
-                
-                const timeAxis = chartData.map(row => {
-                    // Shorten the timestamp for a cleaner X-axis (e.g. "Jun 27, 10:40")
-                    let d = new Date(row.ts.includes('Z') || row.ts.includes('+') ? row.ts : row.ts + ' UTC');
-                    return d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-                });
-                
-                const rpmData = chartData.map(row => row.rpm ?? 0);
-                const flowData = chartData.map(row => {
-                    const pf = typeof row.pressure_or_flow === 'string' ? JSON.parse(row.pressure_or_flow) : row.pressure_or_flow;
-                    return pf?.flow ?? 0;
-                });
-    
-                // 3. Render the Charts
-                updateLineChart('lineChart_rpm', timeAxis, rpmData, '#3b82f6', 'RPM'); // Tailwind blue-500
-                updateLineChart('lineChart_flow', timeAxis, flowData, '#14b8a6', 'Flow'); // Tailwind teal-500
-    
-                echarts.connect('syncCharts')
             },
             error: function() {
                 $('#historyTable tbody').html('<tr><td colspan="9" class="text-center py-10 text-red-600">Failed to load historical data.</td></tr>');
