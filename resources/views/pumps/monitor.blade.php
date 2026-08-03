@@ -458,10 +458,10 @@
                     // Since we pre-parsed above, this handles it safely too
                     const pf = typeof row.pressure_or_flow === 'string' ? JSON.parse(row.pressure_or_flow) : row.pressure_or_flow;
     
-                    // 3. Append row (Ensure 16 total <td> elements to match 16 <th> elements)
+                    // 3. Append row (Notice the added data-order attribute in the first <td>)
                     tbody.append(`
                         <tr>
-                            <td class="px-4 py-2 font-mono whitespace-nowrap">${getLocalTime(row.ts)}</td>
+                            <td class="px-4 py-2 font-mono whitespace-nowrap" data-order="${row.ts}">${getLocalTime(row.ts)}</td>
                             <td class="px-4 py-2">${row.engine_hours ?? '-'}</td>
                             <td class="px-4 py-2">${autoMode}</td>
                             <td class="px-4 py-2">${row.rpm ?? '-'}</td>
