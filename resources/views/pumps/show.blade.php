@@ -265,36 +265,79 @@
         if (range.length > 0) {
             let startDate = new Date(range[0]);
             let endDate = range[1] ? new Date(range[1]) : new Date(range[0]);
-
-            if (startDate.toDateString() === endDate.toDateString()) {
-                startDate.setHours(0, 0, 0, 0);
-                endDate.setHours(23, 59, 59, 999);
-            }
+    
+            // 🔥 I DELETED THE IF-STATEMENT THAT WAS OVERRIDING YOUR TIMES HERE!
+            // It will now strictly use the exact hours/minutes from Flatpickr.
+    
             url += `?start=${encodeURIComponent(formatToUTC(startDate))}&end=${encodeURIComponent(formatToUTC(endDate))}`;
         }
-
+    
         if (historyDataTable) historyDataTable.destroy();
         $('#historyTable tbody').html('<tr><td colspan="13" class="text-center py-10 w-full">Loading history logs...</td></tr>');
-
+    
         $.ajax({
             url: url,
             method: 'GET',
             success: function(data) {
+                
+                // --- NEW: Recursively find any negative values and clamp them to 0 ---
+                const clampNegatives = (val) => {
+                    // If it's a direct number less than 0
+                    if (typeof val === 'number') {
+                        return val < 0 ? 0 : val;
+                    }
+                    // If it's a negative number disguised as a string (e.g. "-15.5")
+                    if (typeof val === 'string' && !isNaN(val) && val.trim() !== '' && Number(val) < 0) {
+                        return 0; 
+                    }
+                    // If it's an array, map through all its items
+                    if (Array.isArray(val)) {
+                        return val.map(clampNegatives);
+                    }
+                    // If it's an object, check inside all of its keys
+                    if (val !== null && typeof val === 'object') {
+                        const result = {};
+                        for (let key in val) {
+                            result[key] = clampNegatives(val[key]);
+                        }
+                        return result;
+                    }
+                    // For booleans, positive strings, null, undefined, return as-is
+                    return val;
+                };
+    
+                // Apply the clamping to the incoming data array
+                data = data.map(row => {
+                    // Pre-parse known stringified JSON objects so the recursive scanner can reach inside them
+                    if (typeof row.pressure_or_flow === 'string') {
+                        try { row.pressure_or_flow = JSON.parse(row.pressure_or_flow); } catch(e){}
+                    }
+                    if (typeof row.auto_manual_status === 'string') {
+                        try { row.auto_manual_status = JSON.parse(row.auto_manual_status); } catch(e){}
+                    }
+                    
+                    return clampNegatives(row);
+                });
+                // ---------------------------------------------------------------------
+    
                 currentHistoryData = data; 
                 const tbody = $('#historyTable tbody').empty();
                 
+                // 1. Build Table
                 data.forEach(row => {
                     // 1. Determine Mode
                     let autoMode = "-";
                     if (row.auto_manual_status) {
+                        // Since we pre-parsed above, this will safely act on the object
                         const status = typeof row.auto_manual_status === 'string' ? JSON.parse(row.auto_manual_status) : row.auto_manual_status;
                         if (status.auto) autoMode = "Auto";
                         else if (status.manual) autoMode = "Manual";
                     }
-
+    
                     // 2. Parse nested object
+                    // Since we pre-parsed above, this handles it safely too
                     const pf = typeof row.pressure_or_flow === 'string' ? JSON.parse(row.pressure_or_flow) : row.pressure_or_flow;
-
+    
                     // 3. Append row (Ensure 16 total <td> elements to match 16 <th> elements)
                     tbody.append(`
                         <tr>
@@ -321,8 +364,29 @@
                 historyDataTable = $('#historyTable').DataTable({ 
                     order: [[0, 'desc']], 
                     pageLength: 10,
-                    scrollX: true // Since we added many columns, this is now necessary
+                    scrollX: true 
                 });
+    
+                // 2. Build Charts (Reverse data so it draws left-to-right from oldest to newest)
+                const chartData = [...data].reverse();
+                
+                const timeAxis = chartData.map(row => {
+                    // Shorten the timestamp for a cleaner X-axis (e.g. "Jun 27, 10:40")
+                    let d = new Date(row.ts.includes('Z') || row.ts.includes('+') ? row.ts : row.ts + ' UTC');
+                    return d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                });
+                
+                const rpmData = chartData.map(row => row.rpm ?? 0);
+                const flowData = chartData.map(row => {
+                    const pf = typeof row.pressure_or_flow === 'string' ? JSON.parse(row.pressure_or_flow) : row.pressure_or_flow;
+                    return pf?.flow ?? 0;
+                });
+    
+                // 3. Render the Charts
+                updateLineChart('lineChart_rpm', timeAxis, rpmData, '#3b82f6', 'RPM'); // Tailwind blue-500
+                updateLineChart('lineChart_flow', timeAxis, flowData, '#14b8a6', 'Flow'); // Tailwind teal-500
+    
+                echarts.connect('syncCharts')
             },
             error: function() {
                 $('#historyTable tbody').html('<tr><td colspan="9" class="text-center py-10 text-red-600">Failed to load historical data.</td></tr>');
