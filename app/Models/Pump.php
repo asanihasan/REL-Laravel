@@ -105,13 +105,13 @@ class Pump extends Model
         }
 
         if (!$this->last_update) return 'offline';
-        return $this->last_update->diffInSeconds(now()) > 10 ? 'offline' : 'online';
+        return $this->last_update->diffInSeconds(now()) > 12 ? 'offline' : 'online';
     }
 
     public function getConnectionAttribute()
     {
         if (!$this->updated_at) return 'offline';
-        return $this->updated_at->diffInSeconds(now()) > 10 ? 'offline' : 'online';
+        return $this->updated_at->diffInSeconds(now()) > 12 ? 'offline' : 'online';
     }
 
     public function scopeWithLocation($query)
