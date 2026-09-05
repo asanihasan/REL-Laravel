@@ -137,6 +137,11 @@
             <div id="gauge_flow" class="w-full h-40"></div>
         </div>
     </div>
+
+    <div id="fault_status_card" class="mt-2 bg-white rounded-lg shadow-sm border p-4 flex items-center justify-between">
+        <div class="text-sm font-bold text-gray-700">Fault Code Status</div>
+        <div id="fault_status_value" class="text-sm font-semibold text-gray-900">-</div>
+    </div>
     @if(auth()->user()->hasPermission('control'))
     <div class="bg-white p-5 rounded-lg shadow-md border-l-4 border-blue-600 relative overflow-hidden mt-2">
         <div id="controlLoader" class="hidden absolute inset-0 bg-white/80 z-20 flex items-center justify-center backdrop-blur-sm transition-all duration-300">
@@ -721,7 +726,6 @@
                     $('#statusText').text(isOnline ? 'Online' : 'Offline');
                     $('#lastUpdateText').text('Updated: ' + getLocalTime(data.last_update));
                     $('#dot_network').removeClass('bg-green-500 bg-red-500').addClass((data.connection || '').toLowerCase() === 'online' ? 'bg-green-500' : 'bg-red-500');
-                    // $('#dot_modbus').removeClass('bg-green-500 bg-red-500').addClass(isOnline ? 'bg-green-500' : 'bg-red-500');
                     
                     // Update Row 1
                     $('#val_rpm').text(data.rpm ?? '0');
@@ -745,6 +749,20 @@
                     updateGauge('gauge_coolant_temp', data.coolant_temp);
                     updateGauge('gauge_oil_pressure', data.oil_pressure);
                     updateGauge('gauge_flow', data.pressure_or_flow?.flow);
+
+                    // Update Fault Status Card
+                    $('#fault_status_value').text(data.fault_status ?? '-');
+                    
+                    // Change color dynamically based on fault_code
+                    if (data.fault_code === 0) {
+                        // Green status for normal operation
+                        $('#fault_status_card').removeClass('bg-yellow-50 border-yellow-400').addClass('bg-green-50 border-green-400');
+                        $('#fault_status_value').removeClass('text-gray-900 text-yellow-700').addClass('text-green-700');
+                    } else {
+                        // Yellow status for faults
+                        $('#fault_status_card').removeClass('bg-green-50 border-green-400 bg-white').addClass('bg-yellow-50 border-yellow-400');
+                        $('#fault_status_value').removeClass('text-gray-900 text-green-700').addClass('text-yellow-700');
+                    }
                 }
             });
         }, 1000);

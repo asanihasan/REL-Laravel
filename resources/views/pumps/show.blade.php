@@ -98,6 +98,11 @@
     </div>
     @endif
 
+    <div id="fault_status_card" class="mt-2 bg-white rounded-lg shadow-sm border p-4 flex items-center justify-between">
+        <div class="text-sm font-bold text-gray-700">Fault Code Status</div>
+        <div id="fault_status_value" class="text-sm font-semibold text-gray-900">-</div>
+    </div>
+
     <!-- Real-time Data Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="space-y-6">
@@ -502,6 +507,17 @@
                     
                     renderDigitalInputs(data.digital_inputs);
                     renderControllerMode(data.auto_manual_status);
+
+                    // --- Fault Code Status ---
+                    $('#fault_status_value').text(data.fault_status ?? '-');
+                    
+                    if (data.fault_code === 0) {
+                        $('#fault_status_card').removeClass('bg-yellow-50 border-yellow-400').addClass('bg-green-50 border-green-400');
+                        $('#fault_status_value').removeClass('text-gray-900 text-yellow-700').addClass('text-green-700');
+                    } else {
+                        $('#fault_status_card').removeClass('bg-green-50 border-green-400 bg-white').addClass('bg-yellow-50 border-yellow-400');
+                        $('#fault_status_value').removeClass('text-gray-900 text-green-700').addClass('text-yellow-700');
+                    }
                 }
             });
         }, 1000);
