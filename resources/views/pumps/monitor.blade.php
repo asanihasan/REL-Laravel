@@ -111,7 +111,7 @@
         </div>
         <div class="bg-white py-4 rounded-lg shadow-sm border flex flex-col items-center justify-center gap-3">
             <div id="ind_common_alarm" class="indicator-circle w-5 h-5 rounded-full bg-gray-300 ring-4 ring-gray-300/30"></div>
-            <span class="text-[11px] uppercase font-bold text-gray-600 text-center">Common Alarm</span>
+            <span class="text-[11px] uppercase font-bold text-gray-600 text-center">Line Fill</span>
         </div>
     </div>
 
@@ -731,7 +731,7 @@
                     updateIndicator('ind_manual', data.auto_manual_status?.manual);
                     updateIndicator('ind_warm_up', data.auto_manual_status?.warm_up);
                     updateIndicator('ind_cool_down', data.auto_manual_status?.cool_down);
-                    updateIndicator('ind_common_alarm', data.auto_manual_status?.common_alarm);
+                    updateIndicator('ind_common_alarm', data.auto_manual_status?.line_fill);
 
                     // Update Row 3 (Gauges)
                     updateGauge('gauge_rpm', data.rpm);
