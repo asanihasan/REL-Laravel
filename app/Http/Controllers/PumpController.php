@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pump;
+use App\Models\HistoricalPump;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http; 
@@ -26,9 +27,8 @@ class PumpController extends Controller
     {
         $pump = Pump::withLocation()->findOrFail($id);
         
-        // Fetch history
-        $history = DB::table('historical_pumps')
-                    ->where('pump_id', $id)
+        // Fetch history using the Eloquent Model
+        $history = HistoricalPump::where('pump_id', $id)
                     ->orderBy('ts', 'desc')
                     ->limit(50)
                     ->get();
@@ -40,8 +40,7 @@ class PumpController extends Controller
     {
         $pump = Pump::withLocation()->findOrFail($id);
         
-        $history = DB::table('historical_pumps')
-                    ->where('pump_id', $id)
+        $history = HistoricalPump::where('pump_id', $id)
                     ->orderBy('ts', 'desc')
                     ->limit(50)
                     ->get();
@@ -123,8 +122,8 @@ class PumpController extends Controller
             ? Carbon::parse($request->query('end')) 
             : Carbon::now();
 
-        $history = DB::table('historical_pumps')
-            ->where('pump_id', $id)
+        // Replaced DB::table with the Eloquent Model
+        $history = HistoricalPump::where('pump_id', $id)
             ->whereBetween('ts', [$start, $end])
             ->orderBy('ts', 'desc')
             ->get();

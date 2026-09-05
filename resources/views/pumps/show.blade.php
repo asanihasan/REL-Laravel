@@ -355,7 +355,9 @@
                             <td class="px-4 py-2">${row.pump_press2 ?? '-'}</td>
                             <td class="px-4 py-2">${row.suction_pressure ?? '-'}</td>
                             <td class="px-4 py-2">${row.dam_level ?? '-'}</td>
-                            <td class="px-4 py-2 font-mono text-red-600">${row.fault_code ?? '-'}</td>
+                            <td class="px-4 py-2 font-mono ${row.fault_code === 0 ? 'text-green-600' : 'text-yellow-600'}">
+                                ${row.fault_status ?? '-'}
+                            </td>
                             <td class="px-4 py-2">${row.battery_potential ?? '-'}</td>
                         </tr>
                     `);
@@ -386,18 +388,22 @@
             
             return {
                 'Timestamp': getLocalTime(row.ts),
-                'Eng Hours Mode': status.auto ? 'Auto' : (status.manual ? 'Manual' : '-'),
-                'Coolant°C': row.coolant_temp,
-                'Load (%)': row.percent_load,
-                'Fuel Rate': row.fuel_rate,
-                'Fuel Level (%)': row.fuel_level,
-                'Pressure': pf?.pressure,
-                'Flow': pf?.flow,
-                'Discharge': row.pump_press2,
-                'Suction': row.suction_pressure,
-                'Dam Level': row.dam_level,
-                'Fault Code': row.fault_code,
-                'Voltage': row.battery_potential
+                'Engine Hours': row.engine_hours ?? '-',
+                'Mode': autoMode, // Assuming autoMode is already calculated in your scope as it is in the HTML
+                'RPM': row.rpm ?? '-',
+                'Oil Pressure': row.oil_pressure ?? '-',
+                'Coolant°C': row.coolant_temp ?? '-',
+                'Load (%)': row.percent_load ?? '-',
+                'Fuel Rate': row.fuel_rate ?? '-',
+                'Fuel Level (%)': row.fuel_level ?? '-',
+                'Pressure': pf?.pressure ?? '-',
+                'Flow': pf?.flow ?? '-',
+                'Discharge': row.pump_press2 ?? '-',
+                'Suction': row.suction_pressure ?? '-',
+                'Dam Level': row.dam_level ?? '-',
+                'Fault Code': row.fault_code ?? '-',
+                'Fault Status': row.fault_status ?? '-',
+                'Voltage': row.battery_potential ?? '-'
             };
         });
         
