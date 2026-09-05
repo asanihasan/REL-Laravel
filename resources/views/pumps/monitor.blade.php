@@ -752,7 +752,7 @@
         if (pumpLat !== null && pumpLon !== null) {
             const map = L.map('pumpMap').setView([pumpLat, pumpLon], 13);
 
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=cb1_2xoq_1_9ffb3f12f6b32f25f492be28', {
                 attribution: '&copy; OpenStreetMap &copy; CARTO',
                 subdomains: 'abcd',
                 maxZoom: 20
