@@ -512,10 +512,10 @@
                     $('#fault_status_value').text(data.fault_status ?? '-');
                     
                     if (data.fault_code === 0) {
-                        $('#fault_status_card').removeClass('bg-yellow-50 border-yellow-400').addClass('bg-green-50 border-green-400');
+                        $('#fault_status_card').removeClass('bg-yellow-50 border-yellow-400 bg-white').addClass('bg-green-50 border-green-400');
                         $('#fault_status_value').removeClass('text-gray-900 text-yellow-700').addClass('text-green-700');
                     } else {
-                        $('#fault_status_card').removeClass('bg-green-50 border-green-400 bg-white').addClass('bg-yellow-50 border-yellow-400');
+                        $('#fault_status_card').removeClass('bg-green-50 border-green-400 bg-white bg-white').addClass('bg-yellow-50 border-yellow-400');
                         $('#fault_status_value').removeClass('text-gray-900 text-green-700').addClass('text-yellow-700');
                     }
                 }
