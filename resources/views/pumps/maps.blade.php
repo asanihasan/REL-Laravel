@@ -60,7 +60,7 @@
             const map = L.map('map').setView([-1.56, 117.89], 5.75);
 
             // 2. Light Theme Map Tiles
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=cb1_2xoq_1_9ffb3f12f6b32f25f492be28', {
                 attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
                 subdomains: 'abcd',
                 maxZoom: 20
