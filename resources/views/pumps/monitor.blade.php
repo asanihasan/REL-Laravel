@@ -530,10 +530,18 @@
         const exportRows = currentHistoryData.map(row => {
             const status = typeof row.auto_manual_status === 'string' ? JSON.parse(row.auto_manual_status) : row.auto_manual_status;
             const pf = typeof row.pressure_or_flow === 'string' ? JSON.parse(row.pressure_or_flow) : row.pressure_or_flow;
+
+            let autoMode = "-";
+            if (row.auto_manual_status) {
+                // Since we pre-parsed above, this will safely act on the object
+                const status = typeof row.auto_manual_status === 'string' ? JSON.parse(row.auto_manual_status) : row.auto_manual_status;
+                if (status.auto) autoMode = "Auto";
+                else if (status.manual) autoMode = "Manual";
+            }
             
             return {
                 'Timestamp': getLocalTime(row.ts),
-                'Engine Hours': row.engine_hours ?? '-',
+                'Engine Hours': row.engine_hours ?? '-ss',
                 'Mode': autoMode, // Assuming autoMode is already calculated in your scope as it is in the HTML
                 'RPM': row.rpm ?? '-',
                 'Oil Pressure': row.oil_pressure ?? '-',
